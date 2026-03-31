@@ -139,13 +139,28 @@ Research documentation, paper drafts, audit notes, math appendix, and methodolog
 
 ## How to Run
 
-### Single-Ticker Pipeline
+### Desktop App
+
+```bash
+./run_desktop_app.sh
+```
+
+This launches the local PySide6 desktop application. The desktop window is intentionally simplified around the main single-ticker research loop:
+
+- enter a ticker
+- run the full pipeline
+- review summary metrics, the comparison table, charts, trades, and raw outputs in one plain desktop window
+
+### Terminal Workflows
 
 ```bash
 ./.venv/bin/python Code/aaamain.py
 ```
 
-Then enter one ticker symbol when prompted.
+The CLI entrypoint still supports both:
+
+- single-ticker full pipeline
+- multi-asset walk-forward evaluation
 
 ### Single-Ticker Direct Run
 

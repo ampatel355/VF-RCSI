@@ -10,6 +10,7 @@ from PIL import Image
 
 # Every script reads the active ticker from the same environment variable.
 ticker = os.environ.get("TICKER", "SPY")
+interactive_open = os.environ.get("OPEN_CHARTS_INTERACTIVE", "1") == "1"
 
 
 def find_chart_files() -> list[Path]:
@@ -50,6 +51,9 @@ def main() -> None:
     """Open one combined PDF containing each saved pipeline chart."""
     chart_files = find_chart_files()
     pdf_path = build_combined_pdf(chart_files)
+
+    if not interactive_open:
+        return
 
     preview_result = subprocess.run(
         ["open", "-a", "Preview", str(pdf_path)],

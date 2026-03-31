@@ -90,9 +90,22 @@ def _finalize_trades(trades: list[dict[str, object]]) -> pd.DataFrame:
     return pd.DataFrame(trades, columns=TRADE_LOG_COLUMNS)
 
 
-def run_trend_strategy(market_df: pd.DataFrame) -> pd.DataFrame:
+def _resolve_strategy_ticker(market_df: pd.DataFrame, ticker: str | None = None) -> str | None:
+    """Prefer an explicit ticker, then fall back to DataFrame metadata when available."""
+    if ticker:
+        return str(ticker).strip().upper()
+
+    ticker_attr = market_df.attrs.get("ticker")
+    if ticker_attr:
+        return str(ticker_attr).strip().upper()
+
+    return None
+
+
+def run_trend_strategy(market_df: pd.DataFrame, ticker: str | None = None) -> pd.DataFrame:
     """Run the trend strategy on an in-memory market DataFrame."""
     df = _prepare_market_df(market_df, ["Date", "Open", "Close", "ma_50", "avg_volume_20", "regime"])
+    resolved_ticker = _resolve_strategy_ticker(market_df, ticker)
     trades: list[dict[str, object]] = []
     capital = STARTING_CAPITAL
     execution_rng = build_execution_rng("trend")
@@ -119,6 +132,7 @@ def run_trend_strategy(market_df: pd.DataFrame) -> pd.DataFrame:
                 regime_at_entry=str(row.regime),
                 entry_index=current_index + 1,
                 rng=execution_rng,
+                ticker=resolved_ticker,
             )
             if candidate_position is not None:
                 in_position = True
@@ -129,6 +143,7 @@ def run_trend_strategy(market_df: pd.DataFrame) -> pd.DataFrame:
                 next_row=next_row,
                 exit_index=current_index + 1,
                 rng=execution_rng,
+                ticker=resolved_ticker,
             )
             trades.append(trade_record)
             capital = float(trade_record["capital_after"])
@@ -138,7 +153,7 @@ def run_trend_strategy(market_df: pd.DataFrame) -> pd.DataFrame:
     return _finalize_trades(trades)
 
 
-def run_mean_reversion_strategy(market_df: pd.DataFrame) -> pd.DataFrame:
+def run_mean_reversion_strategy(market_df: pd.DataFrame, ticker: str | None = None) -> pd.DataFrame:
     """Run the mean-reversion strategy on an in-memory market DataFrame."""
     df = _prepare_market_df(
         market_df,
@@ -153,6 +168,7 @@ def run_mean_reversion_strategy(market_df: pd.DataFrame) -> pd.DataFrame:
             "regime",
         ],
     )
+    resolved_ticker = _resolve_strategy_ticker(market_df, ticker)
     trades: list[dict[str, object]] = []
     capital = STARTING_CAPITAL
     execution_rng = build_execution_rng("mean_reversion")
@@ -179,6 +195,7 @@ def run_mean_reversion_strategy(market_df: pd.DataFrame) -> pd.DataFrame:
                 regime_at_entry=str(row.regime),
                 entry_index=current_index + 1,
                 rng=execution_rng,
+                ticker=resolved_ticker,
             )
             if candidate_position is not None:
                 in_position = True
@@ -189,6 +206,7 @@ def run_mean_reversion_strategy(market_df: pd.DataFrame) -> pd.DataFrame:
                 next_row=next_row,
                 exit_index=current_index + 1,
                 rng=execution_rng,
+                ticker=resolved_ticker,
             )
             trades.append(trade_record)
             capital = float(trade_record["capital_after"])
@@ -198,9 +216,14 @@ def run_mean_reversion_strategy(market_df: pd.DataFrame) -> pd.DataFrame:
     return _finalize_trades(trades)
 
 
-def run_random_strategy(market_df: pd.DataFrame, decision_seed: int | None = None) -> pd.DataFrame:
+def run_random_strategy(
+    market_df: pd.DataFrame,
+    decision_seed: int | None = None,
+    ticker: str | None = None,
+) -> pd.DataFrame:
     """Run the random control strategy on an in-memory market DataFrame."""
     df = _prepare_market_df(market_df, ["Date", "Open", "Close", "avg_volume_20", "regime"])
+    resolved_ticker = _resolve_strategy_ticker(market_df, ticker)
     trades: list[dict[str, object]] = []
     capital = STARTING_CAPITAL
     in_position = False
@@ -220,6 +243,7 @@ def run_random_strategy(market_df: pd.DataFrame, decision_seed: int | None = Non
                 regime_at_entry=str(row.regime),
                 entry_index=current_index + 1,
                 rng=execution_rng,
+                ticker=resolved_ticker,
             )
             if candidate_position is not None:
                 in_position = True
@@ -230,6 +254,7 @@ def run_random_strategy(market_df: pd.DataFrame, decision_seed: int | None = Non
                 next_row=next_row,
                 exit_index=current_index + 1,
                 rng=execution_rng,
+                ticker=resolved_ticker,
             )
             trades.append(trade_record)
             capital = float(trade_record["capital_after"])
@@ -239,12 +264,13 @@ def run_random_strategy(market_df: pd.DataFrame, decision_seed: int | None = Non
     return _finalize_trades(trades)
 
 
-def run_momentum_strategy(market_df: pd.DataFrame) -> pd.DataFrame:
+def run_momentum_strategy(market_df: pd.DataFrame, ticker: str | None = None) -> pd.DataFrame:
     """Run the time-series momentum strategy on an in-memory market DataFrame."""
     df = _prepare_market_df(
         market_df,
         ["Date", "Open", "Close", MOMENTUM_RETURN_COLUMN, "avg_volume_20", "regime"],
     )
+    resolved_ticker = _resolve_strategy_ticker(market_df, ticker)
     trades: list[dict[str, object]] = []
     capital = STARTING_CAPITAL
     execution_rng = build_execution_rng("momentum")
@@ -271,6 +297,7 @@ def run_momentum_strategy(market_df: pd.DataFrame) -> pd.DataFrame:
                 regime_at_entry=str(row.regime),
                 entry_index=current_index + 1,
                 rng=execution_rng,
+                ticker=resolved_ticker,
             )
             if candidate_position is not None:
                 in_position = True
@@ -281,6 +308,7 @@ def run_momentum_strategy(market_df: pd.DataFrame) -> pd.DataFrame:
                 next_row=next_row,
                 exit_index=current_index + 1,
                 rng=execution_rng,
+                ticker=resolved_ticker,
             )
             trades.append(trade_record)
             capital = float(trade_record["capital_after"])
@@ -290,7 +318,7 @@ def run_momentum_strategy(market_df: pd.DataFrame) -> pd.DataFrame:
     return _finalize_trades(trades)
 
 
-def run_breakout_strategy(market_df: pd.DataFrame) -> pd.DataFrame:
+def run_breakout_strategy(market_df: pd.DataFrame, ticker: str | None = None) -> pd.DataFrame:
     """Run the volatility-breakout strategy on an in-memory market DataFrame."""
     df = _prepare_market_df(
         market_df,
@@ -304,6 +332,7 @@ def run_breakout_strategy(market_df: pd.DataFrame) -> pd.DataFrame:
             "regime",
         ],
     )
+    resolved_ticker = _resolve_strategy_ticker(market_df, ticker)
     trades: list[dict[str, object]] = []
     capital = STARTING_CAPITAL
     execution_rng = build_execution_rng("breakout")
@@ -336,6 +365,7 @@ def run_breakout_strategy(market_df: pd.DataFrame) -> pd.DataFrame:
                 regime_at_entry=str(row.regime),
                 entry_index=current_index + 1,
                 rng=execution_rng,
+                ticker=resolved_ticker,
             )
             if candidate_position is not None:
                 in_position = True
@@ -346,6 +376,7 @@ def run_breakout_strategy(market_df: pd.DataFrame) -> pd.DataFrame:
                 next_row=next_row,
                 exit_index=current_index + 1,
                 rng=execution_rng,
+                ticker=resolved_ticker,
             )
             trades.append(trade_record)
             capital = float(trade_record["capital_after"])
@@ -359,17 +390,23 @@ def run_strategy(
     agent_name: str,
     market_df: pd.DataFrame,
     random_decision_seed: int | None = None,
+    *,
+    ticker: str | None = None,
 ) -> pd.DataFrame:
     """Dispatch one shared in-memory runner by strategy name."""
     if agent_name == "trend":
-        return run_trend_strategy(market_df)
+        return run_trend_strategy(market_df, ticker=ticker)
     if agent_name == "mean_reversion":
-        return run_mean_reversion_strategy(market_df)
+        return run_mean_reversion_strategy(market_df, ticker=ticker)
     if agent_name == "random":
-        return run_random_strategy(market_df, decision_seed=random_decision_seed)
+        return run_random_strategy(
+            market_df,
+            decision_seed=random_decision_seed,
+            ticker=ticker,
+        )
     if agent_name == "momentum":
-        return run_momentum_strategy(market_df)
+        return run_momentum_strategy(market_df, ticker=ticker)
     if agent_name == "breakout":
-        return run_breakout_strategy(market_df)
+        return run_breakout_strategy(market_df, ticker=ticker)
 
     raise ValueError(f"Unsupported strategy name: {agent_name}")

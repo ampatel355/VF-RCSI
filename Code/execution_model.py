@@ -31,6 +31,7 @@ EXPECTED_ROUND_TRIP_EXECUTION_COST = (
     )
     / 10000.0
 ) + EXPECTED_COMMISSION_RATE
+ACTIVE_TICKER = os.environ.get("TICKER", "SPY").strip().upper()
 
 TRADE_LOG_COLUMNS = [
     "signal_date",
@@ -82,6 +83,12 @@ class OpenPosition:
     entry_index: int
 
 
+def is_forex_ticker(ticker: str | None = None) -> bool:
+    """Return whether the active symbol is a Yahoo Finance forex pair."""
+    normalized_ticker = (ticker or ACTIVE_TICKER).strip().upper()
+    return normalized_ticker.endswith("=X")
+
+
 def _strategy_seed_component(strategy_name: str) -> int:
     """Build a stable integer component from a strategy name."""
     return sum((index + 1) * ord(character) for index, character in enumerate(strategy_name))
@@ -98,10 +105,19 @@ def build_execution_rng(strategy_name: str) -> np.random.Generator:
     return np.random.default_rng()
 
 
-def commission_for_shares(shares: int) -> float:
-    """Estimate a simple per-order commission bill."""
-    if shares <= 0:
+def commission_for_position(
+    shares: int,
+    execution_price: float,
+    *,
+    ticker: str | None = None,
+) -> float:
+    """Estimate a per-order commission bill for the current asset type."""
+    if shares <= 0 or execution_price <= 0:
         return 0.0
+
+    if is_forex_ticker(ticker):
+        notional_value = float(shares * execution_price)
+        return float(max(MIN_COMMISSION_PER_ORDER, notional_value * EXPECTED_COMMISSION_RATE))
 
     return float(max(MIN_COMMISSION_PER_ORDER, COMMISSION_PER_SHARE * shares))
 
@@ -128,18 +144,37 @@ def apply_adverse_fill_price(
     raise ValueError(f"Unknown execution side: {side}")
 
 
-def calculate_liquidity_cap_shares(avg_volume_20: float) -> int:
-    """Convert historical average volume into a conservative share cap."""
-    if pd.isna(avg_volume_20) or avg_volume_20 <= 0:
-        return 0
+def calculate_liquidity_cap_shares(
+    avg_volume_20: float,
+    *,
+    cash_limit: float | None = None,
+    entry_price: float | None = None,
+    ticker: str | None = None,
+) -> int:
+    """Convert historical volume into a conservative position cap."""
+    if not pd.isna(avg_volume_20) and avg_volume_20 > 0:
+        return max(int(np.floor(avg_volume_20 * MAX_AVG_DAILY_VOLUME_FRACTION)), 0)
 
-    return max(int(np.floor(avg_volume_20 * MAX_AVG_DAILY_VOLUME_FRACTION)), 0)
+    if (
+        is_forex_ticker(ticker)
+        and cash_limit is not None
+        and entry_price is not None
+        and cash_limit > 0
+        and entry_price > 0
+    ):
+        # Yahoo forex downloads expose price history but usually not exchange volume.
+        # Fall back to a cash-funded cap so the strategies can still be evaluated.
+        return max(int(np.floor(cash_limit / entry_price)), 0)
+
+    return 0
 
 
 def calculate_affordable_share_count(
     cash_limit: float,
     entry_price: float,
     liquidity_cap_shares: int,
+    *,
+    ticker: str | None = None,
 ) -> int:
     """Find the largest integer share count the account can actually fund."""
     if cash_limit <= 0 or entry_price <= 0 or liquidity_cap_shares <= 0:
@@ -147,7 +182,11 @@ def calculate_affordable_share_count(
 
     shares = min(int(np.floor(cash_limit / entry_price)), liquidity_cap_shares)
     while shares > 0:
-        total_entry_cost = (shares * entry_price) + commission_for_shares(shares)
+        total_entry_cost = (shares * entry_price) + commission_for_position(
+            shares,
+            entry_price,
+            ticker=ticker,
+        )
         if total_entry_cost <= cash_limit:
             return shares
         shares -= 1
@@ -162,6 +201,7 @@ def open_position_from_signal(
     regime_at_entry: str,
     entry_index: int,
     rng: np.random.Generator,
+    ticker: str | None = None,
 ) -> OpenPosition | None:
     """Create an open position if the trade is affordable and liquid enough."""
     entry_slippage_bps = draw_execution_slippage_bps(rng)
@@ -173,17 +213,23 @@ def open_position_from_signal(
     )
 
     cash_limit = float(capital_before * MAX_CAPITAL_FRACTION)
-    liquidity_cap_shares = calculate_liquidity_cap_shares(float(signal_row.avg_volume_20))
+    liquidity_cap_shares = calculate_liquidity_cap_shares(
+        float(signal_row.avg_volume_20),
+        cash_limit=cash_limit,
+        entry_price=entry_price,
+        ticker=ticker,
+    )
     shares = calculate_affordable_share_count(
         cash_limit=cash_limit,
         entry_price=entry_price,
         liquidity_cap_shares=liquidity_cap_shares,
+        ticker=ticker,
     )
 
     if shares <= 0:
         return None
 
-    entry_commission = commission_for_shares(shares)
+    entry_commission = commission_for_position(shares, entry_price, ticker=ticker)
     position_value = float(shares * entry_price)
     capital_deployed = float(position_value + entry_commission)
 
@@ -209,6 +255,7 @@ def close_position_from_signal(
     next_row: pd.Series,
     exit_index: int,
     rng: np.random.Generator,
+    ticker: str | None = None,
 ) -> dict[str, float | int | str | pd.Timestamp]:
     """Close an open position and return a complete trade-log record."""
     exit_slippage_bps = draw_execution_slippage_bps(rng)
@@ -218,7 +265,11 @@ def close_position_from_signal(
         side="sell",
         slippage_bps=exit_slippage_bps,
     )
-    exit_commission = commission_for_shares(position.shares)
+    exit_commission = commission_for_position(
+        position.shares,
+        exit_price,
+        ticker=ticker,
+    )
 
     gross_pnl = float(position.shares * (exit_price - position.entry_price))
     net_pnl = float(gross_pnl - position.entry_commission - exit_commission)

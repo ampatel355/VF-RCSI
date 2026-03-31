@@ -1,0 +1,2 @@
+total_trades,average_return,median_return,win_rate,std_return,trade_level_return_ratio,average_win,average_loss,expected_value
+80,0.038411288301474264,0.03111751779306,0.6,0.1611035124450969,0.23842613806799895,0.1292531981474584,0.09785157646750195,0.03841128830147424

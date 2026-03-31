@@ -1,0 +1,224 @@
+"""Shared performance metrics and equity-curve builders for the research pipeline."""
+
+from __future__ import annotations
+
+import math
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+try:
+    from execution_model import STARTING_CAPITAL
+except ModuleNotFoundError:
+    from Code.execution_model import STARTING_CAPITAL
+
+
+TRADING_DAYS_PER_YEAR = 252
+MIN_P_VALUE = 1e-12
+
+
+def calculate_trade_level_return_ratio(returns: np.ndarray) -> float:
+    """Calculate a dispersion-adjusted trade-level return ratio."""
+    if len(returns) <= 1:
+        return 0.0
+
+    std_return = float(np.std(returns, ddof=0))
+    if std_return == 0:
+        return 0.0
+
+    return float(np.mean(returns) / std_return)
+
+
+def calculate_annualized_sharpe_from_daily_returns(daily_returns: pd.Series) -> float:
+    """Calculate an annualized daily Sharpe ratio from a daily return series."""
+    clean_returns = pd.to_numeric(daily_returns, errors="coerce").dropna()
+    if len(clean_returns) <= 1:
+        return 0.0
+
+    std_daily_return = float(clean_returns.std(ddof=0))
+    if std_daily_return == 0:
+        return 0.0
+
+    mean_daily_return = float(clean_returns.mean())
+    return float((mean_daily_return / std_daily_return) * math.sqrt(TRADING_DAYS_PER_YEAR))
+
+
+def calculate_p_value_prominence(p_value: float) -> float:
+    """Convert a p-value into a more visually interpretable prominence score."""
+    clipped_p_value = min(max(float(p_value), MIN_P_VALUE), 1.0)
+    return float(-math.log10(clipped_p_value))
+
+
+def _load_required_trade_columns(trade_df: pd.DataFrame) -> pd.DataFrame:
+    """Validate and sort the trade log columns needed for daily equity reconstruction."""
+    required_columns = [
+        "entry_date",
+        "exit_date",
+        "shares",
+        "entry_price",
+        "capital_before",
+        "capital_after",
+        "capital_deployed",
+    ]
+    missing_columns = [column for column in required_columns if column not in trade_df.columns]
+    if missing_columns:
+        raise KeyError(
+            "Trade data is missing the columns required for daily equity reconstruction: "
+            + ", ".join(missing_columns)
+        )
+
+    validated_df = trade_df.copy()
+    validated_df["entry_date"] = pd.to_datetime(validated_df["entry_date"], errors="coerce")
+    validated_df["exit_date"] = pd.to_datetime(validated_df["exit_date"], errors="coerce")
+
+    numeric_columns = [
+        "shares",
+        "entry_price",
+        "capital_before",
+        "capital_after",
+        "capital_deployed",
+    ]
+    for column in numeric_columns:
+        validated_df[column] = pd.to_numeric(validated_df[column], errors="coerce")
+
+    validated_df = validated_df.dropna(subset=required_columns).sort_values("entry_date").reset_index(
+        drop=True
+    )
+    return validated_df
+
+
+def _prepare_market_curve_df(market_df: pd.DataFrame) -> pd.DataFrame:
+    """Validate and sort the market data needed for daily curve construction."""
+    required_columns = ["Date", "Close"]
+    missing_columns = [column for column in required_columns if column not in market_df.columns]
+    if missing_columns:
+        raise KeyError(
+            "Market data is missing the columns required for daily curve construction: "
+            + ", ".join(missing_columns)
+        )
+
+    curve_df = market_df[required_columns].copy()
+    curve_df["Date"] = pd.to_datetime(curve_df["Date"], errors="coerce")
+    curve_df["Close"] = pd.to_numeric(curve_df["Close"], errors="coerce")
+    curve_df = curve_df.dropna(subset=required_columns).sort_values("Date").reset_index(drop=True)
+
+    if curve_df.empty:
+        raise ValueError("No usable market data was available for daily curve construction.")
+
+    if (curve_df["Close"] <= 0).any():
+        raise ValueError("Market close prices must remain positive for daily curve construction.")
+
+    return curve_df
+
+
+def build_daily_strategy_curve(
+    trade_df: pd.DataFrame,
+    market_df: pd.DataFrame,
+    starting_capital: float = STARTING_CAPITAL,
+) -> pd.DataFrame:
+    """Reconstruct a daily marked-to-market equity curve from completed trades."""
+    curve_df = _prepare_market_curve_df(market_df)
+    validated_trades = _load_required_trade_columns(trade_df)
+    date_to_index = pd.Series(curve_df.index.to_numpy(), index=curve_df["Date"])
+    close_prices = curve_df["Close"].to_numpy(dtype=float)
+
+    if validated_trades.empty:
+        equity = np.full(len(curve_df), float(starting_capital), dtype=float)
+        curve_df["equity"] = equity
+        curve_df["wealth_index"] = curve_df["equity"] / float(starting_capital)
+        curve_df["daily_return"] = curve_df["wealth_index"].pct_change().fillna(0.0)
+        curve_df["cumulative_return"] = curve_df["wealth_index"] - 1.0
+        curve_df["rolling_peak"] = curve_df["wealth_index"].cummax()
+        curve_df["drawdown"] = (curve_df["wealth_index"] / curve_df["rolling_peak"]) - 1.0
+        return curve_df
+
+    initial_capital = float(validated_trades["capital_before"].iloc[0])
+    equity = np.empty(len(curve_df), dtype=float)
+    fill_start_index = 0
+    current_capital = initial_capital
+
+    for _, trade_row in validated_trades.iterrows():
+        entry_index = date_to_index.get(pd.Timestamp(trade_row["entry_date"]))
+        exit_index = date_to_index.get(pd.Timestamp(trade_row["exit_date"]))
+
+        if pd.isna(entry_index) or pd.isna(exit_index):
+            raise ValueError("Trade dates do not align with the market dates used for the curve.")
+
+        entry_index = int(entry_index)
+        exit_index = int(exit_index)
+        if exit_index <= entry_index:
+            raise ValueError("Trade exits must occur after entries for daily curve construction.")
+        if entry_index < fill_start_index:
+            raise ValueError("Trade data contains overlapping or out-of-order positions.")
+
+        equity[fill_start_index:entry_index] = current_capital
+
+        cash_after_entry = float(trade_row["capital_before"]) - float(trade_row["capital_deployed"])
+        shares = int(trade_row["shares"])
+        if shares <= 0:
+            raise ValueError("Trade data contains a non-positive share count.")
+
+        equity[entry_index:exit_index] = cash_after_entry + (shares * close_prices[entry_index:exit_index])
+        equity[exit_index] = float(trade_row["capital_after"])
+
+        current_capital = float(trade_row["capital_after"])
+        fill_start_index = exit_index + 1
+
+    equity[fill_start_index:] = current_capital
+
+    curve_df["equity"] = equity
+    curve_df["wealth_index"] = curve_df["equity"] / initial_capital
+    curve_df["daily_return"] = curve_df["equity"].pct_change().replace([np.inf, -np.inf], np.nan).fillna(0.0)
+    curve_df["cumulative_return"] = curve_df["wealth_index"] - 1.0
+    curve_df["rolling_peak"] = curve_df["wealth_index"].cummax()
+    curve_df["drawdown"] = (curve_df["wealth_index"] / curve_df["rolling_peak"]) - 1.0
+    return curve_df
+
+
+def build_buy_and_hold_curve(
+    market_df: pd.DataFrame,
+    transaction_cost: float = 0.0,
+) -> pd.DataFrame:
+    """Build a daily buy-and-hold benchmark curve from market closes."""
+    curve_df = _prepare_market_curve_df(market_df)
+    first_close = float(curve_df["Close"].iloc[0])
+    if first_close <= 0:
+        raise ValueError("The first close price must be positive for the benchmark curve.")
+
+    curve_df["wealth_index"] = curve_df["Close"] / first_close
+    if transaction_cost > 0:
+        curve_df["wealth_index"] = curve_df["wealth_index"] * (1.0 - float(transaction_cost))
+
+    curve_df["equity"] = curve_df["wealth_index"] * float(STARTING_CAPITAL)
+    curve_df["daily_return"] = curve_df["wealth_index"].pct_change().fillna(0.0)
+    curve_df["cumulative_return"] = curve_df["wealth_index"] - 1.0
+    curve_df["rolling_peak"] = curve_df["wealth_index"].cummax()
+    curve_df["drawdown"] = (curve_df["wealth_index"] / curve_df["rolling_peak"]) - 1.0
+    return curve_df
+
+
+def summarize_daily_curve(curve_df: pd.DataFrame) -> dict[str, float | int]:
+    """Summarize a daily equity curve into core performance metrics."""
+    return {
+        "cumulative_return": float(curve_df["cumulative_return"].iloc[-1]),
+        "annualized_sharpe": calculate_annualized_sharpe_from_daily_returns(curve_df["daily_return"]),
+        "max_drawdown": float(curve_df["drawdown"].min()),
+        "number_of_periods": int(len(curve_df)),
+    }
+
+
+def save_curve_csv(curve_df: pd.DataFrame, output_path: Path) -> None:
+    """Save a daily curve to CSV with consistent column ordering."""
+    ordered_columns = [
+        "Date",
+        "Close",
+        "equity",
+        "wealth_index",
+        "daily_return",
+        "cumulative_return",
+        "rolling_peak",
+        "drawdown",
+    ]
+    existing_columns = [column for column in ordered_columns if column in curve_df.columns]
+    curve_df[existing_columns].to_csv(output_path, index=False)

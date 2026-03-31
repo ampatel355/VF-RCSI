@@ -1,0 +1,2 @@
+start_date,end_date,first_close,last_close,buy_hold_return,annualized_sharpe,max_drawdown,number_of_periods,transaction_cost
+2015-01-15,2026-03-30,209.843994140625,66842.5625,317.53455122097074,0.9214529412604288,-0.8339900882218974,4093,0.0

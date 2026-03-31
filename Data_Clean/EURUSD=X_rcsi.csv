@@ -1,0 +1,6 @@
+agent,actual_cumulative_return,median_simulated_return,mean_simulated_return,std_simulated_return,actual_percentile,RCSI,RCSI_z
+trend,0.0,0.0,0.0,0.0,100.0,0.0,0.0
+mean_reversion,0.0,0.0,0.0,0.0,100.0,0.0,0.0
+random,0.0,0.0,0.0,0.0,100.0,0.0,0.0
+momentum,0.0,0.0,0.0,0.0,100.0,0.0,0.0
+breakout,0.0,0.0,0.0,0.0,100.0,0.0,0.0

@@ -1,27 +1,9 @@
-"""Run either the single-ticker pipeline or the multi-asset walk-forward study."""
+"""Run the single-ticker research pipeline."""
 
 from pathlib import Path
 import os
 import subprocess
 import sys
-
-
-def ask_for_mode() -> str:
-    """Ask which top-level workflow to run."""
-    mode_input = input(
-        "\nChoose a workflow:\n"
-        "1. Single-ticker full pipeline\n"
-        "2. Multi-asset walk-forward evaluation\n"
-        "Enter 1 or 2: "
-    ).strip()
-
-    if not mode_input:
-        return "1"
-
-    if mode_input not in {"1", "2"}:
-        raise ValueError("You must enter 1 for the ticker pipeline or 2 for walk-forward.")
-
-    return mode_input
 
 
 def ask_for_ticker() -> str:
@@ -34,23 +16,6 @@ def ask_for_ticker() -> str:
         raise ValueError("You must enter a ticker symbol before the pipeline can run.")
 
     return ticker_input.upper()
-
-
-def ask_for_walk_forward_tickers() -> str | None:
-    """Ask for an optional comma-separated walk-forward universe."""
-    ticker_input = input(
-        "Enter comma-separated tickers for walk-forward "
-        "(press Enter for research defaults: SPY,QQQ,AAPL,VOO,NVDA,TSM,MRNA,NVAX,BTC-USD,NQ=F,ES=F): "
-    ).strip()
-
-    if not ticker_input:
-        return None
-
-    tickers = [ticker.strip().upper() for ticker in ticker_input.split(",") if ticker.strip()]
-    if not tickers:
-        raise ValueError("You must enter at least one valid ticker symbol.")
-
-    return ",".join(tickers)
 
 
 def build_pipeline_steps() -> list[tuple[str, str]]:
@@ -150,70 +115,9 @@ def run_single_ticker_pipeline(
     print("Pipeline complete", flush=True)
     print(f"Outputs saved for {ticker}", flush=True)
     print("Charts saved in Charts/", flush=True)
-
-
-def run_walk_forward_pipeline(
-    script_dir: Path,
-    python_executable: str,
-    env: dict[str, str],
-) -> None:
-    """Run the multi-asset walk-forward evaluation from the main launcher."""
-    try:
-        ticker_universe = ask_for_walk_forward_tickers()
-    except ValueError as error:
-        print(f"Error: {error}")
-        return
-
-    if ticker_universe is not None:
-        env["WALK_FORWARD_TICKERS"] = ticker_universe
-
-    print("Running multi-asset walk-forward evaluation...", flush=True)
-
-    try:
-        run_script(
-            python_executable=python_executable,
-            script_dir=script_dir,
-            script_name="multi_asset_walk_forward.py",
-            env=env,
-        )
-    except subprocess.CalledProcessError as error:
-        print(
-            "Error: multi_asset_walk_forward.py "
-            f"failed with exit code {error.returncode}."
-        )
-        print("Pipeline stopped.")
-        return
-    except FileNotFoundError as error:
-        print(f"Error: {error}")
-        print("Pipeline stopped.")
-        return
-
-    print("Walk-forward evaluation complete", flush=True)
-    print("Outputs saved in Data_Clean/", flush=True)
-    print("Key files:", flush=True)
-    print("- Data_Clean/multi_asset_walk_forward_runs.csv", flush=True)
-    print("- Data_Clean/multi_asset_walk_forward_panel_summary.csv", flush=True)
-    print("- Data_Clean/multi_asset_walk_forward_agent_summary.csv", flush=True)
-
-
 def main() -> None:
-    """Run the selected top-level workflow and stop on the first error."""
-    try:
-        mode = ask_for_mode()
-    except ValueError as error:
-        print(f"Error: {error}")
-        return
-
+    """Run the single-ticker workflow and stop on the first error."""
     script_dir, python_executable, env = build_runtime_context()
-
-    if mode == "2":
-        run_walk_forward_pipeline(
-            script_dir=script_dir,
-            python_executable=python_executable,
-            env=env,
-        )
-        return
-
     run_single_ticker_pipeline(
         script_dir=script_dir,
         python_executable=python_executable,

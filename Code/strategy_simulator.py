@@ -1,4 +1,4 @@
-"""Shared in-memory strategy runners used by both the pipeline and walk-forward tests."""
+"""Shared in-memory strategy runners used by the single-ticker pipeline."""
 
 from __future__ import annotations
 

@@ -19,7 +19,6 @@ To answer that question, the project combines:
 - repeated-run robustness testing across seeds
 - regime-conditioned analysis
 - false-discovery control across ticker-strategy results
-- multi-asset walk-forward evaluation
 
 ## Strategies Included
 
@@ -81,9 +80,9 @@ Each strategy is re-evaluated across repeated Monte Carlo seeds. Verdicts are ba
 
 Cross-ticker comparisons include Benjamini-Hochberg false-discovery-rate adjustment so that isolated significant results are not overinterpreted.
 
-### 8. Walk-Forward Generalization
+### 8. Single-Ticker Workflow
 
-The project includes a multi-asset walk-forward engine that reruns each strategy inside each fold from a fresh capital state. This separates ticker-specific in-sample evidence from broader generalization claims.
+The active workflow runs one ticker at a time. That keeps the research loop simpler and makes each output bundle directly attributable to the ticker you selected for the run.
 
 ## Why This Matters
 
@@ -113,7 +112,6 @@ The pipeline produces:
 - cross-ticker FDR-adjusted comparison tables
 - strategy verdict summaries
 - chart packs and combined PDFs
-- multi-asset walk-forward panel summaries
 
 ## Sparse-Activity and No-Trade Cases
 
@@ -137,7 +135,7 @@ Core scripts, strategy logic, Monte Carlo engine, charts, and pipeline entrypoin
 Downloaded raw historical data.
 
 `Data_Clean/`  
-Feature files, trade logs, Monte Carlo outputs, comparison tables, walk-forward summaries, and benchmark outputs.
+Feature files, trade logs, Monte Carlo outputs, comparison tables, and benchmark outputs.
 
 `Charts/`  
 Generated figures and combined chart PDFs.
@@ -153,32 +151,13 @@ Research documentation, paper drafts, audit notes, math appendix, and methodolog
 ./.venv/bin/python Code/AAAmain.py
 ```
 
-Then choose:
-
-- `1` for the single-ticker research pipeline
-- `2` for the multi-asset walk-forward study
+Then enter one ticker symbol when prompted.
 
 ### Single-Ticker Direct Run
 
 ```bash
 export TICKER=SPY
 ./.venv/bin/python Code/AAAmain.py
-```
-
-### Multi-Asset Walk-Forward Direct Run
-
-```bash
-./.venv/bin/python Code/multi_asset_walk_forward.py
-```
-
-Optional overrides:
-
-```bash
-WALK_FORWARD_TICKERS=SPY,QQQ,AAPL,VOO,NVDA,TSM ./.venv/bin/python Code/multi_asset_walk_forward.py
-```
-
-```bash
-WALK_FORWARD_OUTER_RUNS=50 WALK_FORWARD_SIMULATIONS_PER_RUN=1000 ./.venv/bin/python Code/multi_asset_walk_forward.py
 ```
 
 ## Interpretation Rules
@@ -190,7 +169,6 @@ A result is only treated as credible evidence of skill when it is:
 - statistically rare under the null
 - positive on scale-free evidence metrics
 - stable across repeated runs
-- not eliminated by broader walk-forward testing
 
 Ticker-specific positive results and cross-asset generalizable results are treated as different claims.
 
@@ -201,7 +179,6 @@ Ticker-specific positive results and cross-asset generalizable results are treat
 - Regime analysis is descriptive unless sufficient trade counts exist.
 - Some strategy effects may be asset-specific even when they appear strong in one ticker.
 - Some sparse-activity tickers may generate no completed trades under the current long-only daily implementation and execution constraints, which limits inference rather than contradicting it.
-- Walk-forward evidence is stronger than in-sample evidence and should be weighted more heavily in final interpretation.
 
 ## Bottom Line
 

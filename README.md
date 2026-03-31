@@ -212,3 +212,4 @@ This repository is designed to answer a stricter question than a normal backtest
 That standard is the basis for every strategy verdict in the project.
 # VF-RCSI
 # VF-RCSI
+# VF-RCSI

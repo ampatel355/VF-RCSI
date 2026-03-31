@@ -15,6 +15,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from Code.pipeline_utils import data_clean_dir, data_raw_dir
+from Code.comparison_conclusion import build_comparison_conclusion_markdown
 from Code.strategy_config import AGENT_DISPLAY_NAMES, AGENT_ORDER, BENCHMARK_NAME
 from Code.workflow_runner import (
     DEFAULT_WALK_FORWARD_TICKERS,
@@ -176,6 +177,7 @@ def render_single_workflow_summary(ticker: str, result: WorkflowRunResult | None
 
     st.markdown("**Primary comparison table**")
     st.dataframe(comparison_df, use_container_width=True, height=340)
+    st.markdown(build_comparison_conclusion_markdown(comparison_df))
 
 
 def render_single_metrics_tab(ticker: str) -> None:

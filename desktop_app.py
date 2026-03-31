@@ -55,6 +55,10 @@ from Code.desktop_ui_support import (  # noqa: E402
     open_path,
     reveal_path,
 )
+from Code.comparison_conclusion import (  # noqa: E402
+    build_comparison_conclusion_text,
+    can_build_comparison_conclusion,
+)
 from Code.pipeline_utils import charts_dir, data_clean_dir, data_raw_dir, pipeline_chart_paths  # noqa: E402
 from Code.strategy_config import AGENT_DISPLAY_NAMES, AGENT_ORDER, BENCHMARK_NAME  # noqa: E402
 from Code.workflow_runner import (  # noqa: E402
@@ -684,6 +688,14 @@ class MainWindow(QMainWindow):
         self.comparison_panel = DataFramePane("No comparison table is available for the current ticker.")
         self.comparison_panel.table_view.setMinimumHeight(420)
         layout.addWidget(self.comparison_panel, 1)
+
+        self.comparison_conclusion_label = QLabel(
+            "Conclusion and Interpretation will appear here after the Full Comparison results are available."
+        )
+        self.comparison_conclusion_label.setWordWrap(True)
+        self.comparison_conclusion_label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+        self.comparison_conclusion_label.setStyleSheet("color: #202020;")
+        layout.addWidget(self.comparison_conclusion_label)
         return section
 
     def _build_charts_section(self) -> QWidget:
@@ -1006,15 +1018,26 @@ class MainWindow(QMainWindow):
                 dataframe=None,
                 message="No comparison table is available for the current ticker.",
             )
+            self.comparison_conclusion_label.setText(
+                "Conclusion and Interpretation will appear here after the Full Comparison results are available."
+            )
             return
 
         label, path = entry
+        dataframe = read_csv_if_exists(path)
         self.comparison_panel.set_content(
             title=label,
-            dataframe=read_csv_if_exists(path),
+            dataframe=dataframe,
             path=path,
             message=f"{label} is not available yet.",
         )
+
+        if can_build_comparison_conclusion(dataframe):
+            self.comparison_conclusion_label.setText(build_comparison_conclusion_text(dataframe))
+        else:
+            self.comparison_conclusion_label.setText(
+                "Conclusion and Interpretation is generated from the Full Comparison table once those results are available."
+            )
 
     def refresh_chart_entries(self) -> None:
         """Refresh the chart selector and viewer."""

@@ -26,11 +26,12 @@ NUMERIC_COLUMNS = [
 ]
 
 STRATEGY_CONCEPTS = {
-    "trend": "Trend follows persistent price direction and tries to stay aligned with broader moves.",
-    "mean_reversion": "Mean Reversion buys weakness and expects price to snap back toward a recent average.",
+    "trend_pullback": "Trend + Pullback buys temporary weakness inside a larger uptrend and looks for the primary trend to resume.",
+    "breakout_volume_momentum": "Breakout + Volume + Momentum buys fresh highs only when participation and trend acceleration confirm the move.",
+    "mean_reversion_vol_filter": "Mean Reversion + Volatility Filter fades oversold moves only when volatility and trend conditions are calm enough for reversals to matter.",
+    "volatility_managed_tsmom": "Volatility-Managed TSMOM follows the asset's own medium-term trend and scales position size down when realized volatility is elevated.",
+    "momentum_relative_strength": "Momentum + Relative Strength rotates into the strongest asset in a broader universe and exits on relative-strength deterioration or a trailing stop.",
     "random": "Random is a control strategy with no market thesis and serves as a noise baseline.",
-    "momentum": "Momentum buys assets that have already been moving upward over the selected lookback window.",
-    "breakout": "Breakout enters when price pushes through recent highs and tries to capture expansion moves.",
     BENCHMARK_NAME: "Buy and Hold is the passive reference point with no tactical timing.",
 }
 
@@ -145,10 +146,15 @@ def _top_row_by_metric(
 def _market_behavior_comment(active_df: pd.DataFrame, best_row: pd.Series) -> str:
     """Infer a simple market-behavior takeaway from the relative rankings."""
     best_agent = str(best_row["agent"])
-    directional_agents = {"trend", "momentum", "breakout"}
+    directional_agents = {
+        "trend_pullback",
+        "breakout_volume_momentum",
+        "volatility_managed_tsmom",
+        "momentum_relative_strength",
+    }
 
     directional_df = active_df.loc[active_df["agent"].isin(directional_agents)]
-    mean_reversion_df = active_df.loc[active_df["agent"] == "mean_reversion"]
+    mean_reversion_df = active_df.loc[active_df["agent"] == "mean_reversion_vol_filter"]
 
     directional_mean = (
         directional_df["cumulative_return"].mean()
@@ -171,10 +177,20 @@ def _market_behavior_comment(active_df: pd.DataFrame, best_row: pd.Series) -> st
             "The asset appears to have offered enough persistence in price direction for directional rules to outperform a purely reactive approach."
         )
 
-    if best_agent == "mean_reversion":
+    if best_agent == "mean_reversion_vol_filter":
         return (
             "The asset appears to have behaved more like a range or overshoot-and-revert market than a clean trend, "
             "which gave reversal entries better conditions than directional chasing."
+        )
+
+    if best_agent == "momentum_relative_strength":
+        return (
+            "Relative-strength rotation led the field, which suggests the better opportunity was not simply timing this asset in isolation but shifting toward whichever instrument carried the strongest intermediate trend."
+        )
+
+    if best_agent == "volatility_managed_tsmom":
+        return (
+            "Volatility-managed time-series momentum led the field, which suggests the asset rewarded staying aligned with its own medium-term trend while cutting exposure when realized volatility became too large."
         )
 
     if best_agent == "random":

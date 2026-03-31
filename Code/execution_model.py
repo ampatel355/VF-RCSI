@@ -8,6 +8,11 @@ from dataclasses import dataclass
 import numpy as np
 import pandas as pd
 
+try:
+    from asset_class_universe import is_crypto_ticker
+except ModuleNotFoundError:
+    from Code.asset_class_universe import is_crypto_ticker
+
 
 STARTING_CAPITAL = float(os.environ.get("STARTING_CAPITAL", "100000"))
 MAX_CAPITAL_FRACTION = float(os.environ.get("MAX_CAPITAL_FRACTION", "1.0"))
@@ -36,6 +41,8 @@ ACTIVE_TICKER = os.environ.get("TICKER", "SPY").strip().upper()
 TRADE_LOG_COLUMNS = [
     "signal_date",
     "signal_close",
+    "asset_ticker",
+    "strategy_name",
     "entry_date",
     "exit_date",
     "entry_reference_open",
@@ -60,7 +67,11 @@ TRADE_LOG_COLUMNS = [
     "net_position_return",
     "return",
     "holding_bars",
+    "holding_period_days",
     "regime_at_entry",
+    "stop_loss_used",
+    "take_profit_used",
+    "exit_reason",
 ]
 
 
@@ -81,6 +92,10 @@ class OpenPosition:
     liquidity_cap_shares: int
     regime_at_entry: str
     entry_index: int
+    strategy_name: str
+    asset_ticker: str
+    stop_loss_used: float | None
+    take_profit_used: float | None
 
 
 def is_forex_ticker(ticker: str | None = None) -> bool:
@@ -115,7 +130,11 @@ def commission_for_position(
     if shares <= 0 or execution_price <= 0:
         return 0.0
 
-    if is_forex_ticker(ticker):
+    if is_forex_ticker(ticker) or is_crypto_ticker(ticker or ACTIVE_TICKER):
+        # Forex and crypto are quoted in units rather than exchange-listed
+        # shares. Charging a stock-style per-share commission on low-priced
+        # tokens would massively overstate costs and can incorrectly push a
+        # long-only account below zero.
         notional_value = float(shares * execution_price)
         return float(max(MIN_COMMISSION_PER_ORDER, notional_value * EXPECTED_COMMISSION_RATE))
 
@@ -201,9 +220,14 @@ def open_position_from_signal(
     regime_at_entry: str,
     entry_index: int,
     rng: np.random.Generator,
+    strategy_name: str,
     ticker: str | None = None,
+    stop_loss_used: float | None = None,
+    take_profit_used: float | None = None,
+    capital_fraction_override: float | None = None,
 ) -> OpenPosition | None:
     """Create an open position if the trade is affordable and liquid enough."""
+    asset_ticker = (ticker or ACTIVE_TICKER).strip().upper()
     entry_slippage_bps = draw_execution_slippage_bps(rng)
     entry_reference_open = float(next_row.Open)
     entry_price = apply_adverse_fill_price(
@@ -212,24 +236,31 @@ def open_position_from_signal(
         slippage_bps=entry_slippage_bps,
     )
 
-    cash_limit = float(capital_before * MAX_CAPITAL_FRACTION)
+    effective_capital_fraction = MAX_CAPITAL_FRACTION
+    if capital_fraction_override is not None:
+        effective_capital_fraction = min(
+            MAX_CAPITAL_FRACTION,
+            max(float(capital_fraction_override), 0.0),
+        )
+
+    cash_limit = float(capital_before * effective_capital_fraction)
     liquidity_cap_shares = calculate_liquidity_cap_shares(
         float(signal_row.avg_volume_20),
         cash_limit=cash_limit,
         entry_price=entry_price,
-        ticker=ticker,
+        ticker=asset_ticker,
     )
     shares = calculate_affordable_share_count(
         cash_limit=cash_limit,
         entry_price=entry_price,
         liquidity_cap_shares=liquidity_cap_shares,
-        ticker=ticker,
+        ticker=asset_ticker,
     )
 
     if shares <= 0:
         return None
 
-    entry_commission = commission_for_position(shares, entry_price, ticker=ticker)
+    entry_commission = commission_for_position(shares, entry_price, ticker=asset_ticker)
     position_value = float(shares * entry_price)
     capital_deployed = float(position_value + entry_commission)
 
@@ -247,6 +278,10 @@ def open_position_from_signal(
         liquidity_cap_shares=liquidity_cap_shares,
         regime_at_entry=str(regime_at_entry),
         entry_index=entry_index,
+        strategy_name=str(strategy_name),
+        asset_ticker=asset_ticker,
+        stop_loss_used=float(stop_loss_used) if stop_loss_used is not None else None,
+        take_profit_used=float(take_profit_used) if take_profit_used is not None else None,
     )
 
 
@@ -256,8 +291,10 @@ def close_position_from_signal(
     exit_index: int,
     rng: np.random.Generator,
     ticker: str | None = None,
+    exit_reason: str = "signal_exit",
 ) -> dict[str, float | int | str | pd.Timestamp]:
     """Close an open position and return a complete trade-log record."""
+    asset_ticker = (ticker or position.asset_ticker or ACTIVE_TICKER).strip().upper()
     exit_slippage_bps = draw_execution_slippage_bps(rng)
     exit_reference_open = float(next_row.Open)
     exit_price = apply_adverse_fill_price(
@@ -268,7 +305,7 @@ def close_position_from_signal(
     exit_commission = commission_for_position(
         position.shares,
         exit_price,
-        ticker=ticker,
+        ticker=asset_ticker,
     )
 
     gross_pnl = float(position.shares * (exit_price - position.entry_price))
@@ -289,6 +326,8 @@ def close_position_from_signal(
     return {
         "signal_date": position.signal_date,
         "signal_close": position.signal_close,
+        "asset_ticker": asset_ticker,
+        "strategy_name": position.strategy_name,
         "entry_date": position.entry_date,
         "exit_date": pd.Timestamp(next_row.Date),
         "entry_reference_open": position.entry_reference_open,
@@ -313,5 +352,9 @@ def close_position_from_signal(
         "net_position_return": net_position_return,
         "return": portfolio_return,
         "holding_bars": int(exit_index - position.entry_index),
+        "holding_period_days": int(exit_index - position.entry_index),
         "regime_at_entry": position.regime_at_entry,
+        "stop_loss_used": position.stop_loss_used,
+        "take_profit_used": position.take_profit_used,
+        "exit_reason": str(exit_reason),
     }

@@ -8,11 +8,15 @@ import pandas as pd
 
 try:
     from execution_model import EXPECTED_ROUND_TRIP_EXECUTION_COST, TRADE_RETURNS_ALREADY_NET
+    from momentum_relative_strength_agent import load_aligned_universe_data
     from research_metrics import calculate_p_value_prominence
+    from strategy_artifact_utils import ensure_trade_file_exists
     from strategy_config import AGENT_ORDER
 except ModuleNotFoundError:
     from Code.execution_model import EXPECTED_ROUND_TRIP_EXECUTION_COST, TRADE_RETURNS_ALREADY_NET
+    from Code.momentum_relative_strength_agent import load_aligned_universe_data
     from Code.research_metrics import calculate_p_value_prominence
+    from Code.strategy_artifact_utils import ensure_trade_file_exists
     from Code.strategy_config import AGENT_ORDER
 
 
@@ -31,6 +35,7 @@ REPRODUCIBLE = os.environ.get("MONTE_CARLO_REPRODUCIBLE", "1") == "1"
 SEED = int(os.environ.get("MONTE_CARLO_SEED", "42"))
 SIMULATION_BATCH_SIZE = int(os.environ.get("MONTE_CARLO_BATCH_SIZE", "512"))
 NULL_MODEL_NAME = "random_timing_matched_duration"
+RELATIVE_STRENGTH_NULL_MODEL_NAME = "random_peer_rotation_matched_duration"
 
 
 def resolve_data_clean_dir(project_root: Path) -> Path:
@@ -88,6 +93,8 @@ def load_trade_data(input_path: Path, allow_empty: bool = False) -> pd.DataFrame
         )
     else:
         df["position_value_fraction"] = 1.0
+    if "holding_bars" in df.columns:
+        df["holding_bars"] = pd.to_numeric(df["holding_bars"], errors="coerce")
 
     if df.empty:
         return df.sort_values("exit_date", ascending=True).reset_index(drop=True)
@@ -200,6 +207,16 @@ def calculate_trade_durations(
     input_path: Path,
 ) -> np.ndarray:
     """Convert realized trades into holding periods measured in open-to-open bars."""
+    if "holding_bars" in trade_df.columns:
+        holding_bars = pd.to_numeric(trade_df["holding_bars"], errors="coerce")
+        if holding_bars.notna().all():
+            durations = holding_bars.to_numpy(dtype=int)
+            if np.any(durations <= 0):
+                raise ValueError(
+                    f"{input_path} contains at least one non-positive holding_bars value."
+                )
+            return durations
+
     date_to_index = pd.Series(market_df.index.to_numpy(), index=market_df["Date"])
     entry_indices = trade_df["entry_date"].map(date_to_index)
     exit_indices = trade_df["exit_date"].map(date_to_index)
@@ -217,6 +234,44 @@ def calculate_trade_durations(
         )
 
     return durations
+
+
+def load_relative_strength_universe_symbols(current_ticker: str) -> list[str]:
+    """Load the exact peer universe used by the saved relative-strength run when available."""
+    project_root = Path(__file__).resolve().parents[1]
+    data_clean_directory = resolve_data_clean_dir(project_root)
+    metadata_path = data_clean_directory / f"{current_ticker.upper()}_momentum_relative_strength_universe.csv"
+
+    if metadata_path.exists():
+        metadata_df = pd.read_csv(metadata_path)
+        required_columns = {"universe_position", "universe_ticker", "included_in_aligned_universe"}
+        if required_columns.issubset(metadata_df.columns):
+            metadata_df["universe_position"] = pd.to_numeric(
+                metadata_df["universe_position"],
+                errors="coerce",
+            )
+            metadata_df["included_in_aligned_universe"] = (
+                metadata_df["included_in_aligned_universe"].astype(str).str.lower().map(
+                    {"true": True, "false": False}
+                )
+            )
+            metadata_df = metadata_df.dropna(subset=["universe_position", "universe_ticker"])
+            metadata_df = metadata_df.sort_values("universe_position")
+            aligned_universe = [
+                str(symbol).strip().upper()
+                for symbol, included in zip(
+                    metadata_df["universe_ticker"],
+                    metadata_df["included_in_aligned_universe"].fillna(False),
+                )
+                if bool(included)
+            ]
+            if len(aligned_universe) >= 2:
+                return aligned_universe
+
+    raise FileNotFoundError(
+        "The relative-strength universe metadata file is missing or incomplete. "
+        "Regenerate the momentum_relative_strength trades before Monte Carlo analysis."
+    )
 
 
 def draw_gap_allocation(
@@ -386,6 +441,175 @@ def simulate_random_timing_cumulative_returns(
     )
 
 
+def simulate_random_peer_rotation_cumulative_returns(
+    open_price_matrix: np.ndarray,
+    durations: np.ndarray,
+    position_value_fractions: np.ndarray,
+    simulation_count: int,
+    rng: np.random.Generator,
+) -> pd.Series:
+    """Simulate random peer rotation on the shared relative-strength calendar.
+
+    This null model is specific to the cross-asset momentum strategy. It keeps:
+    - the number of trades
+    - the holding-period distribution
+    - the capital-at-risk profile
+
+    but randomizes:
+    - when trades begin on the shared peer calendar
+    - which peer asset is held on each trade
+
+    That makes the comparison fairer than simulating everything on the anchor
+    ticker alone, because the live strategy rotates across a peer universe rather
+    than timing one fixed symbol.
+    """
+    if open_price_matrix.ndim != 2:
+        raise ValueError("open_price_matrix must be a 2D array of peer open prices.")
+
+    asset_count, calendar_length = open_price_matrix.shape
+    if asset_count < 2 or calendar_length < 2:
+        raise ValueError("Relative-strength null simulation needs at least two assets and two dates.")
+
+    durations = durations.astype(np.int32, copy=False)
+    position_value_fractions = position_value_fractions.astype(float, copy=False)
+    number_of_trades = len(durations)
+    if number_of_trades == 0:
+        raise ValueError("Cannot run simulations without at least one realized trade.")
+    if len(position_value_fractions) != number_of_trades:
+        raise ValueError("Each duration must have a matching position_value_fraction.")
+
+    max_open_index = calendar_length - 1
+    mandatory_internal_gaps = number_of_trades - 1
+    slack_bars = int(max_open_index - durations.sum() - mandatory_internal_gaps)
+    if slack_bars < 0:
+        raise ValueError(
+            "Trade durations cannot fit inside the shared peer calendar without overlapping."
+        )
+
+    gap_probabilities = np.full(number_of_trades + 1, 1.0 / (number_of_trades + 1))
+    simulated_cumulative_returns = np.empty(simulation_count, dtype=float)
+
+    for batch_start in range(0, simulation_count, SIMULATION_BATCH_SIZE):
+        batch_size = min(SIMULATION_BATCH_SIZE, simulation_count - batch_start)
+
+        permutation_keys = rng.random((batch_size, number_of_trades))
+        permutation_indices = np.argsort(permutation_keys, axis=1)
+        shuffled_durations = durations[permutation_indices]
+        shuffled_position_value_fractions = position_value_fractions[permutation_indices]
+
+        if slack_bars == 0:
+            extra_gaps = np.zeros((batch_size, number_of_trades + 1), dtype=np.int32)
+        else:
+            extra_gaps = rng.multinomial(
+                slack_bars,
+                gap_probabilities,
+                size=batch_size,
+            ).astype(np.int32, copy=False)
+
+        leading_gap = extra_gaps[:, [0]]
+        if number_of_trades == 1:
+            entry_indices = leading_gap.astype(np.int64, copy=False)
+        else:
+            internal_gaps = extra_gaps[:, 1:-1] + 1
+            step_sizes = shuffled_durations[:, :-1] + internal_gaps
+            cumulative_steps = np.cumsum(step_sizes, axis=1, dtype=np.int64)
+            entry_indices = np.concatenate(
+                [
+                    leading_gap.astype(np.int64, copy=False),
+                    leading_gap.astype(np.int64, copy=False) + cumulative_steps,
+                ],
+                axis=1,
+            )
+
+        exit_indices = entry_indices + shuffled_durations.astype(np.int64, copy=False)
+        if np.any(exit_indices[:, -1] > max_open_index):
+            raise ValueError(
+                "Random peer-rotation schedule construction exceeded the available calendar."
+            )
+
+        asset_indices = rng.integers(
+            low=0,
+            high=asset_count,
+            size=(batch_size, number_of_trades),
+            dtype=np.int64,
+        )
+        entry_prices = open_price_matrix[asset_indices, entry_indices]
+        exit_prices = open_price_matrix[asset_indices, exit_indices]
+        simulated_position_returns = (exit_prices / entry_prices) - 1.0 - TRANSACTION_COST
+        simulated_adjusted_returns = (
+            shuffled_position_value_fractions * simulated_position_returns
+        )
+
+        if np.any(simulated_adjusted_returns <= -1):
+            raise ValueError(
+                "A simulated peer-rotation trade produced an adjusted return below -100%."
+            )
+
+        simulated_log_returns = np.log1p(simulated_adjusted_returns)
+        simulated_cumulative_returns[batch_start : batch_start + batch_size] = np.expm1(
+            simulated_log_returns.sum(axis=1)
+        )
+
+    return pd.Series(
+        simulated_cumulative_returns,
+        name="simulated_cumulative_return",
+    )
+
+
+def build_relative_strength_open_price_matrix(current_ticker: str) -> np.ndarray:
+    """Load the shared peer-calendar open prices used by relative-strength rotation."""
+    universe = load_relative_strength_universe_symbols(current_ticker)
+    _, asset_frames = load_aligned_universe_data(universe)
+    aligned_universe = [symbol for symbol in universe if symbol in asset_frames]
+    if len(aligned_universe) < 2:
+        raise ValueError(
+            "Relative-strength Monte Carlo needs at least two aligned peer assets."
+        )
+
+    return np.vstack(
+        [
+            asset_frames[symbol]["Open"].to_numpy(dtype=float)
+            for symbol in aligned_universe
+        ]
+    )
+
+
+def simulate_agent_null_cumulative_returns(
+    *,
+    agent_name: str,
+    current_ticker: str,
+    single_asset_open_prices: np.ndarray,
+    durations: np.ndarray,
+    position_value_fractions: np.ndarray,
+    simulation_count: int,
+    rng: np.random.Generator,
+) -> tuple[pd.Series, str]:
+    """Dispatch the correct null model for one strategy."""
+    if agent_name == "momentum_relative_strength":
+        open_price_matrix = build_relative_strength_open_price_matrix(current_ticker)
+        return (
+            simulate_random_peer_rotation_cumulative_returns(
+                open_price_matrix=open_price_matrix,
+                durations=durations,
+                position_value_fractions=position_value_fractions,
+                simulation_count=simulation_count,
+                rng=rng,
+            ),
+            RELATIVE_STRENGTH_NULL_MODEL_NAME,
+        )
+
+    return (
+        simulate_random_timing_cumulative_returns(
+            open_prices=single_asset_open_prices,
+            durations=durations,
+            position_value_fractions=position_value_fractions,
+            simulation_count=simulation_count,
+            rng=rng,
+        ),
+        NULL_MODEL_NAME,
+    )
+
+
 def calculate_p_value(simulated_returns: np.ndarray, actual_cumulative_return: float) -> float:
     """Calculate the one-sided p-value against the simulated baseline."""
     return float((simulated_returns >= actual_cumulative_return).mean())
@@ -419,6 +643,7 @@ def build_agent_summary(
     actual_cumulative_return: float,
     simulated_returns: pd.Series,
     number_of_trades: int,
+    null_model_name: str,
 ) -> dict[str, float | int | str | bool]:
     """Build one summary row for the Monte Carlo output table."""
     simulated_array = simulated_returns.to_numpy(dtype=float)
@@ -441,11 +666,11 @@ def build_agent_summary(
         "simulation_count": NUMBER_OF_SIMULATIONS,
         "reproducible": REPRODUCIBLE,
         "seed_used": SEED if REPRODUCIBLE else "",
-        "null_model": NULL_MODEL_NAME,
+        "null_model": null_model_name,
     }
 
 
-def build_no_trade_summary(agent_name: str) -> dict[str, float | int | str | bool]:
+def build_no_trade_summary(agent_name: str, null_model_name: str) -> dict[str, float | int | str | bool]:
     """Build a placeholder summary row for a strategy that produced no trades."""
     return {
         "agent": agent_name,
@@ -464,7 +689,7 @@ def build_no_trade_summary(agent_name: str) -> dict[str, float | int | str | boo
         "simulation_count": NUMBER_OF_SIMULATIONS,
         "reproducible": REPRODUCIBLE,
         "seed_used": SEED if REPRODUCIBLE else "",
-        "null_model": NULL_MODEL_NAME,
+        "null_model": null_model_name,
     }
 
 
@@ -509,18 +734,23 @@ def main() -> None:
     summary_rows = []
 
     for agent_name, child_sequence in zip(AGENT_ORDER, child_sequences):
-        input_path = data_clean_dir / f"{ticker}_{agent_name}_trades.csv"
+        input_path = ensure_trade_file_exists(ticker, agent_name)
         results_output_path = data_clean_dir / f"{ticker}_{agent_name}_monte_carlo_results.csv"
         rng = build_random_generator(
             reproducible=REPRODUCIBLE,
             seed=int(child_sequence.generate_state(1, dtype=np.uint64)[0]),
+        )
+        null_model_name = (
+            RELATIVE_STRENGTH_NULL_MODEL_NAME
+            if agent_name == "momentum_relative_strength"
+            else NULL_MODEL_NAME
         )
 
         trade_df = load_trade_data(input_path, allow_empty=True)
         if trade_df.empty:
             simulated_returns = build_no_trade_simulated_returns(NUMBER_OF_SIMULATIONS)
             save_simulation_results(results_output_path, simulated_returns)
-            summary_row = build_no_trade_summary(agent_name)
+            summary_row = build_no_trade_summary(agent_name, null_model_name)
             summary_rows.append(summary_row)
             print_agent_summary(summary_row)
             continue
@@ -540,8 +770,10 @@ def main() -> None:
         position_value_fractions = extract_position_value_fractions(trade_df)
 
         actual_cumulative_return = calculate_cumulative_return_from_log_returns(log_returns)
-        simulated_returns = simulate_random_timing_cumulative_returns(
-            open_prices=open_prices,
+        simulated_returns, null_model_name = simulate_agent_null_cumulative_returns(
+            agent_name=agent_name,
+            current_ticker=ticker,
+            single_asset_open_prices=open_prices,
             durations=durations,
             position_value_fractions=position_value_fractions,
             simulation_count=NUMBER_OF_SIMULATIONS,
@@ -555,6 +787,7 @@ def main() -> None:
             actual_cumulative_return=actual_cumulative_return,
             simulated_returns=simulated_returns,
             number_of_trades=len(trade_df),
+            null_model_name=null_model_name,
         )
         summary_rows.append(summary_row)
         print_agent_summary(summary_row)

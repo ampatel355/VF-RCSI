@@ -9,6 +9,7 @@ from plot_config import (
     ZERO_LINE_COLOR,
     add_note_box,
     add_subtitle,
+    apply_categorical_tick_labels,
     apply_clean_style,
     create_placeholder_chart,
     data_clean_dir,
@@ -162,7 +163,10 @@ def create_rcsi_stability_chart(summary_df: pd.DataFrame) -> None:
     ax.axhline(0, color=ZERO_LINE_COLOR, linewidth=0.9, zorder=2)
 
     ax.set_xticks(x_positions)
-    ax.set_xticklabels([format_agent_name(agent) for agent in summary_df["agent"]])
+    apply_categorical_tick_labels(
+        ax,
+        [format_agent_name(agent) for agent in summary_df["agent"]],
+    )
 
     apply_clean_style(
         ax,
@@ -221,7 +225,10 @@ def create_percentile_stability_chart(summary_df: pd.DataFrame) -> None:
     )
 
     ax.set_xticks(x_positions)
-    ax.set_xticklabels([format_agent_name(agent) for agent in summary_df["agent"]])
+    apply_categorical_tick_labels(
+        ax,
+        [format_agent_name(agent) for agent in summary_df["agent"]],
+    )
 
     apply_clean_style(
         ax,

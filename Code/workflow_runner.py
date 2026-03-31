@@ -25,16 +25,18 @@ DEFAULT_SINGLE_TICKER_STEPS: list[tuple[str, str]] = [
     ("Running data loader...", "data_loader.py"),
     ("Running features...", "features.py"),
     ("Running regimes...", "regimes.py"),
-    ("Running trend agent...", "trend_agent.py"),
-    ("Running mean reversion agent...", "mean_reversion_agent.py"),
+    ("Running Trend + Pullback agent...", "trend_pullback_agent.py"),
+    ("Running Breakout + Volume + Momentum agent...", "breakout_volume_momentum_agent.py"),
+    ("Running Mean Reversion + Volatility Filter agent...", "mean_reversion_vol_filter_agent.py"),
+    ("Running Volatility-Managed TSMOM agent...", "volatility_managed_tsmom_agent.py"),
+    ("Running Momentum + Relative Strength agent...", "momentum_relative_strength_agent.py"),
     ("Running random agent...", "random_agent.py"),
-    ("Running momentum agent...", "momentum_agent.py"),
-    ("Running breakout agent...", "breakout_agent.py"),
-    ("Running trend metrics...", "trend_metrics.py"),
-    ("Running mean reversion metrics...", "mean_reversion_metrics.py"),
+    ("Running Trend + Pullback metrics...", "trend_pullback_metrics.py"),
+    ("Running Breakout + Volume + Momentum metrics...", "breakout_volume_momentum_metrics.py"),
+    ("Running Mean Reversion + Volatility Filter metrics...", "mean_reversion_vol_filter_metrics.py"),
+    ("Running Volatility-Managed TSMOM metrics...", "volatility_managed_tsmom_metrics.py"),
+    ("Running Momentum + Relative Strength metrics...", "momentum_relative_strength_metrics.py"),
     ("Running random metrics...", "random_metrics.py"),
-    ("Running momentum metrics...", "momentum_metrics.py"),
-    ("Running breakout metrics...", "breakout_metrics.py"),
     ("Running buy-and-hold benchmark...", "buy_and_hold.py"),
     ("Running regime analysis...", "regime_analysis.py"),
     ("Running Monte Carlo analysis...", "monte_carlo.py"),
@@ -529,4 +531,8 @@ def agent_metric_paths(ticker: str) -> dict[str, Path]:
 
 def benchmark_curve_path(ticker: str) -> Path:
     """Return the buy-and-hold curve path for one ticker."""
-    return data_clean_dir() / f"{ticker.upper()}_{BENCHMARK_NAME}_curve.csv"
+    normalized_ticker = ticker.upper()
+    preferred_path = data_clean_dir() / f"{normalized_ticker}_buy_hold_curve.csv"
+    if preferred_path.exists():
+        return preferred_path
+    return data_clean_dir() / f"{normalized_ticker}_{BENCHMARK_NAME}_curve.csv"

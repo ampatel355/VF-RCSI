@@ -22,9 +22,9 @@ from matplotlib.ticker import FuncFormatter, MaxNLocator
 import pandas as pd
 
 try:
-    from strategy_config import AGENT_COLORS, AGENT_DISPLAY_NAMES, AGENT_ORDER
+    from strategy_config import AGENT_COLORS, AGENT_DISPLAY_NAMES, AGENT_ORDER, format_strategy_name
 except ModuleNotFoundError:
-    from Code.strategy_config import AGENT_COLORS, AGENT_DISPLAY_NAMES, AGENT_ORDER
+    from Code.strategy_config import AGENT_COLORS, AGENT_DISPLAY_NAMES, AGENT_ORDER, format_strategy_name
 
 
 # The master pipeline can turn off interactive popups while charts are being built.
@@ -126,12 +126,46 @@ def charts_dir() -> Path:
     return resolve_named_dir("charts", "Charts")
 
 
-def format_agent_name(agent_name: str) -> str:
-    """Convert an internal agent name into a cleaner label for charts."""
-    return AGENT_DISPLAY_NAMES.get(
-        agent_name,
-        agent_name.replace("_", " ").title(),
-    )
+def format_agent_name(agent_name: str, short: bool = True) -> str:
+    """Convert an internal agent name into a cleaner label for charts and UI text."""
+    return format_strategy_name(agent_name, short=short)
+
+
+def apply_categorical_tick_labels(
+    ax,
+    labels: list[str],
+    *,
+    axis: str = "x",
+    fontsize: float | None = None,
+) -> None:
+    """Apply readable category labels with automatic rotation when names are long.
+
+    The newer strategy names are more descriptive, which is useful in tables and
+    papers, but can crowd smaller bar charts. This helper keeps saved figures and
+    embedded app charts readable without forcing each plotting script to hand-tune
+    the same rotation logic.
+    """
+    labels = [str(label) for label in labels]
+    label_count = len(labels)
+    longest_label = max((len(label) for label in labels), default=0)
+    use_rotation = label_count >= 5 or longest_label >= 14
+    rotation = 24 if use_rotation else 0
+    horizontal_alignment = "right" if use_rotation else "center"
+    resolved_fontsize = fontsize if fontsize is not None else (TICK_SIZE - 0.4 if use_rotation else TICK_SIZE)
+
+    if axis == "y":
+        ax.set_yticklabels(labels, fontsize=resolved_fontsize)
+        for label in ax.get_yticklabels():
+            label.set_rotation(rotation if label_count >= 6 or longest_label >= 16 else 0)
+            label.set_ha("right" if label.get_rotation() else "right")
+            label.set_va("center")
+        return
+
+    ax.set_xticklabels(labels, fontsize=resolved_fontsize)
+    for label in ax.get_xticklabels():
+        label.set_rotation(rotation)
+        label.set_ha(horizontal_alignment)
+        label.set_va("top" if use_rotation else "center_baseline")
 
 
 def load_csv_checked(input_path: Path, required_columns: list[str]) -> pd.DataFrame:
@@ -273,9 +307,10 @@ def apply_clean_style(
         fontsize=TITLE_SIZE,
         fontweight="semibold",
         color=TEXT_COLOR,
-        y=1.065,
+        y=1.035,
         pad=0,
     )
+    ax.title.set_wrap(True)
     ax.set_xlabel(x_label, fontsize=LABEL_SIZE, color=TEXT_COLOR)
     ax.set_ylabel(y_label, fontsize=LABEL_SIZE, color=TEXT_COLOR)
     ax.tick_params(axis="both", labelsize=TICK_SIZE, colors=TEXT_COLOR)
@@ -339,7 +374,7 @@ def add_subtitle(ax, text: str) -> None:
     """Add a small subtitle-like note just below the title."""
     ax.text(
         0.5,
-        1.02,
+        1.005,
         text,
         transform=ax.transAxes,
         fontsize=SUBTITLE_SIZE,
@@ -409,7 +444,7 @@ def save_chart(fig, filename: str) -> Path:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", UserWarning)
-        fig.tight_layout(rect=(0, 0, 1, 0.94))
+        fig.tight_layout(rect=(0.02, 0.03, 0.98, 0.93), pad=1.25)
     fig.savefig(output_path, dpi=300, bbox_inches="tight", facecolor=fig.get_facecolor())
     return output_path
 

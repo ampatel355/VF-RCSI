@@ -9,6 +9,7 @@ from plot_config import (
     TEXT_COLOR,
     ZERO_LINE_COLOR,
     add_note_box,
+    apply_categorical_tick_labels,
     apply_axis_number_format,
     apply_clean_style,
     create_placeholder_chart,
@@ -162,7 +163,11 @@ def add_zoom_inset(ax, df: pd.DataFrame, x_positions: np.ndarray) -> None:
 
     inset.set_ylim(zoom_min - zoom_padding, zoom_max + zoom_padding)
     inset.set_xticks(x_positions)
-    inset.set_xticklabels([format_agent_name(agent) for agent in df["agent"]], fontsize=8)
+    apply_categorical_tick_labels(
+        inset,
+        [format_agent_name(agent) for agent in df["agent"]],
+        fontsize=8,
+    )
     inset.axhline(0, color=ZERO_LINE_COLOR, linewidth=0.8)
     inset.grid(axis="y", linestyle="--", linewidth=0.6, alpha=0.45)
     inset.spines["top"].set_visible(False)
@@ -228,7 +233,10 @@ def main() -> None:
     )
 
     ax.set_xticks(x_positions)
-    ax.set_xticklabels([format_agent_name(agent) for agent in df["agent"]])
+    apply_categorical_tick_labels(
+        ax,
+        [format_agent_name(agent) for agent in df["agent"]],
+    )
     ax.axhline(0, color=ZERO_LINE_COLOR, linewidth=1.0, zorder=2)
 
     apply_clean_style(

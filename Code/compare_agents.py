@@ -22,6 +22,8 @@ try:
         summarize_daily_curve,
     )
     from strategy_config import AGENT_ORDER, BENCHMARK_NAME, COMPARISON_ORDER
+    from strategy_artifact_utils import ensure_trade_file_exists
+    from strategy_curve_utils import load_saved_strategy_curve
     from strategy_verdicts import load_strategy_verdicts
 except ModuleNotFoundError:
     from Code.buy_and_hold import main as create_buy_and_hold
@@ -40,6 +42,8 @@ except ModuleNotFoundError:
         summarize_daily_curve,
     )
     from Code.strategy_config import AGENT_ORDER, BENCHMARK_NAME, COMPARISON_ORDER
+    from Code.strategy_artifact_utils import ensure_trade_file_exists
+    from Code.strategy_curve_utils import load_saved_strategy_curve
     from Code.strategy_verdicts import load_strategy_verdicts
 
 
@@ -133,9 +137,11 @@ def build_strategy_row(
     market_df: pd.DataFrame,
 ) -> dict[str, float | int | str]:
     """Create one comparison row for one strategy."""
-    trade_path = data_clean_dir() / f"{ticker}_{agent_name}_trades.csv"
+    trade_path = ensure_trade_file_exists(ticker, agent_name)
     trade_df = load_trade_data(trade_path, allow_empty=True)
-    strategy_curve_df = build_daily_strategy_curve(trade_df, market_df)
+    strategy_curve_df = load_saved_strategy_curve(ticker, agent_name)
+    if strategy_curve_df is None:
+        strategy_curve_df = build_daily_strategy_curve(trade_df, market_df)
     curve_summary = summarize_daily_curve(strategy_curve_df)
     trade_level_return_ratio = calculate_trade_level_return_ratio(
         trade_df["return"].to_numpy(dtype=float)

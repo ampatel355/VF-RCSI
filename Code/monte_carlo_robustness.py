@@ -11,6 +11,7 @@ from plot_config import data_clean_dir, format_agent_name, load_csv_checked
 try:
     from monte_carlo import (
         NULL_MODEL_NAME,
+        RELATIVE_STRENGTH_NULL_MODEL_NAME,
         TRANSACTION_COST,
         adjust_trade_returns,
         calculate_cumulative_return_from_log_returns,
@@ -21,7 +22,7 @@ try:
         interpret_p_value,
         load_market_data,
         load_trade_data,
-        simulate_random_timing_cumulative_returns,
+        simulate_agent_null_cumulative_returns,
     )
     from research_metrics import (
         build_daily_strategy_curve,
@@ -30,6 +31,8 @@ try:
         summarize_daily_curve,
     )
     from strategy_config import AGENT_ORDER
+    from strategy_artifact_utils import ensure_trade_file_exists
+    from strategy_curve_utils import load_saved_strategy_curve
     from strategy_verdicts import (
         adjust_for_evaluation_power,
         classify_robustness_evidence,
@@ -44,6 +47,7 @@ try:
 except ModuleNotFoundError:
     from Code.monte_carlo import (
         NULL_MODEL_NAME,
+        RELATIVE_STRENGTH_NULL_MODEL_NAME,
         TRANSACTION_COST,
         adjust_trade_returns,
         calculate_cumulative_return_from_log_returns,
@@ -54,7 +58,7 @@ except ModuleNotFoundError:
         interpret_p_value,
         load_market_data,
         load_trade_data,
-        simulate_random_timing_cumulative_returns,
+        simulate_agent_null_cumulative_returns,
     )
     from Code.research_metrics import (
         build_daily_strategy_curve,
@@ -63,6 +67,8 @@ except ModuleNotFoundError:
         summarize_daily_curve,
     )
     from Code.strategy_config import AGENT_ORDER
+    from Code.strategy_artifact_utils import ensure_trade_file_exists
+    from Code.strategy_curve_utils import load_saved_strategy_curve
     from Code.strategy_verdicts import (
         adjust_for_evaluation_power,
         classify_robustness_evidence,
@@ -178,7 +184,7 @@ def load_agent_inputs() -> tuple[pd.DataFrame, np.ndarray, dict[str, dict[str, o
     agent_inputs: dict[str, dict[str, object]] = {}
 
     for agent_name in AGENT_ORDER:
-        input_path = data_clean_dir() / f"{ticker}_{agent_name}_trades.csv"
+        input_path = ensure_trade_file_exists(ticker, agent_name)
         trade_df = load_trade_data(input_path, allow_empty=True)
         if trade_df.empty:
             adjusted_returns = np.array([], dtype=float)
@@ -208,7 +214,9 @@ def load_agent_inputs() -> tuple[pd.DataFrame, np.ndarray, dict[str, dict[str, o
                 market_df=market_df,
                 input_path=input_path,
             )
-        daily_curve_df = build_daily_strategy_curve(trade_df, market_curve_df)
+        daily_curve_df = load_saved_strategy_curve(ticker, agent_name)
+        if daily_curve_df is None:
+            daily_curve_df = build_daily_strategy_curve(trade_df, market_curve_df)
         curve_summary = summarize_daily_curve(daily_curve_df)
         trade_level_return_ratio = calculate_trade_level_return_ratio(adjusted_returns)
         max_drawdown = float(curve_summary["max_drawdown"])
@@ -222,6 +230,11 @@ def load_agent_inputs() -> tuple[pd.DataFrame, np.ndarray, dict[str, dict[str, o
             "number_of_trades": len(trade_df),
             "durations": durations,
             "position_value_fractions": position_value_fractions,
+            "null_model": (
+                RELATIVE_STRENGTH_NULL_MODEL_NAME
+                if agent_name == "momentum_relative_strength"
+                else NULL_MODEL_NAME
+            ),
         }
 
     return market_df, open_prices, agent_inputs
@@ -234,6 +247,7 @@ def build_run_row(
     actual_metrics: dict[str, float | int | np.ndarray],
     simulated_returns: pd.Series,
     number_of_trades: int,
+    null_model_name: str,
 ) -> dict[str, float | int | str]:
     """Create one per-seed result row for one strategy."""
     simulated_array = simulated_returns.to_numpy(dtype=float)
@@ -274,7 +288,7 @@ def build_run_row(
         "number_of_trades": number_of_trades,
         "transaction_cost": TRANSACTION_COST,
         "simulations_per_run": SIMULATIONS_PER_RUN,
-        "null_model": NULL_MODEL_NAME,
+        "null_model": null_model_name,
     }
 
 
@@ -283,6 +297,7 @@ def build_no_trade_run_row(
     outer_run: int,
     seed_used: int,
     actual_metrics: dict[str, float | int | np.ndarray],
+    null_model_name: str,
 ) -> dict[str, float | int | str]:
     """Create one placeholder repeated-run row for a no-trade strategy."""
     return {
@@ -309,7 +324,7 @@ def build_no_trade_run_row(
         "number_of_trades": 0,
         "transaction_cost": TRANSACTION_COST,
         "simulations_per_run": SIMULATIONS_PER_RUN,
-        "null_model": NULL_MODEL_NAME,
+        "null_model": null_model_name,
     }
 
 
@@ -390,7 +405,7 @@ def aggregate_runs(runs_df: pd.DataFrame) -> pd.DataFrame:
     summary_df["p_value_interpretation"] = summary_df["mean_p_value"].apply(
         lambda value: interpret_p_value(value) if pd.notna(value) else "no trades"
     )
-    summary_df["null_model"] = NULL_MODEL_NAME
+    summary_df["null_model"] = grouped["null_model"].first()["null_model"].to_numpy(dtype=str)
     summary_df["stability_classification"] = summary_df.apply(classify_stability, axis=1)
     evidence_and_confidence = summary_df.apply(
         lambda row: classify_robustness_evidence(
@@ -535,6 +550,7 @@ def main() -> None:
 
         for agent_name, child_sequence in zip(AGENT_ORDER, child_sequences):
             agent_input = agent_inputs[agent_name]
+            null_model_name = str(agent_input["null_model"])
             if int(agent_input["number_of_trades"]) == 0:
                 run_rows.append(
                     build_no_trade_run_row(
@@ -542,12 +558,15 @@ def main() -> None:
                         outer_run=outer_run,
                         seed_used=seed_used,
                         actual_metrics=agent_input,
+                        null_model_name=null_model_name,
                     )
                 )
                 continue
             rng = np.random.default_rng(child_sequence)
-            simulated_returns = simulate_random_timing_cumulative_returns(
-                open_prices=open_prices,
+            simulated_returns, null_model_name = simulate_agent_null_cumulative_returns(
+                agent_name=agent_name,
+                current_ticker=ticker,
+                single_asset_open_prices=open_prices,
                 durations=agent_input["durations"],
                 position_value_fractions=agent_input["position_value_fractions"],
                 simulation_count=SIMULATIONS_PER_RUN,
@@ -562,6 +581,7 @@ def main() -> None:
                     actual_metrics=agent_input,
                     simulated_returns=simulated_returns,
                     number_of_trades=int(agent_input["number_of_trades"]),
+                    null_model_name=null_model_name,
                 )
             )
 

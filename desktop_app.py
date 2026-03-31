@@ -60,7 +60,7 @@ from Code.comparison_conclusion import (  # noqa: E402
     can_build_comparison_conclusion,
 )
 from Code.pipeline_utils import charts_dir, data_clean_dir, data_raw_dir, pipeline_chart_paths  # noqa: E402
-from Code.strategy_config import AGENT_DISPLAY_NAMES, AGENT_ORDER, BENCHMARK_NAME  # noqa: E402
+from Code.strategy_config import AGENT_DISPLAY_NAMES, AGENT_ORDER, BENCHMARK_NAME, format_strategy_name  # noqa: E402
 from Code.workflow_runner import (  # noqa: E402
     WorkflowEvent,
     WorkflowRunResult,
@@ -176,6 +176,7 @@ SPECIAL_ARTIFACT_LABELS = {
     "regimes": "Regime Table",
     "monte_carlo_results": "Monte Carlo Results",
     "monte_carlo_returns": "Monte Carlo Returns",
+    "momentum_relative_strength_universe": "Relative Strength Universe",
 }
 
 COMPARISON_FILE_SUFFIXES = [
@@ -267,7 +268,7 @@ def artifact_label(path: Path, ticker: str | None = None) -> str:
         if stem.startswith(prefix):
             remainder = stem[len(prefix):]
             suffix = SPECIAL_ARTIFACT_LABELS.get(remainder, remainder.replace("_", " ").title())
-            return f"{AGENT_DISPLAY_NAMES[agent_name]} {suffix}"
+            return f"{format_strategy_name(agent_name, short=True)} {suffix}"
 
     return stem.replace("_", " ").title()
 
@@ -448,7 +449,7 @@ def optimize_figure_for_display(figure) -> None:
             pass
         try:
             axis.title.set_wrap(True)
-            axis.title.set_y(1.02)
+            axis.title.set_y(1.01)
         except Exception:
             pass
 
@@ -461,13 +462,13 @@ def optimize_figure_for_display(figure) -> None:
         tick_labels = [label.get_text() for label in axis.get_xticklabels() if label.get_text()]
         if tick_labels:
             longest_label = max(len(label_text) for label_text in tick_labels)
-            if len(tick_labels) >= 6 or longest_label > 14:
+            if len(tick_labels) >= 5 or longest_label > 12:
                 for label in axis.get_xticklabels():
-                    label.set_rotation(24)
+                    label.set_rotation(28)
                     label.set_ha("right")
 
     try:
-        figure.tight_layout(rect=(0.03, 0.04, 0.97, 0.96), pad=1.8)
+        figure.tight_layout(rect=(0.03, 0.05, 0.97, 0.95), pad=1.6)
     except Exception:
         try:
             figure.subplots_adjust(left=0.08, right=0.97, bottom=0.11, top=0.91)
@@ -972,7 +973,7 @@ class MainWindow(QMainWindow):
                 metrics.append(
                     (
                         "Best Strategy by Return",
-                        f"{AGENT_DISPLAY_NAMES.get(str(best_row['agent']), str(best_row['agent']).title())} | "
+                        f"{format_strategy_name(str(best_row['agent']), short=True)} | "
                         f"{float(best_row['cumulative_return']):.2%}",
                     )
                 )
@@ -981,7 +982,7 @@ class MainWindow(QMainWindow):
                 metrics.append(
                     (
                         "Lowest p-value",
-                        f"{AGENT_DISPLAY_NAMES.get(str(p_value_row['agent']), str(p_value_row['agent']).title())} | "
+                        f"{format_strategy_name(str(p_value_row['agent']), short=True)} | "
                         f"{float(p_value_row['p_value']):.4f}",
                     )
                 )
@@ -995,7 +996,7 @@ class MainWindow(QMainWindow):
                 metrics.append(
                     (
                         "Strongest Robustness Case",
-                        f"{AGENT_DISPLAY_NAMES.get(str(best_robust['agent']), str(best_robust['agent']).title())} | "
+                        f"{format_strategy_name(str(best_robust['agent']), short=True)} | "
                         f"mean p={float(best_robust['mean_p_value']):.4f}",
                     )
                 )
@@ -1264,3 +1265,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+ 

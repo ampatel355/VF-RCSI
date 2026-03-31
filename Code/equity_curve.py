@@ -28,6 +28,7 @@ try:
         summarize_daily_curve,
     )
     from strategy_config import AGENT_ORDER, BENCHMARK_NAME
+    from strategy_curve_utils import load_saved_strategy_curve
 except ModuleNotFoundError:
     from Code.buy_and_hold import BUY_HOLD_TRANSACTION_COST
     from Code.monte_carlo import load_market_data, load_trade_data as load_trade_log
@@ -37,6 +38,7 @@ except ModuleNotFoundError:
         summarize_daily_curve,
     )
     from Code.strategy_config import AGENT_ORDER, BENCHMARK_NAME
+    from Code.strategy_curve_utils import load_saved_strategy_curve
 
 
 # Read the active ticker from the environment, or fall back to SPY.
@@ -69,7 +71,11 @@ def load_all_curves() -> dict[str, pd.DataFrame]:
     for agent_name in AGENT_ORDER:
         input_path = data_clean_dir() / f"{ticker}_{agent_name}_trades.csv"
         trade_df = load_trade_log(input_path, allow_empty=True)
-        curves[agent_name] = build_daily_strategy_curve(trade_df, market_df)
+        saved_curve_df = load_saved_strategy_curve(ticker, agent_name)
+        if saved_curve_df is not None:
+            curves[agent_name] = saved_curve_df
+        else:
+            curves[agent_name] = build_daily_strategy_curve(trade_df, market_df)
 
     curves[BENCHMARK_NAME] = build_buy_and_hold_curve(
         market_df=market_df[["Date", "Close"]].copy(),

@@ -9,6 +9,7 @@ from plot_config import (
     REGIME_DISPLAY_NAMES,
     REGIME_ORDER,
     add_subtitle,
+    apply_categorical_tick_labels,
     apply_clean_style,
     create_placeholder_chart,
     data_clean_dir,
@@ -198,9 +199,14 @@ def main() -> None:
     )
 
     ax.set_xticks(np.arange(len(REGIME_ORDER)))
-    ax.set_xticklabels(REGIME_DISPLAY_NAMES)
+    apply_categorical_tick_labels(ax, REGIME_DISPLAY_NAMES)
     ax.set_yticks(np.arange(len(AGENT_ORDER)))
-    ax.set_yticklabels([format_agent_name(agent_name) for agent_name in AGENT_ORDER])
+    apply_categorical_tick_labels(
+        ax,
+        [format_agent_name(agent_name) for agent_name in AGENT_ORDER],
+        axis="y",
+        fontsize=9.8,
+    )
 
     # Draw light cell borders so each block looks crisp on the page.
     ax.set_xticks(np.arange(-0.5, len(REGIME_ORDER), 1), minor=True)

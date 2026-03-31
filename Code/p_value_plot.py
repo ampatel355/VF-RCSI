@@ -8,6 +8,7 @@ from plot_config import (
     BAR_EDGE_COLOR,
     DEFAULT_FIGSIZE,
     add_subtitle,
+    apply_categorical_tick_labels,
     apply_clean_style,
     create_placeholder_chart,
     data_clean_dir,
@@ -123,7 +124,10 @@ def main() -> None:
     )
 
     ax.set_xticks(x_positions)
-    ax.set_xticklabels([format_agent_name(agent) for agent in df["agent"]])
+    apply_categorical_tick_labels(
+        ax,
+        [format_agent_name(agent) for agent in df["agent"]],
+    )
 
     apply_clean_style(
         ax,

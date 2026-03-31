@@ -83,12 +83,14 @@ def main() -> None:
     input_path = data_clean_dir() / f"{ticker}_features.csv"
     metrics_output_path = data_clean_dir() / f"{ticker}_buy_hold_metrics.csv"
     curve_output_path = data_clean_dir() / f"{ticker}_buy_hold_curve.csv"
+    legacy_curve_output_path = data_clean_dir() / f"{ticker}_buy_and_hold_curve.csv"
 
     feature_df = load_feature_data(input_path)
     curve_df = build_buy_hold_curve(feature_df)
     metrics_df = build_metrics(curve_df)
 
     curve_df.to_csv(curve_output_path, index=False)
+    curve_df.to_csv(legacy_curve_output_path, index=False)
     metrics_df.to_csv(metrics_output_path, index=False)
 
     print(metrics_df.to_string(index=False))

@@ -7,20 +7,22 @@ import pandas as pd
 import numpy as np
 
 try:
-    from breakout_agent import main as create_breakout_trades
-    from mean_reversion_agent import main as create_mean_reversion_trades
-    from momentum_agent import main as create_momentum_trades
+    from breakout_volume_momentum_agent import main as create_breakout_trades
+    from mean_reversion_vol_filter_agent import main as create_mean_reversion_trades
+    from momentum_relative_strength_agent import main as create_momentum_trades
     from random_agent import main as create_random_trades
     from strategy_config import AGENT_ORDER
-    from trend_agent import main as create_trend_trades
+    from trend_pullback_agent import main as create_trend_trades
+    from volatility_managed_tsmom_agent import main as create_volatility_managed_tsmom_trades
     from research_metrics import calculate_trade_level_return_ratio
 except ModuleNotFoundError:
-    from Code.breakout_agent import main as create_breakout_trades
-    from Code.mean_reversion_agent import main as create_mean_reversion_trades
-    from Code.momentum_agent import main as create_momentum_trades
+    from Code.breakout_volume_momentum_agent import main as create_breakout_trades
+    from Code.mean_reversion_vol_filter_agent import main as create_mean_reversion_trades
+    from Code.momentum_relative_strength_agent import main as create_momentum_trades
     from Code.random_agent import main as create_random_trades
     from Code.strategy_config import AGENT_ORDER
-    from Code.trend_agent import main as create_trend_trades
+    from Code.trend_pullback_agent import main as create_trend_trades
+    from Code.volatility_managed_tsmom_agent import main as create_volatility_managed_tsmom_trades
     from Code.research_metrics import calculate_trade_level_return_ratio
 
 
@@ -141,14 +143,24 @@ def main() -> None:
     data_clean_dir = resolve_data_clean_dir(project_root)
 
     trade_file_map = {
-        "trend": (data_clean_dir / f"{ticker}_trend_trades.csv", create_trend_trades),
-        "mean_reversion": (
-            data_clean_dir / f"{ticker}_mean_reversion_trades.csv",
+        "trend_pullback": (data_clean_dir / f"{ticker}_trend_pullback_trades.csv", create_trend_trades),
+        "breakout_volume_momentum": (
+            data_clean_dir / f"{ticker}_breakout_volume_momentum_trades.csv",
+            create_breakout_trades,
+        ),
+        "mean_reversion_vol_filter": (
+            data_clean_dir / f"{ticker}_mean_reversion_vol_filter_trades.csv",
             create_mean_reversion_trades,
         ),
+        "volatility_managed_tsmom": (
+            data_clean_dir / f"{ticker}_volatility_managed_tsmom_trades.csv",
+            create_volatility_managed_tsmom_trades,
+        ),
         "random": (data_clean_dir / f"{ticker}_random_trades.csv", create_random_trades),
-        "momentum": (data_clean_dir / f"{ticker}_momentum_trades.csv", create_momentum_trades),
-        "breakout": (data_clean_dir / f"{ticker}_breakout_trades.csv", create_breakout_trades),
+        "momentum_relative_strength": (
+            data_clean_dir / f"{ticker}_momentum_relative_strength_trades.csv",
+            create_momentum_trades,
+        ),
     }
     output_path = data_clean_dir / f"{ticker}_regime_analysis.csv"
 

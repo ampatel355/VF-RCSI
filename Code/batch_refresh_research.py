@@ -85,7 +85,6 @@ REQUIRED_COMPARISON_COLUMNS = {
     "p_value_prominence",
     "actual_percentile",
     "annualized_sharpe",
-    "fdr_q_value",
 }
 
 

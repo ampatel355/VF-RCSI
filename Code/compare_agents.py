@@ -13,7 +13,6 @@ try:
         load_trade_data,
         load_market_data,
     )
-    from multiple_testing import apply_cross_ticker_fdr
     from rcsi import main as create_rcsi
     from research_metrics import (
         build_daily_strategy_curve,
@@ -31,7 +30,6 @@ except ModuleNotFoundError:
         load_trade_data,
         load_market_data,
     )
-    from Code.multiple_testing import apply_cross_ticker_fdr
     from Code.rcsi import main as create_rcsi
     from Code.research_metrics import (
         build_daily_strategy_curve,
@@ -279,8 +277,6 @@ def main() -> None:
 
     comparison_df.to_csv(full_output_path, index=False)
     comparison_df.to_csv(legacy_output_path, index=False)
-    apply_cross_ticker_fdr(data_clean_dir())
-    comparison_df = pd.read_csv(full_output_path)
 
     display_columns = [
         "agent",
@@ -292,7 +288,6 @@ def main() -> None:
         "annualized_sharpe",
         "RCSI_z",
         "p_value",
-        "fdr_q_value",
         "actual_percentile",
         "number_of_trades",
     ]

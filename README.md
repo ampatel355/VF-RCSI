@@ -18,7 +18,6 @@ To answer that question, the project combines:
 - matched random-timing Monte Carlo baselines
 - repeated-run robustness testing across seeds
 - regime-conditioned analysis
-- false-discovery control across ticker-strategy results
 
 ## Strategies Included
 
@@ -76,11 +75,7 @@ The framework reports:
 
 Each strategy is re-evaluated across repeated Monte Carlo seeds. Verdicts are based on repeated-run evidence, not on a single simulation draw.
 
-### 7. Multiple-Testing Control
-
-Cross-ticker comparisons include Benjamini-Hochberg false-discovery-rate adjustment so that isolated significant results are not overinterpreted.
-
-### 8. Single-Ticker Workflow
+### 7. Single-Ticker Workflow
 
 The active workflow runs one ticker at a time. That keeps the research loop simpler and makes each output bundle directly attributable to the ticker you selected for the run.
 
@@ -109,7 +104,6 @@ The pipeline produces:
 - repeated-run robustness summaries
 - RCSI and `RCSI_z` outputs
 - regime analysis tables
-- cross-ticker FDR-adjusted comparison tables
 - strategy verdict summaries
 - chart packs and combined PDFs
 
@@ -148,7 +142,7 @@ Research documentation, paper drafts, audit notes, math appendix, and methodolog
 ### Single-Ticker Pipeline
 
 ```bash
-./.venv/bin/python Code/AAAmain.py
+./.venv/bin/python Code/aaamain.py
 ```
 
 Then enter one ticker symbol when prompted.
@@ -157,7 +151,7 @@ Then enter one ticker symbol when prompted.
 
 ```bash
 export TICKER=SPY
-./.venv/bin/python Code/AAAmain.py
+./.venv/bin/python Code/aaamain.py
 ```
 
 ## Interpretation Rules
@@ -170,7 +164,7 @@ A result is only treated as credible evidence of skill when it is:
 - positive on scale-free evidence metrics
 - stable across repeated runs
 
-Ticker-specific positive results and cross-asset generalizable results are treated as different claims.
+Ticker-specific positive results should be interpreted one ticker at a time.
 
 ## Main Limitations
 

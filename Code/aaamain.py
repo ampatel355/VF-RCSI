@@ -115,6 +115,8 @@ def run_single_ticker_pipeline(
     print("Pipeline complete", flush=True)
     print(f"Outputs saved for {ticker}", flush=True)
     print("Charts saved in Charts/", flush=True)
+
+
 def main() -> None:
     """Run the single-ticker workflow and stop on the first error."""
     script_dir, python_executable, env = build_runtime_context()

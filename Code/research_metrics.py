@@ -208,6 +208,100 @@ def summarize_daily_curve(curve_df: pd.DataFrame) -> dict[str, float | int]:
     }
 
 
+def build_excess_curve(
+    strategy_curve_df: pd.DataFrame,
+    benchmark_curve_df: pd.DataFrame,
+) -> pd.DataFrame:
+    """Build a relative-performance curve against buy-and-hold.
+
+    We model excess performance as the ratio of the strategy wealth index to the
+    benchmark wealth index. If the ratio rises above 1.0, the strategy is
+    outperforming buy-and-hold. This keeps the comparison intuitive and avoids
+    mixing raw dollar gains from two different exposure paths.
+    """
+    required_columns = [
+        "Date",
+        "wealth_index",
+        "equity",
+        "cumulative_return",
+        "daily_return",
+        "drawdown",
+    ]
+    strategy_missing = [
+        column for column in required_columns if column not in strategy_curve_df.columns
+    ]
+    benchmark_missing = [
+        column for column in required_columns if column not in benchmark_curve_df.columns
+    ]
+    if strategy_missing:
+        raise KeyError(
+            "Strategy curve is missing required columns for excess analysis: "
+            + ", ".join(strategy_missing)
+        )
+    if benchmark_missing:
+        raise KeyError(
+            "Benchmark curve is missing required columns for excess analysis: "
+            + ", ".join(benchmark_missing)
+        )
+
+    working_strategy = strategy_curve_df[["Date", "wealth_index", "equity"]].copy()
+    working_benchmark = benchmark_curve_df[["Date", "wealth_index", "equity"]].copy()
+
+    working_strategy["Date"] = pd.to_datetime(working_strategy["Date"], errors="coerce")
+    working_benchmark["Date"] = pd.to_datetime(working_benchmark["Date"], errors="coerce")
+    working_strategy["wealth_index"] = pd.to_numeric(
+        working_strategy["wealth_index"],
+        errors="coerce",
+    )
+    working_benchmark["wealth_index"] = pd.to_numeric(
+        working_benchmark["wealth_index"],
+        errors="coerce",
+    )
+    working_strategy["equity"] = pd.to_numeric(working_strategy["equity"], errors="coerce")
+    working_benchmark["equity"] = pd.to_numeric(working_benchmark["equity"], errors="coerce")
+
+    aligned_df = working_strategy.rename(
+        columns={
+            "wealth_index": "strategy_wealth_index",
+            "equity": "strategy_equity",
+        }
+    ).merge(
+        working_benchmark.rename(
+            columns={
+                "wealth_index": "benchmark_wealth_index",
+                "equity": "benchmark_equity",
+            }
+        ),
+        on="Date",
+        how="inner",
+    )
+
+    aligned_df = aligned_df.dropna().sort_values("Date").reset_index(drop=True)
+    if aligned_df.empty:
+        raise ValueError("No shared dates were available to build the excess curve.")
+
+    if (aligned_df["benchmark_wealth_index"] <= 0).any():
+        raise ValueError(
+            "Benchmark wealth index must stay positive for excess-curve construction."
+        )
+    if (aligned_df["strategy_wealth_index"] <= 0).any():
+        raise ValueError(
+            "Strategy wealth index must stay positive for excess-curve construction."
+        )
+
+    aligned_df["wealth_index"] = (
+        aligned_df["strategy_wealth_index"] / aligned_df["benchmark_wealth_index"]
+    )
+    aligned_df["equity"] = aligned_df["wealth_index"] * float(STARTING_CAPITAL)
+    aligned_df["daily_return"] = aligned_df["wealth_index"].pct_change().fillna(0.0)
+    aligned_df["cumulative_return"] = aligned_df["wealth_index"] - 1.0
+    aligned_df["rolling_peak"] = aligned_df["wealth_index"].cummax()
+    aligned_df["drawdown"] = (
+        aligned_df["wealth_index"] / aligned_df["rolling_peak"]
+    ) - 1.0
+    return aligned_df
+
+
 def save_curve_csv(curve_df: pd.DataFrame, output_path: Path) -> None:
     """Save a daily curve to CSV with consistent column ordering."""
     ordered_columns = [

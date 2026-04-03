@@ -21,20 +21,21 @@ To answer that question, the project combines:
 
 ## Strategies Included
 
-The active pipeline evaluates five live strategies plus a passive benchmark:
+The active pipeline evaluates six live strategies plus a passive benchmark:
 
-- `trend`
-- `mean_reversion`
+- `trend_pullback`
+- `breakout_volume_momentum`
+- `mean_reversion_vol_filter`
+- `momentum_relative_strength`
+- `trend_momentum_verification`
 - `random`
-- `momentum`
-- `breakout`
 - `buy_and_hold` benchmark
 
 ## Core Methodology
 
 ### 1. Strategy Execution
 
-Strategies are generated from daily market data using past-only signals. Orders are executed on the next bar, not on the signal bar.
+Strategies are generated from the configured research interval (daily by default) using past-only signals. Orders are executed on the next bar, not on the signal bar.
 
 ### 2. Realistic Execution Layer
 
@@ -47,33 +48,34 @@ The execution model applies:
 - integer share sizing
 - liquidity caps based on recent average volume
 
-### 3. Daily-Curve Performance Measurement
+### 3. Bar-Curve Performance Measurement
 
-Performance is evaluated from daily equity curves rather than only from a list of isolated trade returns. The comparison layer reports:
+Performance is evaluated from bar-based equity curves rather than only from a list of isolated trade returns. The comparison layer reports:
 
 - cumulative return
 - annualized return
-- annualized Sharpe ratio from daily returns
+- annualized Sharpe ratio from bar returns
 - max drawdown
 - trade-level return ratio
 
 ### 4. Monte Carlo Null Model
 
-The null model is a matched random-timing benchmark. It preserves each strategy's realized trade count and holding durations, then randomizes when those trades occur on the observed market path. This is materially stronger than a naive bootstrap of realized trade returns.
+The null model is a matched random-timing benchmark. It preserves each strategy's realized trade count, ordered holding durations, position sizing, and non-overlap structure, then randomizes when those trades occur on the observed market path. The current implementation applies the same style of adverse execution costs used by the live backtests, with optional context-matching controls for advanced experiments.
 
 ### 5. Skill Metrics
 
 The framework reports:
 
-- `RCSI = actual cumulative return - median simulated return`
+- `RCSI = actual cumulative return - mean simulated return`
 - `RCSI_z` for scale-free comparison
-- one-sided p-values
+- one-sided empirical p-values with small-sample smoothing
+- Benjamini-Hochberg adjusted p-values across the active strategy set for the ticker
 - percentile rank inside the null distribution
 - p-value prominence `-log10(p)`
 
 ### 6. Robustness
 
-Each strategy is re-evaluated across repeated Monte Carlo seeds. Verdicts are based on repeated-run evidence, not on a single simulation draw.
+Each strategy is re-evaluated across repeated Monte Carlo seeds. Those repeated runs are reported as Monte Carlo seed-stability diagnostics for the fixed realized trade log. The headline verdict remains tied to the current run's inferential metrics, with robustness used as supporting context rather than a hidden override.
 
 ### 7. Single-Ticker Workflow
 
@@ -105,7 +107,7 @@ The pipeline produces:
 - RCSI and `RCSI_z` outputs
 - regime analysis tables
 - strategy verdict summaries
-- chart packs and combined PDFs
+- optional chart outputs when `SAVE_OUTPUTS=1`
 
 ## Sparse-Activity and No-Trade Cases
 
@@ -132,41 +134,32 @@ Downloaded raw historical data.
 Feature files, trade logs, Monte Carlo outputs, comparison tables, and benchmark outputs.
 
 `Charts/`  
-Generated figures and combined chart PDFs.
+Optional saved figures when `SAVE_OUTPUTS=1`.
 
 `Notes/`  
 Research documentation, paper drafts, audit notes, math appendix, and methodology notes.
 
 ## How to Run
 
-### Desktop App
-
-```bash
-./run_desktop_app.sh
-```
-
-This launches the local PySide6 desktop application. The desktop window is intentionally simplified around the main single-ticker research loop:
-
-- enter a ticker
-- run the full pipeline
-- review summary metrics, the comparison table, charts, trades, and raw outputs in one plain desktop window
-
 ### Terminal Workflows
 
 ```bash
-./.venv/bin/python Code/aaamain.py
+./.venv/bin/python main.py
 ```
 
-The CLI entrypoint still supports both:
+The CLI entrypoint is designed for the single-ticker research pipeline.
 
-- single-ticker full pipeline
-- multi-asset walk-forward evaluation
+The multi-asset walk-forward workflow now runs from readable source code and writes the same three research tables to `Data_Clean/`:
+
+- `multi_asset_walk_forward_runs.csv`
+- `multi_asset_walk_forward_panel_summary.csv`
+- `multi_asset_walk_forward_agent_summary.csv`
 
 ### Single-Ticker Direct Run
 
 ```bash
 export TICKER=SPY
-./.venv/bin/python Code/aaamain.py
+./.venv/bin/python main.py
 ```
 
 ## Interpretation Rules
@@ -177,17 +170,18 @@ A result is only treated as credible evidence of skill when it is:
 
 - statistically rare under the null
 - positive on scale-free evidence metrics
-- stable across repeated runs
+- still significant after per-ticker multiple-testing adjustment
+- generated from research-grade Monte Carlo depth
 
 Ticker-specific positive results should be interpreted one ticker at a time.
 
 ## Main Limitations
 
-- The system uses daily bars rather than intraday market microstructure.
+- The system uses bar data (daily by default) rather than tick or order-book data.
 - The null model randomizes trade timing on the observed market path rather than simulating entirely new market paths.
 - Regime analysis is descriptive unless sufficient trade counts exist.
 - Some strategy effects may be asset-specific even when they appear strong in one ticker.
-- Some sparse-activity tickers may generate no completed trades under the current long-only daily implementation and execution constraints, which limits inference rather than contradicting it.
+- Some sparse-activity tickers may generate no completed trades under the current long-only implementation and execution constraints, which limits inference rather than contradicting it.
 
 ## Bottom Line
 
@@ -196,6 +190,4 @@ This repository is designed to answer a stricter question than a normal backtest
 > Was the observed performance meaningfully better than luck under realistic and repeated testing?
 
 That standard is the basis for every strategy verdict in the project.
-# VF-RCSI
-# VF-RCSI
 # VF-RCSI

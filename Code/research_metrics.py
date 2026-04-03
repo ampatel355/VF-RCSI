@@ -9,9 +9,21 @@ import numpy as np
 import pandas as pd
 
 try:
+    from artifact_provenance import write_dataframe_artifact
     from execution_model import STARTING_CAPITAL
+    from timeframe_config import (
+        RESEARCH_TIMEFRAME_LABEL,
+        infer_bars_per_year,
+        normalize_timestamp_series,
+    )
 except ModuleNotFoundError:
+    from Code.artifact_provenance import write_dataframe_artifact
     from Code.execution_model import STARTING_CAPITAL
+    from Code.timeframe_config import (
+        RESEARCH_TIMEFRAME_LABEL,
+        infer_bars_per_year,
+        normalize_timestamp_series,
+    )
 
 
 TRADING_DAYS_PER_YEAR = 252
@@ -30,8 +42,15 @@ def calculate_trade_level_return_ratio(returns: np.ndarray) -> float:
     return float(np.mean(returns) / std_return)
 
 
-def calculate_annualized_sharpe_from_daily_returns(daily_returns: pd.Series) -> float:
-    """Calculate an annualized daily Sharpe ratio from a daily return series."""
+def calculate_annualized_sharpe_from_daily_returns(
+    daily_returns: pd.Series,
+    dates: pd.Series | None = None,
+) -> float:
+    """Calculate an annualized Sharpe ratio from one bar-return series.
+
+    The function keeps its legacy name for compatibility, but the math now uses
+    the observed bar density from the supplied timestamps whenever possible.
+    """
     clean_returns = pd.to_numeric(daily_returns, errors="coerce").dropna()
     if len(clean_returns) <= 1:
         return 0.0
@@ -41,7 +60,8 @@ def calculate_annualized_sharpe_from_daily_returns(daily_returns: pd.Series) -> 
         return 0.0
 
     mean_daily_return = float(clean_returns.mean())
-    return float((mean_daily_return / std_daily_return) * math.sqrt(TRADING_DAYS_PER_YEAR))
+    periods_per_year = infer_bars_per_year(dates) if dates is not None else float(TRADING_DAYS_PER_YEAR)
+    return float((mean_daily_return / std_daily_return) * math.sqrt(periods_per_year))
 
 
 def calculate_p_value_prominence(p_value: float) -> float:
@@ -69,8 +89,8 @@ def _load_required_trade_columns(trade_df: pd.DataFrame) -> pd.DataFrame:
         )
 
     validated_df = trade_df.copy()
-    validated_df["entry_date"] = pd.to_datetime(validated_df["entry_date"], errors="coerce")
-    validated_df["exit_date"] = pd.to_datetime(validated_df["exit_date"], errors="coerce")
+    validated_df["entry_date"] = normalize_timestamp_series(validated_df["entry_date"])
+    validated_df["exit_date"] = normalize_timestamp_series(validated_df["exit_date"])
 
     numeric_columns = [
         "shares",
@@ -99,7 +119,7 @@ def _prepare_market_curve_df(market_df: pd.DataFrame) -> pd.DataFrame:
         )
 
     curve_df = market_df[required_columns].copy()
-    curve_df["Date"] = pd.to_datetime(curve_df["Date"], errors="coerce")
+    curve_df["Date"] = normalize_timestamp_series(curve_df["Date"])
     curve_df["Close"] = pd.to_numeric(curve_df["Close"], errors="coerce")
     curve_df = curve_df.dropna(subset=required_columns).sort_values("Date").reset_index(drop=True)
 
@@ -117,7 +137,7 @@ def build_daily_strategy_curve(
     market_df: pd.DataFrame,
     starting_capital: float = STARTING_CAPITAL,
 ) -> pd.DataFrame:
-    """Reconstruct a daily marked-to-market equity curve from completed trades."""
+    """Reconstruct a bar-based marked-to-market equity curve from completed trades."""
     curve_df = _prepare_market_curve_df(market_df)
     validated_trades = _load_required_trade_columns(trade_df)
     date_to_index = pd.Series(curve_df.index.to_numpy(), index=curve_df["Date"])
@@ -127,10 +147,12 @@ def build_daily_strategy_curve(
         equity = np.full(len(curve_df), float(starting_capital), dtype=float)
         curve_df["equity"] = equity
         curve_df["wealth_index"] = curve_df["equity"] / float(starting_capital)
-        curve_df["daily_return"] = curve_df["wealth_index"].pct_change().fillna(0.0)
+        curve_df["bar_return"] = curve_df["wealth_index"].pct_change().fillna(0.0)
+        curve_df["daily_return"] = curve_df["bar_return"]
         curve_df["cumulative_return"] = curve_df["wealth_index"] - 1.0
         curve_df["rolling_peak"] = curve_df["wealth_index"].cummax()
         curve_df["drawdown"] = (curve_df["wealth_index"] / curve_df["rolling_peak"]) - 1.0
+        curve_df["timeframe_label"] = RESEARCH_TIMEFRAME_LABEL
         return curve_df
 
     initial_capital = float(validated_trades["capital_before"].iloc[0])
@@ -148,31 +170,37 @@ def build_daily_strategy_curve(
         entry_index = int(entry_index)
         exit_index = int(exit_index)
         if exit_index <= entry_index:
-            raise ValueError("Trade exits must occur after entries for daily curve construction.")
+            raise ValueError("Trade exits must occur after entries for curve construction.")
         if entry_index < fill_start_index:
             raise ValueError("Trade data contains overlapping or out-of-order positions.")
 
         equity[fill_start_index:entry_index] = current_capital
 
         cash_after_entry = float(trade_row["capital_before"]) - float(trade_row["capital_deployed"])
-        shares = int(trade_row["shares"])
+        shares = float(trade_row["shares"])
         if shares <= 0:
-            raise ValueError("Trade data contains a non-positive share count.")
+            raise ValueError("Trade data contains a non-positive position quantity.")
 
         equity[entry_index:exit_index] = cash_after_entry + (shares * close_prices[entry_index:exit_index])
-        equity[exit_index] = float(trade_row["capital_after"])
 
         current_capital = float(trade_row["capital_after"])
-        fill_start_index = exit_index + 1
+        # Keep the exit-date slot available for cash or a same-day rotation into
+        # the next trade. This matters for strategies like relative-strength
+        # rotation where one position can exit at the next open and the next one
+        # can enter on that same open. The later trade should own the close of
+        # that date rather than being treated as an overlap.
+        fill_start_index = exit_index
 
     equity[fill_start_index:] = current_capital
 
     curve_df["equity"] = equity
     curve_df["wealth_index"] = curve_df["equity"] / initial_capital
-    curve_df["daily_return"] = curve_df["equity"].pct_change().replace([np.inf, -np.inf], np.nan).fillna(0.0)
+    curve_df["bar_return"] = curve_df["equity"].pct_change().replace([np.inf, -np.inf], np.nan).fillna(0.0)
+    curve_df["daily_return"] = curve_df["bar_return"]
     curve_df["cumulative_return"] = curve_df["wealth_index"] - 1.0
     curve_df["rolling_peak"] = curve_df["wealth_index"].cummax()
     curve_df["drawdown"] = (curve_df["wealth_index"] / curve_df["rolling_peak"]) - 1.0
+    curve_df["timeframe_label"] = RESEARCH_TIMEFRAME_LABEL
     return curve_df
 
 
@@ -180,7 +208,7 @@ def build_buy_and_hold_curve(
     market_df: pd.DataFrame,
     transaction_cost: float = 0.0,
 ) -> pd.DataFrame:
-    """Build a daily buy-and-hold benchmark curve from market closes."""
+    """Build a bar-based buy-and-hold benchmark curve from market closes."""
     curve_df = _prepare_market_curve_df(market_df)
     first_close = float(curve_df["Close"].iloc[0])
     if first_close <= 0:
@@ -191,18 +219,23 @@ def build_buy_and_hold_curve(
         curve_df["wealth_index"] = curve_df["wealth_index"] * (1.0 - float(transaction_cost))
 
     curve_df["equity"] = curve_df["wealth_index"] * float(STARTING_CAPITAL)
-    curve_df["daily_return"] = curve_df["wealth_index"].pct_change().fillna(0.0)
+    curve_df["bar_return"] = curve_df["wealth_index"].pct_change().fillna(0.0)
+    curve_df["daily_return"] = curve_df["bar_return"]
     curve_df["cumulative_return"] = curve_df["wealth_index"] - 1.0
     curve_df["rolling_peak"] = curve_df["wealth_index"].cummax()
     curve_df["drawdown"] = (curve_df["wealth_index"] / curve_df["rolling_peak"]) - 1.0
+    curve_df["timeframe_label"] = RESEARCH_TIMEFRAME_LABEL
     return curve_df
 
 
 def summarize_daily_curve(curve_df: pd.DataFrame) -> dict[str, float | int]:
-    """Summarize a daily equity curve into core performance metrics."""
+    """Summarize a bar-based equity curve into core performance metrics."""
     return {
         "cumulative_return": float(curve_df["cumulative_return"].iloc[-1]),
-        "annualized_sharpe": calculate_annualized_sharpe_from_daily_returns(curve_df["daily_return"]),
+        "annualized_sharpe": calculate_annualized_sharpe_from_daily_returns(
+            curve_df["daily_return"],
+            dates=curve_df.get("Date"),
+        ),
         "max_drawdown": float(curve_df["drawdown"].min()),
         "number_of_periods": int(len(curve_df)),
     }
@@ -293,26 +326,41 @@ def build_excess_curve(
         aligned_df["strategy_wealth_index"] / aligned_df["benchmark_wealth_index"]
     )
     aligned_df["equity"] = aligned_df["wealth_index"] * float(STARTING_CAPITAL)
-    aligned_df["daily_return"] = aligned_df["wealth_index"].pct_change().fillna(0.0)
+    aligned_df["bar_return"] = aligned_df["wealth_index"].pct_change().fillna(0.0)
+    aligned_df["daily_return"] = aligned_df["bar_return"]
     aligned_df["cumulative_return"] = aligned_df["wealth_index"] - 1.0
     aligned_df["rolling_peak"] = aligned_df["wealth_index"].cummax()
     aligned_df["drawdown"] = (
         aligned_df["wealth_index"] / aligned_df["rolling_peak"]
     ) - 1.0
+    aligned_df["timeframe_label"] = RESEARCH_TIMEFRAME_LABEL
     return aligned_df
 
 
 def save_curve_csv(curve_df: pd.DataFrame, output_path: Path) -> None:
-    """Save a daily curve to CSV with consistent column ordering."""
+    """Save a bar-based curve to CSV with consistent column ordering."""
     ordered_columns = [
         "Date",
         "Close",
         "equity",
         "wealth_index",
+        "bar_return",
         "daily_return",
         "cumulative_return",
         "rolling_peak",
         "drawdown",
+        "timeframe_label",
     ]
     existing_columns = [column for column in ordered_columns if column in curve_df.columns]
-    curve_df[existing_columns].to_csv(output_path, index=False)
+    inferred_ticker = output_path.name.split("_", 1)[0].strip().upper()
+    write_dataframe_artifact(
+        curve_df[existing_columns],
+        output_path,
+        producer="save_curve_csv",
+        current_ticker=inferred_ticker,
+        research_grade=True,
+        canonical_policy="always",
+        parameters={
+            "artifact_type": "strategy_curve",
+        },
+    )

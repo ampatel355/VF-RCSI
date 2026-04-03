@@ -1,0 +1,91 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/AAPL_monte_carlo_summary.csv",
+  "canonical_policy": "always",
+  "column_names": [
+    "agent",
+    "actual_cumulative_return",
+    "median_simulated_return",
+    "mean_simulated_return",
+    "std_simulated_return",
+    "actual_percentile",
+    "p_value",
+    "p_value_prominence",
+    "p_value_interpretation",
+    "lower_5pct",
+    "upper_95pct",
+    "number_of_trades",
+    "transaction_cost",
+    "execution_cost_model",
+    "simulation_count",
+    "research_grade",
+    "reproducible",
+    "seed_used",
+    "null_model",
+    "bh_adjusted_p_value"
+  ],
+  "created_at_utc": "2026-04-02T18:22:03Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775149886740672315,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/AAPL_regimes.csv",
+      "sha256": "c02f63135c482791525ca5ce32898244716a132a27acea575d507eb3777911fe",
+      "size_bytes": 11155397
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775154089293046988,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/AAPL_trend_pullback_monte_carlo_results.csv",
+      "sha256": "e79cac97cdac455ad45fb67f2514fd12565727c2e6b738ae0c001b3c3536d36f",
+      "size_bytes": 117413
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775154093081411615,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/AAPL_breakout_volume_momentum_monte_carlo_results.csv",
+      "sha256": "e4d98b0f6c9fab9fe31273ff722aadd1205bef1142d618343f74089fe0ed8919",
+      "size_bytes": 117219
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775154095238903364,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/AAPL_mean_reversion_vol_filter_monte_carlo_results.csv",
+      "sha256": "09f3ed06a3fb926aa1fbd6c0644485ccea228040ba7d9b7d8befa8bb4991243a",
+      "size_bytes": 127669
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775154117109315168,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/AAPL_momentum_relative_strength_monte_carlo_results.csv",
+      "sha256": "7d3a4734d55848fddf7d9196295f882930daeb0b27787ef58d8b2780ed07997e",
+      "size_bytes": 115867
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775154120587655727,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/AAPL_trend_momentum_verification_monte_carlo_results.csv",
+      "sha256": "1cd7712cfcfd3c2e5bd582f0f55de6aa25a1b0be2885fa8b9366a92f79a3a51f",
+      "size_bytes": 117281
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775154123734012459,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/AAPL_random_monte_carlo_results.csv",
+      "sha256": "c23d33eec8f36d64caa12054b5120b056003543b4b264a628434086f995e2750",
+      "size_bytes": 117748
+    }
+  ],
+  "parameters": {
+    "context_bucket_count": 5,
+    "context_matching_enabled": false,
+    "simulate_execution_costs": true,
+    "simulation_count": 5000
+  },
+  "pipeline_profile": "standard",
+  "producer": "monte_carlo.main",
+  "research_grade": true,
+  "row_count": 6,
+  "run_id": "run_20260402T182129Z_pid89987",
+  "ticker": "AAPL",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/AAPL_monte_carlo_summary__run_20260402T182129Z_pid89987.csv"
+}

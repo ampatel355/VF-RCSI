@@ -1,0 +1,2 @@
+ticker,agent,timeframe_label,data_interval,signal_count,executed_trade_count,rejected_signal_count,months_covered
+TSM,trend_pullback,Daily,1d,107,107,0,325.19096509240245

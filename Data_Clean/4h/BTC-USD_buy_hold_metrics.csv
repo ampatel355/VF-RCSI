@@ -1,0 +1,2 @@
+start_date,end_date,first_close,last_close,buy_hold_return,annualized_sharpe,max_drawdown,number_of_periods,transaction_cost,timeframe_label,data_interval
+2024-06-08 12:00,2026-04-03 00:00,69321.609375,66926.4921875,-0.03500456294517651,0.19976579994034663,-0.49782716827331663,3976,0.00047,4-Hour,4h

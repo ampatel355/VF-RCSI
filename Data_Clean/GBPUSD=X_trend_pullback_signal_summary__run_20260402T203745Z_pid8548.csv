@@ -1,0 +1,2 @@
+ticker,agent,timeframe_label,data_interval,signal_count,executed_trade_count,rejected_signal_count,months_covered
+GBPUSD=X,trend_pullback,Daily,1d,50,50,0,250.8418891170431

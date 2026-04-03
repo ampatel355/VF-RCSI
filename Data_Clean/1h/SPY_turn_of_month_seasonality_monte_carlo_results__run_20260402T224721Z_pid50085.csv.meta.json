@@ -1,0 +1,37 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/1h/SPY_turn_of_month_seasonality_monte_carlo_results.csv",
+  "canonical_policy": "always",
+  "column_names": [
+    "simulation_id",
+    "simulated_cumulative_return"
+  ],
+  "created_at_utc": "2026-04-02T22:47:41Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775170053041337974,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/1h/SPY_turn_of_month_seasonality_trades.csv",
+      "sha256": "f0eb819d747b550245e8975e8252b076ab7d29404c0c1ddadf0c5335eb95cf4e",
+      "size_bytes": 4946
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775170044656683799,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/1h/SPY_regimes.csv",
+      "sha256": "7837933f194675f8947eb5a36edd99879ca1dacacdb445bd9af9725f7e5ed8f2",
+      "size_bytes": 2824312
+    }
+  ],
+  "parameters": {
+    "agent_name": "turn_of_month_seasonality",
+    "null_model_type": "timing_null_results",
+    "simulation_count": 2000
+  },
+  "pipeline_profile": "standard",
+  "producer": "monte_carlo.save_simulation_results",
+  "research_grade": false,
+  "row_count": 2000,
+  "run_id": "run_20260402T224721Z_pid50085",
+  "ticker": "SPY",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/1h/SPY_turn_of_month_seasonality_monte_carlo_results__run_20260402T224721Z_pid50085.csv"
+}

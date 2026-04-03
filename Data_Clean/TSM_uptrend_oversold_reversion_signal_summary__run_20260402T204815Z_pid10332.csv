@@ -1,0 +1,2 @@
+ticker,agent,timeframe_label,data_interval,signal_count,executed_trade_count,rejected_signal_count,months_covered
+TSM,uptrend_oversold_reversion,Daily,1d,58,58,0,322.2340862422998

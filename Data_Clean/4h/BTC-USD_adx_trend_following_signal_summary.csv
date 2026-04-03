@@ -1,0 +1,2 @@
+ticker,agent,timeframe_label,data_interval,signal_count,executed_trade_count,rejected_signal_count,months_covered
+BTC-USD,adx_trend_following,4-Hour,4h,24,24,0,17.58795345653662

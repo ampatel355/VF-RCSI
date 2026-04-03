@@ -1,0 +1,37 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/EURUSD=X_rcsi.csv",
+  "canonical_policy": "always",
+  "column_names": [
+    "agent",
+    "actual_cumulative_return",
+    "median_simulated_return",
+    "mean_simulated_return",
+    "std_simulated_return",
+    "actual_percentile",
+    "RCSI",
+    "RCSI_z",
+    "simulation_count",
+    "bh_adjusted_p_value",
+    "research_grade"
+  ],
+  "created_at_utc": "2026-04-02T13:46:31Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775137590539215339,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/EURUSD=X_monte_carlo_summary.csv",
+      "sha256": "eca08952b4fece65582f48f6283a50b572ada90ab8e3bec9ffd16a666e2c6792",
+      "size_bytes": 2450
+    }
+  ],
+  "parameters": {
+    "artifact_type": "rcsi_summary"
+  },
+  "pipeline_profile": "standard",
+  "producer": "rcsi.main",
+  "research_grade": true,
+  "row_count": 6,
+  "run_id": "run_20260402T134538Z_pid55516",
+  "ticker": "EURUSD=X",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/EURUSD=X_rcsi__run_20260402T134538Z_pid55516.csv"
+}

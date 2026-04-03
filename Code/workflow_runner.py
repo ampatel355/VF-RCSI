@@ -11,48 +11,149 @@ import time
 from typing import Callable
 
 import pandas as pd
-from PIL import Image
 
 try:
-    from pipeline_utils import charts_dir, data_clean_dir, data_raw_dir, pipeline_chart_paths
+    from artifact_provenance import current_run_id, pipeline_profile
+    from pipeline_utils import charts_dir, data_clean_dir, data_raw_dir
     from strategy_config import AGENT_ORDER, BENCHMARK_NAME
 except ModuleNotFoundError:
-    from Code.pipeline_utils import charts_dir, data_clean_dir, data_raw_dir, pipeline_chart_paths
+    from Code.artifact_provenance import current_run_id, pipeline_profile
+    from Code.pipeline_utils import charts_dir, data_clean_dir, data_raw_dir
     from Code.strategy_config import AGENT_ORDER, BENCHMARK_NAME
 
 
-DEFAULT_SINGLE_TICKER_STEPS: list[tuple[str, str]] = [
+PRE_STRATEGY_STEPS: list[tuple[str, str]] = [
     ("Running data loader...", "data_loader.py"),
     ("Running features...", "features.py"),
     ("Running regimes...", "regimes.py"),
-    ("Running Trend + Pullback agent...", "trend_pullback_agent.py"),
-    ("Running Breakout + Volume + Momentum agent...", "breakout_volume_momentum_agent.py"),
-    ("Running Mean Reversion + Volatility Filter agent...", "mean_reversion_vol_filter_agent.py"),
-    ("Running Volatility-Managed TSMOM agent...", "volatility_managed_tsmom_agent.py"),
-    ("Running Momentum + Relative Strength agent...", "momentum_relative_strength_agent.py"),
-    ("Running random agent...", "random_agent.py"),
-    ("Running Trend + Pullback metrics...", "trend_pullback_metrics.py"),
-    ("Running Breakout + Volume + Momentum metrics...", "breakout_volume_momentum_metrics.py"),
-    ("Running Mean Reversion + Volatility Filter metrics...", "mean_reversion_vol_filter_metrics.py"),
-    ("Running Volatility-Managed TSMOM metrics...", "volatility_managed_tsmom_metrics.py"),
-    ("Running Momentum + Relative Strength metrics...", "momentum_relative_strength_metrics.py"),
-    ("Running random metrics...", "random_metrics.py"),
+]
+
+POST_STRATEGY_STEPS: list[tuple[str, str]] = [
+    ("Running trade activity validation...", "trade_activity_validation.py"),
     ("Running buy-and-hold benchmark...", "buy_and_hold.py"),
-    ("Running regime analysis...", "regime_analysis.py"),
     ("Running Monte Carlo analysis...", "monte_carlo.py"),
-    ("Running Monte Carlo robustness analysis...", "monte_carlo_robustness.py"),
     ("Running RCSI analysis...", "rcsi.py"),
     ("Running full comparison table...", "compare_agents.py"),
+]
+
+AGENT_WORKFLOW_STEPS: dict[str, dict[str, tuple[str, str]]] = {
+    "trend_pullback": {
+        "agent": ("Running Trend + Pullback agent...", "trend_pullback_agent.py"),
+        "metrics": ("Running Trend + Pullback metrics...", "trend_pullback_metrics.py"),
+    },
+    "breakout_volume_momentum": {
+        "agent": ("Running Breakout + Volume + Momentum agent...", "breakout_volume_momentum_agent.py"),
+        "metrics": ("Running Breakout + Volume + Momentum metrics...", "breakout_volume_momentum_metrics.py"),
+    },
+    "mean_reversion_vol_filter": {
+        "agent": ("Running Mean Reversion + Volatility Filter agent...", "mean_reversion_vol_filter_agent.py"),
+        "metrics": ("Running Mean Reversion + Volatility Filter metrics...", "mean_reversion_vol_filter_metrics.py"),
+    },
+    "momentum_relative_strength": {
+        "agent": ("Running Momentum + Relative Strength agent...", "momentum_relative_strength_agent.py"),
+        "metrics": ("Running Momentum + Relative Strength metrics...", "momentum_relative_strength_metrics.py"),
+    },
+    "trend_momentum_verification": {
+        "agent": (
+            "Running Validation Strategy (Adaptive Volatility Momentum) agent...",
+            "trend_momentum_verification_agent.py",
+        ),
+        "metrics": (
+            "Running Validation Strategy (Adaptive Volatility Momentum) metrics...",
+            "trend_momentum_verification_metrics.py",
+        ),
+    },
+    "adx_trend_following": {
+        "agent": ("Running ADX Trend Following agent...", "adx_trend_following_agent.py"),
+        "metrics": ("Running ADX Trend Following metrics...", "adx_trend_following_metrics.py"),
+    },
+    "uptrend_oversold_reversion": {
+        "agent": ("Running Uptrend Oversold Reversion agent...", "uptrend_oversold_reversion_agent.py"),
+        "metrics": ("Running Uptrend Oversold Reversion metrics...", "uptrend_oversold_reversion_metrics.py"),
+    },
+    "volatility_squeeze_breakout": {
+        "agent": ("Running Volatility Squeeze Breakout agent...", "volatility_squeeze_breakout_agent.py"),
+        "metrics": ("Running Volatility Squeeze Breakout metrics...", "volatility_squeeze_breakout_metrics.py"),
+    },
+    "connors_rsi2_pullback": {
+        "agent": ("Running Connors RSI(2) Pullback agent...", "connors_rsi2_pullback_agent.py"),
+        "metrics": ("Running Connors RSI(2) Pullback metrics...", "connors_rsi2_pullback_metrics.py"),
+    },
+    "donchian_trend_reentry": {
+        "agent": ("Running Donchian Trend Reentry agent...", "donchian_trend_reentry_agent.py"),
+        "metrics": ("Running Donchian Trend Reentry metrics...", "donchian_trend_reentry_metrics.py"),
+    },
+    "turn_of_month_seasonality": {
+        "agent": ("Running Turn-of-Month Seasonality agent...", "turn_of_month_seasonality_agent.py"),
+        "metrics": ("Running Turn-of-Month Seasonality metrics...", "turn_of_month_seasonality_metrics.py"),
+    },
+    "random": {
+        "agent": ("Running random agent...", "random_agent.py"),
+        "metrics": ("Running random metrics...", "random_metrics.py"),
+    },
+}
+
+
+def build_core_single_ticker_steps() -> list[tuple[str, str]]:
+    """Build the active core workflow from the configured strategy order."""
+    steps = list(PRE_STRATEGY_STEPS)
+    for agent_name in AGENT_ORDER:
+        step_set = AGENT_WORKFLOW_STEPS.get(agent_name)
+        if step_set is None:
+            raise KeyError(
+                "workflow_runner is missing script mappings for active strategy "
+                f"'{agent_name}'."
+            )
+        steps.append(step_set["agent"])
+    for agent_name in AGENT_ORDER:
+        step_set = AGENT_WORKFLOW_STEPS.get(agent_name)
+        if step_set is None:
+            raise KeyError(
+                "workflow_runner is missing metrics mappings for active strategy "
+                f"'{agent_name}'."
+            )
+        steps.append(step_set["metrics"])
+    steps.extend(POST_STRATEGY_STEPS)
+    return steps
+
+
+CORE_SINGLE_TICKER_STEPS: list[tuple[str, str]] = build_core_single_ticker_steps()
+
+VISUALIZATION_STEPS: list[tuple[str, str]] = [
+    ("Displaying equity curve...", "equity_curve.py"),
+    ("Displaying skill vs luck summary...", "strategy_verdict_plot.py"),
+]
+
+EXTENDED_ANALYSIS_STEPS: list[tuple[str, str]] = CORE_SINGLE_TICKER_STEPS + [
+    ("Running regime analysis...", "regime_analysis.py"),
+    ("Running Monte Carlo robustness analysis...", "monte_carlo_robustness.py"),
+    ("Refreshing full comparison table...", "compare_agents.py"),
+]
+
+EXTENDED_PLOTTING_STEPS: list[tuple[str, str]] = [
     ("Running RCSI plot...", "rcsi_plot.py"),
     ("Running regime plot...", "regime_plot.py"),
     ("Running regime heatmap...", "rcsi_heatmap.py"),
-    ("Running equity curve charts...", "equity_curve.py"),
     ("Running Monte Carlo plots...", "monte_carlo_plot.py"),
-    ("Running Monte Carlo robustness plots...", "monte_carlo_robustness_plot.py"),
+    ("Running robustness plots...", "monte_carlo_robustness_plot.py"),
     ("Running p-value plot...", "p_value_plot.py"),
-    ("Running skill vs luck summary...", "strategy_verdict_plot.py"),
-    ("Building combined chart PDF...", "open_charts.py"),
 ]
+
+
+def build_single_ticker_steps(
+    *,
+    minimal_mode: bool,
+    include_visuals: bool,
+    include_extended_plots: bool,
+) -> list[tuple[str, str]]:
+    """Return the single-ticker workflow steps for the chosen run profile."""
+    base_steps = CORE_SINGLE_TICKER_STEPS if minimal_mode else EXTENDED_ANALYSIS_STEPS
+    steps = list(base_steps)
+    if include_extended_plots and not minimal_mode:
+        steps.extend(EXTENDED_PLOTTING_STEPS)
+    if include_visuals:
+        steps.extend(VISUALIZATION_STEPS)
+    return steps
 
 DEFAULT_WALK_FORWARD_TICKERS = [
     "SPY",
@@ -69,6 +170,26 @@ DEFAULT_WALK_FORWARD_TICKERS = [
     "NQ=F",
     "ES=F",
 ]
+
+FAST_TEST_ENV_OVERRIDES: dict[str, str] = {
+    # Keep the strategy logic identical, but shrink the expensive sampling layers
+    # so the full pipeline is practical while debugging.
+    "FAST_TEST_MODE": "1",
+    "MONTE_CARLO_SIMULATIONS": "2000",
+    "MONTE_CARLO_BATCH_SIZE": "512",
+    "ROBUSTNESS_SIMULATIONS_PER_RUN": "500",
+    "ROBUSTNESS_OUTER_RUNS": "10",
+    "ROBUSTNESS_PROGRESS_EVERY": "2",
+}
+
+WALK_FORWARD_FAST_TEST_ENV_OVERRIDES: dict[str, str] = {
+    "TEST_BARS": "126",
+    "STEP_BARS": "63",
+    "SIMULATIONS_PER_RUN": "25",
+    "OUTER_RUNS": "2",
+    "PROGRESS_EVERY": "1",
+    "REFRESH_DATA": "0",
+}
 
 
 @dataclass(slots=True)
@@ -141,21 +262,29 @@ def code_dir() -> Path:
 def build_runtime_context(
     env_overrides: dict[str, str] | None = None,
     show_plots: bool = False,
-    interactive_chart_open: bool = False,
+    save_outputs: bool = False,
 ) -> tuple[Path, str, dict[str, str]]:
     """Build the shared runtime context used by subprocess workflows."""
     script_dir = code_dir()
     python_executable = sys.executable
     env = os.environ.copy()
     env["SHOW_PLOTS"] = "1" if show_plots else "0"
-    env["OPEN_CHARTS_INTERACTIVE"] = "1" if interactive_chart_open else "0"
-    env["MPLBACKEND"] = "Agg"
+    env["SAVE_OUTPUTS"] = "1" if save_outputs else "0"
+    env.setdefault("PIPELINE_RUN_ID", current_run_id())
+    # Prevent stale trade logs from prior runs from being reused silently.
+    env.setdefault("REQUIRE_TRADE_RUN_ID_MATCH", "1")
+    if not show_plots:
+        env["MPLBACKEND"] = "Agg"
+    else:
+        env.pop("MPLBACKEND", None)
     env["MPLCONFIGDIR"] = str(script_dir.parent / ".matplotlib")
     Path(env["MPLCONFIGDIR"]).mkdir(parents=True, exist_ok=True)
 
     if env_overrides:
         for key, value in env_overrides.items():
             env[key] = str(value)
+
+    env.setdefault("PIPELINE_PROFILE", pipeline_profile())
 
     return script_dir, python_executable, env
 
@@ -164,6 +293,52 @@ def _emit(callback: EventCallback | None, event: WorkflowEvent) -> None:
     """Send one progress event when a callback is available."""
     if callback is not None:
         callback(event)
+
+
+def prune_inactive_strategy_artifacts(ticker: str) -> int:
+    """Delete stale per-ticker files for strategies not in the active order."""
+    inactive_agents = sorted(set(AGENT_WORKFLOW_STEPS) - set(AGENT_ORDER))
+    if not inactive_agents:
+        return 0
+
+    removed_count = 0
+    ticker_prefix = f"{ticker.upper()}_"
+    for directory in (data_clean_dir(), charts_dir()):
+        if not directory.exists():
+            continue
+        for path in directory.iterdir():
+            if not path.is_file():
+                continue
+            filename = path.name
+            if not filename.startswith(ticker_prefix):
+                continue
+            for agent_name in inactive_agents:
+                if f"_{agent_name}_" in filename or filename.startswith(
+                    f"{ticker_prefix}{agent_name}."
+                ):
+                    path.unlink(missing_ok=True)
+                    removed_count += 1
+                    break
+
+    return removed_count
+
+
+def merge_fast_test_overrides(
+    env_overrides: dict[str, str] | None,
+    *,
+    fast_test_mode: bool,
+) -> dict[str, str]:
+    """Merge the optional fast-test preset with any caller-provided overrides.
+
+    Fast mode is an explicit request for speed, so its preset wins over any
+    conflicting Monte Carlo or robustness values supplied by the caller.
+    """
+    merged: dict[str, str] = {}
+    if env_overrides:
+        merged.update({key: str(value) for key, value in env_overrides.items()})
+    if fast_test_mode:
+        merged.update(FAST_TEST_ENV_OVERRIDES)
+    return merged
 
 
 def _run_script_capture(
@@ -253,15 +428,28 @@ def run_single_ticker_pipeline(
     *,
     env_overrides: dict[str, str] | None = None,
     event_callback: EventCallback | None = None,
-    interactive_chart_open: bool = False,
+    fast_test_mode: bool = False,
+    show_plots: bool = False,
+    save_outputs: bool = False,
+    minimal_mode: bool = True,
 ) -> WorkflowRunResult:
     """Run the full single-ticker workflow using the existing project scripts."""
     workflow_name = "Single-Ticker Full Pipeline"
     started_at = time.time()
+    runtime_overrides = merge_fast_test_overrides(
+        env_overrides,
+        fast_test_mode=fast_test_mode,
+    )
     script_dir, python_executable, env = build_runtime_context(
-        env_overrides={**(env_overrides or {}), "TICKER": ticker.upper()},
-        show_plots=False,
-        interactive_chart_open=interactive_chart_open,
+        env_overrides={**runtime_overrides, "TICKER": ticker.upper()},
+        show_plots=show_plots,
+        save_outputs=save_outputs,
+    )
+    removed_stale_files = prune_inactive_strategy_artifacts(ticker)
+    single_ticker_steps = build_single_ticker_steps(
+        minimal_mode=minimal_mode,
+        include_visuals=(show_plots or save_outputs),
+        include_extended_plots=(show_plots or save_outputs),
     )
 
     _emit(
@@ -269,15 +457,31 @@ def run_single_ticker_pipeline(
         WorkflowEvent(
             kind="workflow_started",
             workflow_name=workflow_name,
-            message=f"Starting full single-ticker pipeline for {ticker.upper()}",
+            message=(
+                f"Starting full single-ticker pipeline for {ticker.upper()} "
+                f"({'fast test mode' if fast_test_mode else 'full research mode'}, "
+                f"{'minimal' if minimal_mode else 'extended'} profile)."
+            ),
         ),
     )
+    if removed_stale_files > 0:
+        _emit(
+            event_callback,
+            WorkflowEvent(
+                kind="log",
+                workflow_name=workflow_name,
+                message=(
+                    f"Removed {removed_stale_files} stale artifact file(s) for disabled "
+                    f"strategies before running {ticker.upper()}."
+                ),
+            ),
+        )
 
     step_results: list[StepRunResult] = []
-    total_steps = len(DEFAULT_SINGLE_TICKER_STEPS)
+    total_steps = len(single_ticker_steps)
     error_message: str | None = None
 
-    for step_index, (label, script_name) in enumerate(DEFAULT_SINGLE_TICKER_STEPS, start=1):
+    for step_index, (label, script_name) in enumerate(single_ticker_steps, start=1):
         step_result = _run_script_capture(
             workflow_name=workflow_name,
             script_dir=script_dir,
@@ -318,7 +522,11 @@ def run_single_ticker_pipeline(
         finished_at=finished_at,
         step_results=step_results,
         error_message=error_message,
-        metadata={"ticker": ticker.upper()},
+        metadata={
+            "ticker": ticker.upper(),
+            "run_mode": "fast_test" if fast_test_mode else "full",
+            "profile": "minimal" if minimal_mode else "extended",
+        },
     )
 
 
@@ -327,18 +535,25 @@ def run_walk_forward_pipeline(
     *,
     env_overrides: dict[str, str] | None = None,
     event_callback: EventCallback | None = None,
+    fast_test_mode: bool = False,
 ) -> WorkflowRunResult:
-    """Run the preserved multi-asset walk-forward workflow."""
+    """Run the multi-asset walk-forward workflow."""
     workflow_name = "Multi-Asset Walk-Forward Evaluation"
     started_at = time.time()
     normalized_tickers = [ticker.strip().upper() for ticker in (tickers or DEFAULT_WALK_FORWARD_TICKERS)]
     normalized_tickers = [ticker for ticker in normalized_tickers if ticker]
-    env_payload = dict(env_overrides or {})
+    env_payload = merge_fast_test_overrides(
+        env_overrides,
+        fast_test_mode=fast_test_mode,
+    )
+    if fast_test_mode:
+        for key, value in WALK_FORWARD_FAST_TEST_ENV_OVERRIDES.items():
+            env_payload.setdefault(key, value)
     env_payload["WALK_FORWARD_TICKERS"] = ",".join(normalized_tickers)
     script_dir, python_executable, env = build_runtime_context(
         env_overrides=env_payload,
         show_plots=False,
-        interactive_chart_open=False,
+        save_outputs=False,
     )
 
     _emit(
@@ -346,7 +561,10 @@ def run_walk_forward_pipeline(
         WorkflowEvent(
             kind="workflow_started",
             workflow_name=workflow_name,
-            message="Starting multi-asset walk-forward evaluation.",
+            message=(
+                "Starting multi-asset walk-forward evaluation "
+                f"({'fast test mode' if fast_test_mode else 'full research mode'})."
+            ),
         ),
     )
 
@@ -388,7 +606,10 @@ def run_walk_forward_pipeline(
         finished_at=finished_at,
         step_results=[step_result],
         error_message=error_message,
-        metadata={"tickers": ",".join(normalized_tickers)},
+        metadata={
+            "tickers": ",".join(normalized_tickers),
+            "run_mode": "fast_test" if fast_test_mode else "full",
+        },
     )
 
 
@@ -427,7 +648,7 @@ def ticker_trade_files(ticker: str) -> list[Path]:
     ticker = ticker.upper()
     return sorted(
         path
-        for path in data_clean_dir().glob(f"{ticker}_*_trades.csv")
+        for path in data_clean_dir().glob(f"{ticker}_*trade*.csv")
         if path.is_file()
     )
 
@@ -447,11 +668,9 @@ def single_ticker_summary_tables(ticker: str) -> dict[str, pd.DataFrame]:
     ticker = ticker.upper()
     table_paths = {
         "Full Comparison": data_clean_dir() / f"{ticker}_full_comparison.csv",
-        "Agent Comparison": data_clean_dir() / f"{ticker}_agent_comparison.csv",
         "Monte Carlo Summary": data_clean_dir() / f"{ticker}_monte_carlo_summary.csv",
-        "Monte Carlo Robustness Summary": data_clean_dir() / f"{ticker}_monte_carlo_robustness_summary.csv",
         "RCSI": data_clean_dir() / f"{ticker}_rcsi.csv",
-        "Regime Analysis": data_clean_dir() / f"{ticker}_regime_analysis.csv",
+        "Trade Activity Validation": data_clean_dir() / f"{ticker}_trade_activity_validation.csv",
         "Buy and Hold Metrics": data_clean_dir() / f"{ticker}_buy_hold_metrics.csv",
     }
     loaded: dict[str, pd.DataFrame] = {}
@@ -494,30 +713,6 @@ def walk_forward_artifact_files() -> list[Path]:
         if path.is_file()
     }
     return sorted(unique_paths.values())
-
-
-def ensure_combined_chart_pdf(ticker: str) -> Path | None:
-    """Build the combined chart PDF for one ticker when its PNG charts exist."""
-    try:
-        chart_files = [
-            chart_path
-            for chart_path in pipeline_chart_paths(ticker.upper())
-            if chart_path.exists()
-        ]
-        if not chart_files:
-            return None
-
-        pdf_path = chart_files[0].parent / f"{ticker.upper()}_pipeline_charts.pdf"
-        image_pages = []
-        for chart_path in chart_files:
-            with Image.open(chart_path) as image:
-                image_pages.append(image.convert("RGB"))
-
-        first_page, *remaining_pages = image_pages
-        first_page.save(pdf_path, save_all=True, append_images=remaining_pages)
-        return pdf_path
-    except Exception:
-        return None
 
 
 def agent_metric_paths(ticker: str) -> dict[str, Path]:

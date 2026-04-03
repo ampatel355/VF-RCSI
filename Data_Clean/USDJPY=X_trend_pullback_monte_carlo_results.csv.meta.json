@@ -1,0 +1,38 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/USDJPY=X_trend_pullback_monte_carlo_results.csv",
+  "canonical_policy": "always",
+  "canonical_updated": true,
+  "column_names": [
+    "simulation_id",
+    "simulated_cumulative_return"
+  ],
+  "created_at_utc": "2026-04-02T18:24:02Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1774982978112551851,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/USDJPY=X_trend_pullback_trades.csv",
+      "sha256": "b266545713c2b8e9b67560019b2f300c8330c1ede523a0b0bbd08d5624c23367",
+      "size_bytes": 61236
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775154242530428956,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/USDJPY=X_regimes.csv",
+      "sha256": "a8e4c6b5150775531c62e67659c8f76e485011dbe5e73a17c3080339476f25fc",
+      "size_bytes": 7071305
+    }
+  ],
+  "parameters": {
+    "agent_name": "trend_pullback",
+    "null_model_type": "timing_null_results",
+    "simulation_count": 5000
+  },
+  "pipeline_profile": "standard",
+  "producer": "monte_carlo.save_simulation_results",
+  "research_grade": true,
+  "row_count": 5000,
+  "run_id": "run_20260402T182402Z_pid90405",
+  "ticker": "USDJPY=X",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/USDJPY=X_trend_pullback_monte_carlo_results__run_20260402T182402Z_pid90405.csv"
+}

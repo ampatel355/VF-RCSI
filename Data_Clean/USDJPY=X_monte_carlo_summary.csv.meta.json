@@ -1,0 +1,92 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/USDJPY=X_monte_carlo_summary.csv",
+  "canonical_policy": "always",
+  "canonical_updated": true,
+  "column_names": [
+    "agent",
+    "actual_cumulative_return",
+    "median_simulated_return",
+    "mean_simulated_return",
+    "std_simulated_return",
+    "actual_percentile",
+    "p_value",
+    "p_value_prominence",
+    "p_value_interpretation",
+    "lower_5pct",
+    "upper_95pct",
+    "number_of_trades",
+    "transaction_cost",
+    "execution_cost_model",
+    "simulation_count",
+    "research_grade",
+    "reproducible",
+    "seed_used",
+    "null_model",
+    "bh_adjusted_p_value"
+  ],
+  "created_at_utc": "2026-04-02T18:24:07Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775154245802476709,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/USDJPY=X_regimes.csv",
+      "sha256": "7f263614be090b75fa99e699e28a730549a6afa3564333a6ddbc5c00cec91fca",
+      "size_bytes": 6844894
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775154242801706901,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/USDJPY=X_trend_pullback_monte_carlo_results.csv",
+      "sha256": "2635e2b971fbc552dcdf7d98d1c7df72a0e14db8f9d30db2f567e8823b0d0da5",
+      "size_bytes": 127350
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775154242976594753,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/USDJPY=X_breakout_volume_momentum_monte_carlo_results.csv",
+      "sha256": "4c7fd27b2a2527ce10bd058e96b81ce4c3dbfd7069dff6dae20ffaa4535a867e",
+      "size_bytes": 126511
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775154243123149438,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/USDJPY=X_mean_reversion_vol_filter_monte_carlo_results.csv",
+      "sha256": "912fe96b381cdb88a4ab8524a05f962ea64b54dbc055b82b257114d53d376c46",
+      "size_bytes": 126881
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775154245943523746,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/USDJPY=X_momentum_relative_strength_monte_carlo_results.csv",
+      "sha256": "b2bcc430d544014fd2c748de33464dd17c4205b3d96104a1fa2e931100ae7fb2",
+      "size_bytes": 122201
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775154247237360321,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/USDJPY=X_trend_momentum_verification_monte_carlo_results.csv",
+      "sha256": "9f39e7b38f70d8fa77faf35e89caeaf9ea48b4c75ea15d2b5097c00a7ff62147",
+      "size_bytes": 124994
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775154247425718582,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/USDJPY=X_random_monte_carlo_results.csv",
+      "sha256": "45db868a2fa6bf1a8cacf712fcfc058ec242939074a3ec0108bdb442dec3f68c",
+      "size_bytes": 125657
+    }
+  ],
+  "parameters": {
+    "context_bucket_count": 5,
+    "context_matching_enabled": false,
+    "simulate_execution_costs": true,
+    "simulation_count": 5000
+  },
+  "pipeline_profile": "standard",
+  "producer": "monte_carlo.main",
+  "research_grade": true,
+  "row_count": 6,
+  "run_id": "run_20260402T182402Z_pid90405",
+  "ticker": "USDJPY=X",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/USDJPY=X_monte_carlo_summary__run_20260402T182402Z_pid90405.csv"
+}

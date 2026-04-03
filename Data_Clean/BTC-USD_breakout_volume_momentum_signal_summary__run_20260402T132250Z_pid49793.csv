@@ -1,0 +1,2 @@
+ticker,agent,timeframe_label,data_interval,signal_count,executed_trade_count,rejected_signal_count,months_covered
+BTC-USD,breakout_volume_momentum,Daily,1d,93,93,0,124.91170431211499

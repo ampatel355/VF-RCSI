@@ -1,0 +1,2 @@
+total_trades,average_return,median_return,win_rate,std_return,trade_level_return_ratio,average_win,average_loss,expected_value,average_holding_period_days,average_holding_period_hours,average_holding_bars,trades_per_month,stop_loss_exit_rate,take_profit_exit_rate
+32,0.005233629200950749,-0.01009619815684065,0.375,0.05528892340425948,0.09465963304591221,0.05655061995613564,0.025556565252160185,0.005233629200950749,9.5,228.0,6.5625,0.10192549183758895,0.0,0.1875

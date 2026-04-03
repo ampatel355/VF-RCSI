@@ -1,0 +1,37 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/SPY_volatility_squeeze_breakout_monte_carlo_results.csv",
+  "canonical_policy": "always",
+  "column_names": [
+    "simulation_id",
+    "simulated_cumulative_return"
+  ],
+  "created_at_utc": "2026-04-02T20:06:17Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775160364908615994,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/SPY_volatility_squeeze_breakout_trades.csv",
+      "sha256": "d7c6c07598de80cb6e3f1e25282c60af730b4e1004e3a50dbee73618610f87b5",
+      "size_bytes": 16519
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775160347625626931,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/SPY_regimes.csv",
+      "sha256": "f984b8ee6aae095852221bd19021995fa5baf1761b5c208d4f2655132add8243",
+      "size_bytes": 7975892
+    }
+  ],
+  "parameters": {
+    "agent_name": "volatility_squeeze_breakout",
+    "null_model_type": "timing_null_results",
+    "simulation_count": 5000
+  },
+  "pipeline_profile": "standard",
+  "producer": "monte_carlo.save_simulation_results",
+  "research_grade": true,
+  "row_count": 5000,
+  "run_id": "run_20260402T200544Z_pid1644",
+  "ticker": "SPY",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/SPY_volatility_squeeze_breakout_monte_carlo_results__run_20260402T200544Z_pid1644.csv"
+}

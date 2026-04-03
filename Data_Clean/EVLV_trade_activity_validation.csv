@@ -1,0 +1,6 @@
+ticker,agent,timeframe_label,data_interval,total_trades,signal_count,rejected_signal_count,signal_to_trade_conversion,total_bars,signal_rate_pct,trades_per_month,average_holding_bars,average_holding_hours,activity_status,activity_warning
+EVLV,trend_pullback,1H,1h,57,58,1,0.9827586206896551,4750,1.2210526315789474,1.7665139366170295,8.017543859649123,40.824561403508774,underactive,Too few trades for strong statistical power. Consider reviewing thresholds or sample length.
+EVLV,breakout_volume_momentum,1H,1h,58,58,0,1.0,4750,1.2210526315789474,1.7850101112234582,10.017241379310345,53.5,underactive,Too few trades for strong statistical power. Consider reviewing thresholds or sample length.
+EVLV,mean_reversion_vol_filter,1H,1h,0,0,0,0.0,4750,0.0,0.0,0.0,0.0,underactive,Too few trades for strong statistical power. Consider reviewing thresholds or sample length.
+EVLV,momentum_relative_strength,1H,1h,304,308,4,0.987012987012987,4750,6.484210526315789,9.318227593152063,13.197368421052632,63.21052631578947,acceptable,Trade activity is in a reasonable range for 1-hour research and null-hypothesis testing.
+EVLV,random,1H,1h,90,90,0,1.0,4750,1.8947368421052633,2.7729975958496773,12.122222222222222,63.91111111111111,acceptable,Trade activity is in a reasonable range for 1-hour research and null-hypothesis testing.

@@ -1,0 +1,126 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/4h/SPY_monte_carlo_summary.csv",
+  "canonical_policy": "always",
+  "column_names": [
+    "agent",
+    "actual_cumulative_return",
+    "median_simulated_return",
+    "mean_simulated_return",
+    "std_simulated_return",
+    "actual_percentile",
+    "p_value",
+    "p_value_prominence",
+    "p_value_interpretation",
+    "lower_5pct",
+    "upper_95pct",
+    "number_of_trades",
+    "transaction_cost",
+    "execution_cost_model",
+    "simulation_count",
+    "research_grade",
+    "reproducible",
+    "seed_used",
+    "null_model",
+    "bh_adjusted_p_value"
+  ],
+  "created_at_utc": "2026-04-02T22:42:01Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775169705365885304,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/4h/SPY_regimes.csv",
+      "sha256": "d460c97aafe6bde1fc1bc03c21daf7adb8b4e005d2fea70eea19428a45c09495",
+      "size_bytes": 1057550
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775169721705097261,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/4h/SPY_trend_pullback_monte_carlo_results.csv",
+      "sha256": "9012d7cc50f7120a522375cdc05282ee0373416f8a24cfc31fd325a4fc3d458b",
+      "size_bytes": 50713
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775169721725378050,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/4h/SPY_breakout_volume_momentum_monte_carlo_results.csv",
+      "sha256": "866bedb14a57119a90e286530c5489c6526aa498852f4c149e2e0b2349420a6e",
+      "size_bytes": 51469
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775169721749893133,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/4h/SPY_mean_reversion_vol_filter_monte_carlo_results.csv",
+      "sha256": "57ab7139e8f13a1bc08c414d858c1c63a9ce13e3e51385c1894db194b46236e6",
+      "size_bytes": 52176
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775169721767644022,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/4h/SPY_trend_momentum_verification_monte_carlo_results.csv",
+      "sha256": "1b3a86fecef068e9b1a5470086a3caae9b745c76299d7f75922dd000b4369589",
+      "size_bytes": 50704
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775169721786702300,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/4h/SPY_adx_trend_following_monte_carlo_results.csv",
+      "sha256": "43ffd0a2c62a69aa57250b956cb6f830858faf4dd30cbe233d3a7ccdb138cfcc",
+      "size_bytes": 50468
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775169721808284186,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/4h/SPY_uptrend_oversold_reversion_monte_carlo_results.csv",
+      "sha256": "ee1ef5ec26bc798c6fa9d6461e22a5db43fdca9b00f450389d2186e3697f2138",
+      "size_bytes": 50921
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775169721825537570,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/4h/SPY_volatility_squeeze_breakout_monte_carlo_results.csv",
+      "sha256": "de637070be5ce4fc0e9cb2653d4536cee6b276d185a68619dd1395531b24621c",
+      "size_bytes": 51706
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775169721844869808,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/4h/SPY_connors_rsi2_pullback_monte_carlo_results.csv",
+      "sha256": "e7504dcab304f3d150de77a04880265abc5529a9563155044abaa4e83d91020a",
+      "size_bytes": 50809
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775169721865266891,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/4h/SPY_donchian_trend_reentry_monte_carlo_results.csv",
+      "sha256": "4fbf0afcb6fe7ddcea77689d8de302fd934eebd41a89985d2c78c8651b9304d4",
+      "size_bytes": 50503
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775169721884170667,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/4h/SPY_turn_of_month_seasonality_monte_carlo_results.csv",
+      "sha256": "4d90a2f368eaf97f3c5c56efd8ba2e4080853d811478eabf0d99dd3f84369dd8",
+      "size_bytes": 50661
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775169721942005047,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/4h/SPY_random_monte_carlo_results.csv",
+      "sha256": "ea4963a4201b9bef0af40b895efcbea40b1d04e99e62cd05602d7279497063ef",
+      "size_bytes": 49140
+    }
+  ],
+  "parameters": {
+    "context_bucket_count": 5,
+    "context_matching_enabled": false,
+    "simulate_execution_costs": true,
+    "simulation_count": 2000
+  },
+  "pipeline_profile": "standard",
+  "producer": "monte_carlo.main",
+  "research_grade": false,
+  "row_count": 11,
+  "run_id": "run_20260402T224112Z_pid45834",
+  "ticker": "SPY",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/4h/SPY_monte_carlo_summary__run_20260402T224112Z_pid45834.csv"
+}

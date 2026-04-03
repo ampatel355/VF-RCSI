@@ -1,2 +1,2 @@
-start_date,end_date,first_close,last_close,buy_hold_return,annualized_sharpe,max_drawdown,number_of_periods,transaction_cost
-1993-11-11,2026-03-31,25.97961044311523,647.010009765625,23.904530850541946,0.6236985044544237,-0.5518942283767899,8150,0.0
+start_date,end_date,first_close,last_close,buy_hold_return,annualized_sharpe,max_drawdown,number_of_periods,transaction_cost,timeframe_label,data_interval
+1993-11-11 00:00,2026-04-02 00:00,25.97960662841797,655.8300170898438,24.232167151629024,0.6253702210598182,-0.5518945430726729,8152,0.00047,Daily,1d

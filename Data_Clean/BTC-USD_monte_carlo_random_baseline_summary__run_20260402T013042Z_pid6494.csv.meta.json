@@ -1,0 +1,37 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/BTC-USD_monte_carlo_random_baseline_summary.csv",
+  "canonical_policy": "auto",
+  "column_names": [
+    "ticker",
+    "random_baseline_runs",
+    "random_baseline_simulations",
+    "mean_percentile",
+    "median_percentile",
+    "mean_p_value",
+    "false_positive_rate_p_le_0_05",
+    "random_luck_rate",
+    "weak_skill_rate",
+    "moderate_or_strong_skill_rate"
+  ],
+  "created_at_utc": "2026-04-02T01:31:44Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775093504947983471,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/BTC-USD_monte_carlo_random_baseline_validation.csv",
+      "sha256": "d40c495a933a6c1e3c6a27e06f855d1f1d215360367e3afd0f2bf22e4126776c",
+      "size_bytes": 5988
+    }
+  ],
+  "parameters": {
+    "random_baseline_runs": 30,
+    "random_baseline_simulations": 1000
+  },
+  "pipeline_profile": "standard",
+  "producer": "monte_carlo_null_validation.validate_random_baseline",
+  "research_grade": true,
+  "row_count": 1,
+  "run_id": "run_20260402T013042Z_pid6494",
+  "ticker": "BTC-USD",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/BTC-USD_monte_carlo_random_baseline_summary__run_20260402T013042Z_pid6494.csv"
+}

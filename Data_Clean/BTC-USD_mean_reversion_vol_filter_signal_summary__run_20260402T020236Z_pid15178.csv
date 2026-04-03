@@ -1,0 +1,2 @@
+ticker,agent,timeframe_label,data_interval,signal_count,executed_trade_count,rejected_signal_count,months_covered
+BTC-USD,mean_reversion_vol_filter,1H,1h,106,104,2,23.2539356605065

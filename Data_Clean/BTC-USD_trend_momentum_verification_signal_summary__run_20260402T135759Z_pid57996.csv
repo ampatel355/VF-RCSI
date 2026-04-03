@@ -1,0 +1,2 @@
+ticker,agent,timeframe_label,data_interval,signal_count,executed_trade_count,rejected_signal_count,months_covered
+BTC-USD,trend_momentum_verification,Daily,1d,11,11,0,112.8870636550308

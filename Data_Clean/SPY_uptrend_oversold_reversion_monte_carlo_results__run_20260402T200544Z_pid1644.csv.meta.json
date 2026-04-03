@@ -1,0 +1,37 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/SPY_uptrend_oversold_reversion_monte_carlo_results.csv",
+  "canonical_policy": "always",
+  "column_names": [
+    "simulation_id",
+    "simulated_cumulative_return"
+  ],
+  "created_at_utc": "2026-04-02T20:06:17Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775160363416365488,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/SPY_uptrend_oversold_reversion_trades.csv",
+      "sha256": "b03f4279f3f9087a74556fdb5ea9ecb983f88bf39e0bcfd66215d7501e99d6c5",
+      "size_bytes": 42950
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775160347625626931,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/SPY_regimes.csv",
+      "sha256": "f984b8ee6aae095852221bd19021995fa5baf1761b5c208d4f2655132add8243",
+      "size_bytes": 7975892
+    }
+  ],
+  "parameters": {
+    "agent_name": "uptrend_oversold_reversion",
+    "null_model_type": "timing_null_results",
+    "simulation_count": 5000
+  },
+  "pipeline_profile": "standard",
+  "producer": "monte_carlo.save_simulation_results",
+  "research_grade": true,
+  "row_count": 5000,
+  "run_id": "run_20260402T200544Z_pid1644",
+  "ticker": "SPY",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/SPY_uptrend_oversold_reversion_monte_carlo_results__run_20260402T200544Z_pid1644.csv"
+}

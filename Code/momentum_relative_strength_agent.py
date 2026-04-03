@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 
 try:
+    from artifact_provenance import write_dataframe_artifact
     from asset_class_universe import resolve_relative_strength_setup
     from execution_model import (
         STARTING_CAPITAL,
@@ -19,6 +20,7 @@ try:
     )
     from research_metrics import calculate_annualized_sharpe_from_daily_returns, save_curve_csv
     from regimes import build_regime_dataframe_for_ticker
+    from single_ticker_agent_common import load_regime_data, save_trade_outputs
     from strategy_config import (
         RELATIVE_STRENGTH_ABSOLUTE_MOMENTUM_THRESHOLD,
         RELATIVE_STRENGTH_LOOKBACK_DAYS,
@@ -27,8 +29,15 @@ try:
         RELATIVE_STRENGTH_TOP_N,
         RELATIVE_STRENGTH_TRAILING_STOP_ATR_MULTIPLIER,
     )
-    from strategy_simulator import _entry_is_still_valid, _finalize_trades, _first_daily_exit_reason
+    from strategy_simulator import (
+        _entry_is_still_valid,
+        _finalize_trades,
+        _first_daily_exit_reason,
+        _is_rebalance_bar,
+    )
+    from timeframe_config import RESEARCH_INTERVAL, RESEARCH_TIMEFRAME_LABEL, timeframe_output_suffix
 except ModuleNotFoundError:
+    from Code.artifact_provenance import write_dataframe_artifact
     from Code.asset_class_universe import resolve_relative_strength_setup
     from Code.execution_model import (
         STARTING_CAPITAL,
@@ -39,6 +48,7 @@ except ModuleNotFoundError:
     )
     from Code.research_metrics import calculate_annualized_sharpe_from_daily_returns, save_curve_csv
     from Code.regimes import build_regime_dataframe_for_ticker
+    from Code.single_ticker_agent_common import load_regime_data, save_trade_outputs
     from Code.strategy_config import (
         RELATIVE_STRENGTH_ABSOLUTE_MOMENTUM_THRESHOLD,
         RELATIVE_STRENGTH_LOOKBACK_DAYS,
@@ -47,28 +57,35 @@ except ModuleNotFoundError:
         RELATIVE_STRENGTH_TOP_N,
         RELATIVE_STRENGTH_TRAILING_STOP_ATR_MULTIPLIER,
     )
-    from Code.strategy_simulator import _entry_is_still_valid, _finalize_trades, _first_daily_exit_reason
+    from Code.strategy_simulator import (
+        _entry_is_still_valid,
+        _finalize_trades,
+        _first_daily_exit_reason,
+        _is_rebalance_bar,
+    )
+    from Code.timeframe_config import RESEARCH_INTERVAL, RESEARCH_TIMEFRAME_LABEL, timeframe_output_suffix
 
 
 ticker = os.environ.get("TICKER", "SPY").strip().upper()
 
 
 def resolve_data_clean_dir(project_root: Path) -> Path:
-    """Return the project's clean-data folder, supporting either naming style."""
-    lowercase_dir = project_root / "data_clean"
-    uppercase_dir = project_root / "Data_Clean"
+    """Return the project's clean-data folder, preferring the uppercase path."""
+    suffix = timeframe_output_suffix()
+    lowercase_dir = project_root / f"data_clean{suffix}"
+    uppercase_dir = project_root / f"Data_Clean{suffix}"
 
-    if lowercase_dir.exists():
-        return lowercase_dir
     if uppercase_dir.exists():
         return uppercase_dir
+    if lowercase_dir.exists():
+        return lowercase_dir
 
-    lowercase_dir.mkdir(parents=True, exist_ok=True)
-    return lowercase_dir
+    uppercase_dir.mkdir(parents=True, exist_ok=True)
+    return uppercase_dir
 
 
 def resolve_universe(anchor_ticker: str) -> list[str]:
-    """Build the universe while ensuring the active ticker participates."""
+    """Build the peer universe used for cross-asset ranking."""
     setup = resolve_relative_strength_setup(anchor_ticker)
     universe = [str(symbol).strip().upper() for symbol in setup["universe"]]
 
@@ -116,7 +133,18 @@ def save_universe_metadata(
         )
 
     metadata_df = pd.DataFrame(rows)
-    metadata_df.to_csv(output_path, index=False)
+    write_dataframe_artifact(
+        metadata_df,
+        output_path,
+        producer="momentum_relative_strength_agent.save_universe_metadata",
+        current_ticker=str(setup.get("anchor_ticker", "")).strip().upper(),
+        research_grade=True,
+        canonical_policy="always",
+        parameters={
+            "artifact_type": "relative_strength_universe",
+            "selection_source": str(setup.get("selection_source", "")),
+        },
+    )
 
 
 def load_aligned_universe_data(universe: list[str]) -> tuple[list[pd.Timestamp], dict[str, pd.DataFrame]]:
@@ -137,7 +165,7 @@ def load_aligned_universe_data(universe: list[str]) -> tuple[list[pd.Timestamp],
         "High",
         "Low",
         "Close",
-        "ma_50",
+        "sma_50",
         "atr_14",
         "avg_volume_20",
         RELATIVE_STRENGTH_RETURN_COLUMN,
@@ -200,14 +228,6 @@ def load_aligned_universe_data(universe: list[str]) -> tuple[list[pd.Timestamp],
     return ordered_common_dates, aligned_frames
 
 
-def is_rebalance_day(current_date: pd.Timestamp, next_date: pd.Timestamp) -> bool:
-    """Return whether the close on current_date should trigger a rebalance decision."""
-    frequency = RELATIVE_STRENGTH_REBALANCE_FREQUENCY.lower()
-    if frequency.startswith("month"):
-        return current_date.to_period("M") != next_date.to_period("M")
-    return current_date.to_period("W-FRI") != next_date.to_period("W-FRI")
-
-
 def select_top_asset(asset_frames: dict[str, pd.DataFrame], current_index: int) -> str | None:
     """Rank the universe by trailing return and return the strongest eligible asset."""
     ranking_rows: list[tuple[str, float]] = []
@@ -216,13 +236,13 @@ def select_top_asset(asset_frames: dict[str, pd.DataFrame], current_index: int) 
         row = asset_df.iloc[current_index]
         trailing_return = float(row[RELATIVE_STRENGTH_RETURN_COLUMN])
         close_price = float(row["Close"])
-        ma_50 = float(row["ma_50"])
+        sma_50 = float(row["sma_50"])
 
         # We require both cross-sectional leadership and non-negative absolute
         # momentum so the strategy can step aside into cash when leadership is weak.
         if trailing_return <= RELATIVE_STRENGTH_ABSOLUTE_MOMENTUM_THRESHOLD:
             continue
-        if close_price <= ma_50:
+        if close_price <= sma_50:
             continue
 
         ranking_rows.append((asset_ticker, trailing_return))
@@ -239,7 +259,7 @@ def build_relative_strength_curve(
     common_dates: list[pd.Timestamp],
     asset_frames: dict[str, pd.DataFrame],
 ) -> pd.DataFrame:
-    """Build the daily marked-to-market equity curve for the rotating top-asset strategy."""
+    """Build the bar-based marked-to-market equity curve for the rotating top-asset strategy."""
     curve_df = pd.DataFrame({"Date": pd.to_datetime(common_dates)})
     curve_df["Close"] = np.nan
     curve_df["asset_ticker"] = pd.NA
@@ -248,10 +268,12 @@ def build_relative_strength_curve(
     if trade_df.empty:
         curve_df["equity"] = equity
         curve_df["wealth_index"] = curve_df["equity"] / float(STARTING_CAPITAL)
+        curve_df["bar_return"] = curve_df["wealth_index"].pct_change().fillna(0.0)
         curve_df["daily_return"] = curve_df["wealth_index"].pct_change().fillna(0.0)
         curve_df["cumulative_return"] = curve_df["wealth_index"] - 1.0
         curve_df["rolling_peak"] = curve_df["wealth_index"].cummax()
         curve_df["drawdown"] = (curve_df["wealth_index"] / curve_df["rolling_peak"]) - 1.0
+        curve_df["timeframe_label"] = RESEARCH_TIMEFRAME_LABEL
         return curve_df
 
     date_to_index = pd.Series(curve_df.index.to_numpy(), index=curve_df["Date"])
@@ -279,7 +301,7 @@ def build_relative_strength_curve(
         asset_ticker = str(trade_row["asset_ticker"]).strip().upper()
         asset_close_values = close_lookup[asset_ticker]
         cash_after_entry = float(trade_row["capital_before"]) - float(trade_row["capital_deployed"])
-        shares = int(trade_row["shares"])
+        shares = float(trade_row["shares"])
 
         equity[entry_index:exit_index] = cash_after_entry + (shares * asset_close_values[entry_index:exit_index])
         curve_df.loc[entry_index:exit_index - 1, "Close"] = asset_close_values[entry_index:exit_index]
@@ -291,40 +313,50 @@ def build_relative_strength_curve(
     equity[fill_start_index:] = current_capital
     curve_df["equity"] = equity
     curve_df["wealth_index"] = curve_df["equity"] / float(STARTING_CAPITAL)
+    curve_df["bar_return"] = curve_df["equity"].pct_change().replace([np.inf, -np.inf], np.nan).fillna(0.0)
     curve_df["daily_return"] = curve_df["equity"].pct_change().replace([np.inf, -np.inf], np.nan).fillna(0.0)
     curve_df["cumulative_return"] = curve_df["wealth_index"] - 1.0
     curve_df["rolling_peak"] = curve_df["wealth_index"].cummax()
     curve_df["drawdown"] = (curve_df["wealth_index"] / curve_df["rolling_peak"]) - 1.0
+    curve_df["timeframe_label"] = RESEARCH_TIMEFRAME_LABEL
     return curve_df
 
 
-def main() -> None:
-    """Run the relative-strength rotation strategy and save both trades and equity curve."""
-    # Re-read TICKER at runtime so imported in-process uses stay aligned with the
-    # current environment, not just the value captured at module import time.
-    current_ticker = os.environ.get("TICKER", ticker).strip().upper()
-    project_root = Path(__file__).resolve().parents[1]
-    data_clean_dir = resolve_data_clean_dir(project_root)
-    trade_output_path = data_clean_dir / f"{current_ticker}_momentum_relative_strength_trades.csv"
-    curve_output_path = data_clean_dir / f"{current_ticker}_momentum_relative_strength_curve.csv"
-    metadata_output_path = data_clean_dir / f"{current_ticker}_momentum_relative_strength_universe.csv"
+def run_relative_strength_on_aligned_universe(
+    common_dates: list[pd.Timestamp],
+    asset_frames: dict[str, pd.DataFrame],
+    *,
+    anchor_ticker: str | None = None,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Run the relative-strength rotation logic on an already aligned universe.
 
-    setup = resolve_relative_strength_setup(current_ticker)
-    universe = resolve_universe(current_ticker)
-    common_dates, asset_frames = load_aligned_universe_data(universe)
+    This helper is shared by:
+    - the normal saved-file agent entrypoint
+    - the in-memory walk-forward simulator path
+
+    Bar-data simplification:
+    Rebalance decisions are made using the completed close on a shared peer
+    calendar and then executed at the next open of the selected asset.
+    """
     primary_dates = pd.Series(pd.to_datetime(common_dates))
-
     trades: list[dict[str, object]] = []
     capital = STARTING_CAPITAL
-    execution_rng = build_execution_rng("momentum_relative_strength")
+    execution_rng = build_execution_rng("momentum_relative_strength", anchor_ticker)
     open_position: OpenPosition | None = None
     highest_close_since_entry: float | None = None
     current_asset_ticker: str | None = None
+    signal_count = 0
+    rejected_signal_count = 0
 
     for current_index in range(len(primary_dates) - 1):
         current_date = primary_dates.iloc[current_index]
         next_date = primary_dates.iloc[current_index + 1]
-        rebalance_today = is_rebalance_day(current_date, next_date)
+        rebalance_today = _is_rebalance_bar(
+            current_index=current_index,
+            current_date=current_date,
+            next_date=next_date,
+            frequency=RELATIVE_STRENGTH_REBALANCE_FREQUENCY,
+        )
         target_asset = select_top_asset(asset_frames, current_index) if rebalance_today else None
 
         if open_position is not None and current_asset_ticker is not None:
@@ -369,12 +401,18 @@ def main() -> None:
                 highest_close_since_entry = None
 
         if open_position is None and rebalance_today and target_asset is not None:
+            if (current_index + 1) >= (len(primary_dates) - 1):
+                rejected_signal_count += 1
+                continue
+
             target_df = asset_frames[target_asset]
             row = target_df.iloc[current_index]
             next_row = target_df.iloc[current_index + 1]
             initial_stop = float(row.Close - (RELATIVE_STRENGTH_TRAILING_STOP_ATR_MULTIPLIER * float(row.atr_14)))
+            signal_count += 1
 
             if not _entry_is_still_valid(float(next_row.Open), initial_stop, None):
+                rejected_signal_count += 1
                 continue
 
             candidate_position = open_position_from_signal(
@@ -388,27 +426,153 @@ def main() -> None:
                 ticker=target_asset,
                 stop_loss_used=initial_stop,
                 take_profit_used=None,
+                entry_reason="relative_strength_leader_rotation",
             )
             if candidate_position is not None:
                 open_position = candidate_position
                 current_asset_ticker = target_asset
                 highest_close_since_entry = float(row.Close)
+            else:
+                rejected_signal_count += 1
+
+    if open_position is not None and current_asset_ticker is not None:
+        final_df = asset_frames[current_asset_ticker]
+        trade_record = close_position_from_signal(
+            position=open_position,
+            next_row=final_df.iloc[-1],
+            exit_index=len(primary_dates) - 1,
+            rng=execution_rng,
+            ticker=current_asset_ticker,
+            exit_reason="end_of_sample",
+        )
+        trades.append(trade_record)
+        capital = float(trade_record["capital_after"])
+        open_position = None
+        current_asset_ticker = None
+        highest_close_since_entry = None
 
     trades_df = _finalize_trades(trades)
+    trades_df.attrs["signal_count"] = signal_count
+    trades_df.attrs["rejected_signal_count"] = rejected_signal_count
     curve_df = build_relative_strength_curve(trades_df, common_dates, asset_frames)
+    return trades_df, curve_df
 
-    trades_df.to_csv(trade_output_path, index=False)
+
+def run_relative_strength_strategy_for_market_df(
+    market_df: pd.DataFrame,
+    anchor_ticker: str | None = None,
+) -> pd.DataFrame:
+    """Run the relative-strength strategy on the date window of one supplied fold.
+
+    The walk-forward framework passes one fold of the anchor ticker's market
+    data. We use that fold's dates as the allowed calendar window, then align
+    the peer universe to that same window so the cross-asset strategy can be
+    evaluated inside each fold without future leakage.
+    """
+    resolved_ticker = (
+        str(anchor_ticker).strip().upper()
+        if anchor_ticker
+        else str(market_df.attrs.get("ticker", ticker)).strip().upper()
+    )
+    universe = resolve_universe(resolved_ticker)
+    common_dates, asset_frames = load_aligned_universe_data(universe)
+
+    allowed_dates = set(pd.to_datetime(market_df["Date"], errors="coerce").dropna().tolist())
+    filtered_common_dates = [date for date in common_dates if date in allowed_dates]
+    if len(filtered_common_dates) < RELATIVE_STRENGTH_LOOKBACK_DAYS + 5:
+        return pd.DataFrame()
+
+    filtered_frames: dict[str, pd.DataFrame] = {}
+    for asset_ticker, asset_df in asset_frames.items():
+        filtered_df = asset_df.loc[asset_df["Date"].isin(filtered_common_dates)].copy()
+        filtered_df = filtered_df.sort_values("Date").reset_index(drop=True)
+        if len(filtered_df) != len(filtered_common_dates):
+            continue
+        filtered_df.attrs["ticker"] = asset_ticker
+        filtered_frames[asset_ticker] = filtered_df
+
+    if len(filtered_frames) < 2:
+        return pd.DataFrame()
+
+    trades_df, _ = run_relative_strength_on_aligned_universe(
+        filtered_common_dates,
+        filtered_frames,
+        anchor_ticker=resolved_ticker,
+    )
+    return trades_df
+
+
+def main() -> None:
+    """Run the relative-strength rotation strategy and save both trades and equity curve."""
+    # Re-read TICKER at runtime so imported in-process uses stay aligned with the
+    # current environment, not just the value captured at module import time.
+    current_ticker = os.environ.get("TICKER", ticker).strip().upper()
+    project_root = Path(__file__).resolve().parents[1]
+    data_clean_dir = resolve_data_clean_dir(project_root)
+    curve_output_path = data_clean_dir / f"{current_ticker}_momentum_relative_strength_curve.csv"
+    metadata_output_path = data_clean_dir / f"{current_ticker}_momentum_relative_strength_universe.csv"
+
+    setup = resolve_relative_strength_setup(current_ticker)
+    universe = resolve_universe(current_ticker)
+    common_dates, asset_frames = load_aligned_universe_data(universe)
+    anchor_market_path = data_clean_dir / f"{current_ticker}_regimes.csv"
+    anchor_market_df = load_regime_data(
+        anchor_market_path,
+        required_columns=["Date", "Open", "High", "Low", "Close", "avg_volume_20", "regime"],
+    )
+    allowed_dates = set(pd.to_datetime(anchor_market_df["Date"], errors="coerce").dropna().tolist())
+    filtered_common_dates = [date for date in common_dates if date in allowed_dates]
+
+    filtered_frames: dict[str, pd.DataFrame] = {}
+    for asset_ticker, asset_df in asset_frames.items():
+        filtered_df = asset_df.loc[asset_df["Date"].isin(filtered_common_dates)].copy()
+        filtered_df = filtered_df.sort_values("Date").reset_index(drop=True)
+        if len(filtered_df) != len(filtered_common_dates):
+            continue
+        filtered_df.attrs["ticker"] = asset_ticker
+        filtered_frames[asset_ticker] = filtered_df
+
+    if len(filtered_common_dates) >= RELATIVE_STRENGTH_LOOKBACK_DAYS + 5 and len(filtered_frames) >= 2:
+        trades_df, curve_df = run_relative_strength_on_aligned_universe(
+            filtered_common_dates,
+            filtered_frames,
+            anchor_ticker=current_ticker,
+        )
+    else:
+        trades_df = _finalize_trades([])
+        anchor_dates = sorted(allowed_dates)
+        curve_df = build_relative_strength_curve(
+            trades_df,
+            anchor_dates,
+            filtered_frames,
+        )
+
+    save_trade_outputs(
+        current_ticker=current_ticker,
+        agent_name="momentum_relative_strength",
+        trades_df=trades_df,
+        output_dir=data_clean_dir,
+    )
     save_curve_csv(curve_df, curve_output_path)
-    save_universe_metadata(metadata_output_path, setup, aligned_asset_frames=asset_frames)
+    save_universe_metadata(metadata_output_path, setup, aligned_asset_frames=filtered_frames)
 
     summary_text = {
         "asset_class": setup["asset_class_label"],
         "selection_source": setup["selection_source"],
         "universe_size": len(universe),
-        "calendar_rows": len(common_dates),
+        "calendar_rows": len(filtered_common_dates),
         "total_trades": len(trades_df),
-        "final_cumulative_return": float(curve_df["cumulative_return"].iloc[-1]),
-        "annualized_sharpe": float(calculate_annualized_sharpe_from_daily_returns(curve_df["daily_return"])),
+        "final_cumulative_return": (
+            float(curve_df["cumulative_return"].iloc[-1]) if not curve_df.empty else 0.0
+        ),
+        "annualized_sharpe": float(
+            calculate_annualized_sharpe_from_daily_returns(
+                curve_df["daily_return"],
+                dates=curve_df["Date"],
+            )
+        ),
+        "timeframe_label": RESEARCH_TIMEFRAME_LABEL,
+        "data_interval": RESEARCH_INTERVAL,
     }
     print(summary_text)
     print("Relative-strength universe:", ", ".join(universe))

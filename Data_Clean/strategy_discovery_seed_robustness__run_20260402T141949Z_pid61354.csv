@@ -1,0 +1,1 @@
+candidate_id,candidate_name,candidate_family,ticker,seed_runs,trade_count_median,RCSI_z_mean,RCSI_z_std,p_value_mean,p_value_std,percentile_mean,share_p_le_0_20,share_rcsi_z_ge_0_5

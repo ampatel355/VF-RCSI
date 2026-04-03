@@ -1,0 +1,37 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/ES=F_mean_reversion_vol_filter_monte_carlo_results.csv",
+  "canonical_policy": "always",
+  "column_names": [
+    "simulation_id",
+    "simulated_cumulative_return"
+  ],
+  "created_at_utc": "2026-04-02T02:37:07Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775097410243572067,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/ES=F_mean_reversion_vol_filter_trades.csv",
+      "sha256": "0d2448e6896be009dfc1ee6df9597913815046ed998e908bc622c9d47505f8c6",
+      "size_bytes": 28771
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775097399058681576,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/ES=F_regimes.csv",
+      "sha256": "5c4bab42d9a921bb2303b60a10921d762752a241b2927484852d5733ef6ad89f",
+      "size_bytes": 11108976
+    }
+  ],
+  "parameters": {
+    "agent_name": "mean_reversion_vol_filter",
+    "null_model_type": "timing_null_results",
+    "simulation_count": 5000
+  },
+  "pipeline_profile": "standard",
+  "producer": "monte_carlo.save_simulation_results",
+  "research_grade": true,
+  "row_count": 5000,
+  "run_id": "run_20260402T023330Z_pid22021",
+  "ticker": "ES=F",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/ES=F_mean_reversion_vol_filter_monte_carlo_results__run_20260402T023330Z_pid22021.csv"
+}

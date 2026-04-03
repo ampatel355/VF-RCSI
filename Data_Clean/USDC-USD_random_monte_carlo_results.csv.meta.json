@@ -1,0 +1,38 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/USDC-USD_random_monte_carlo_results.csv",
+  "canonical_policy": "always",
+  "canonical_updated": true,
+  "column_names": [
+    "simulation_id",
+    "simulated_cumulative_return"
+  ],
+  "created_at_utc": "2026-04-02T03:10:54Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775099434814223645,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/USDC-USD_random_trades.csv",
+      "sha256": "a90a69983d03768558a11e1c9345230668b06b0ea06e098ce394fd3cd9192137",
+      "size_bytes": 202530
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775099388131946948,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/USDC-USD_regimes.csv",
+      "sha256": "c19c3d599bf5b2566fd29848cbdfaf6e3f7ab37fc364f578add22b3456ce1cdc",
+      "size_bytes": 17771408
+    }
+  ],
+  "parameters": {
+    "agent_name": "random",
+    "null_model_type": "timing_null_results",
+    "simulation_count": 500
+  },
+  "pipeline_profile": "standard",
+  "producer": "monte_carlo.save_simulation_results",
+  "research_grade": false,
+  "row_count": 500,
+  "run_id": "run_20260402T030941Z_pid31359",
+  "ticker": "USDC-USD",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/USDC-USD_random_monte_carlo_results__run_20260402T030941Z_pid31359.csv"
+}

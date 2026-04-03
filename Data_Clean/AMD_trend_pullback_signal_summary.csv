@@ -1,0 +1,2 @@
+ticker,agent,timeframe_label,data_interval,signal_count,executed_trade_count,rejected_signal_count,months_covered
+AMD,trend_pullback,1H,1h,57,57,0,29.672826830937712

@@ -1,0 +1,37 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/SPY_rcsi.csv",
+  "canonical_policy": "always",
+  "column_names": [
+    "agent",
+    "actual_cumulative_return",
+    "median_simulated_return",
+    "mean_simulated_return",
+    "std_simulated_return",
+    "actual_percentile",
+    "RCSI",
+    "RCSI_z",
+    "simulation_count",
+    "bh_adjusted_p_value",
+    "research_grade"
+  ],
+  "created_at_utc": "2026-04-02T13:37:11Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775137031439265356,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/SPY_monte_carlo_summary.csv",
+      "sha256": "9e50af23e6b195c36211af23baac3fb6852c26c1773cca336161a366666e3b62",
+      "size_bytes": 2400
+    }
+  ],
+  "parameters": {
+    "artifact_type": "rcsi_summary"
+  },
+  "pipeline_profile": "standard",
+  "producer": "rcsi.main",
+  "research_grade": false,
+  "row_count": 6,
+  "run_id": "run_20260402T133556Z_pid52974",
+  "ticker": "SPY",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/SPY_rcsi__run_20260402T133556Z_pid52974.csv"
+}

@@ -1,0 +1,119 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/QQQ_monte_carlo_summary.csv",
+  "canonical_policy": "always",
+  "column_names": [
+    "agent",
+    "actual_cumulative_return",
+    "median_simulated_return",
+    "mean_simulated_return",
+    "std_simulated_return",
+    "actual_percentile",
+    "p_value",
+    "p_value_prominence",
+    "p_value_interpretation",
+    "lower_5pct",
+    "upper_95pct",
+    "number_of_trades",
+    "transaction_cost",
+    "execution_cost_model",
+    "simulation_count",
+    "research_grade",
+    "reproducible",
+    "seed_used",
+    "null_model",
+    "bh_adjusted_p_value"
+  ],
+  "created_at_utc": "2026-04-02T22:04:49Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775167464106456185,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/QQQ_regimes.csv",
+      "sha256": "ff018432e9cc95ae7298302c710b028376e0c7ba63a22d6404d92025f3cacaa6",
+      "size_bytes": 6462846
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775167488062898054,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/QQQ_trend_pullback_monte_carlo_results.csv",
+      "sha256": "dfffae3acf180301185585159d56e1b0c735f14650f26823620a2b32fe1a4d7b",
+      "size_bytes": 122068
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775167488164949821,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/QQQ_breakout_volume_momentum_monte_carlo_results.csv",
+      "sha256": "9b0830ac1552ac6c452a599248528cdc95d855553b70c38c2ee6582b91f04a66",
+      "size_bytes": 122625
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775167488243431140,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/QQQ_mean_reversion_vol_filter_monte_carlo_results.csv",
+      "sha256": "1062e27495b447970b5daeafffb5fa4bc651b5ed0821b4d75e03015d9ffc16b3",
+      "size_bytes": 128448
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775167488460471572,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/QQQ_trend_momentum_verification_monte_carlo_results.csv",
+      "sha256": "a8f59c7db2b3ee0f52e391fe5b3bd3ac7b0cd68884c9ebda60b8013ce06a7c53",
+      "size_bytes": 121240
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775167488584202816,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/QQQ_adx_trend_following_monte_carlo_results.csv",
+      "sha256": "8daf08f691f2a4b1c293b11d6584fe23618a7b3a23f5bdb7bd52fff4a6a6f450",
+      "size_bytes": 119317
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775167488685992005,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/QQQ_uptrend_oversold_reversion_monte_carlo_results.csv",
+      "sha256": "0c68bfa0e1adf3ba8af1b6cd09b06b2d511bf1e185e28144164db5ef44944cef",
+      "size_bytes": 124395
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775167488769758455,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/QQQ_volatility_squeeze_breakout_monte_carlo_results.csv",
+      "sha256": "4d04346100801301017beb88f7df7967a644b59af895e9348e19c26c20aca412",
+      "size_bytes": 124846
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775167488889842211,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/QQQ_connors_rsi2_pullback_monte_carlo_results.csv",
+      "sha256": "441932939a27b4a539579ddd96ce455f25712c0feeb798e5791fc5c936686eb7",
+      "size_bytes": 124653
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775167489046434186,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/QQQ_turn_of_month_seasonality_monte_carlo_results.csv",
+      "sha256": "f92cabe925ab03068c9810fd666221e75b5e6e8f5c6a10ec3381bd6f6bd22bed",
+      "size_bytes": 122991
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775167489239350260,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/QQQ_random_monte_carlo_results.csv",
+      "sha256": "0871040c41a61efcc97580bcedad823ecf90156673007dc93f6ad0567b4d763b",
+      "size_bytes": 119157
+    }
+  ],
+  "parameters": {
+    "context_bucket_count": 5,
+    "context_matching_enabled": false,
+    "simulate_execution_costs": true,
+    "simulation_count": 5000
+  },
+  "pipeline_profile": "standard",
+  "producer": "monte_carlo.main",
+  "research_grade": true,
+  "row_count": 10,
+  "run_id": "run_20260402T220420Z_pid30096",
+  "ticker": "QQQ",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/QQQ_monte_carlo_summary__run_20260402T220420Z_pid30096.csv"
+}

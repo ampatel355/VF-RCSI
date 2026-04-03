@@ -1,0 +1,2 @@
+ticker,agent,timeframe_label,data_interval,signal_count,executed_trade_count,rejected_signal_count,months_covered
+GC=F,adx_trend_following,Daily,1d,125,111,14,287.90143737166323

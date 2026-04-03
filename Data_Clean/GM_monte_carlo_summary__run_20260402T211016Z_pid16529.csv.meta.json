@@ -1,0 +1,105 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/GM_monte_carlo_summary.csv",
+  "canonical_policy": "always",
+  "column_names": [
+    "agent",
+    "actual_cumulative_return",
+    "median_simulated_return",
+    "mean_simulated_return",
+    "std_simulated_return",
+    "actual_percentile",
+    "p_value",
+    "p_value_prominence",
+    "p_value_interpretation",
+    "lower_5pct",
+    "upper_95pct",
+    "number_of_trades",
+    "transaction_cost",
+    "execution_cost_model",
+    "simulation_count",
+    "research_grade",
+    "reproducible",
+    "seed_used",
+    "null_model",
+    "bh_adjusted_p_value"
+  ],
+  "created_at_utc": "2026-04-02T21:10:40Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775164220008816903,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/GM_regimes.csv",
+      "sha256": "72f6b2cc5edabd14194fa290b191b53b7a608c78af0e33f3251dbd5d323f3452",
+      "size_bytes": 3538391
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775164239793796718,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/GM_trend_pullback_monte_carlo_results.csv",
+      "sha256": "047532995641cccc8b2b0c651cf76bd4bf1c0fa8eec91ac9fe259897b4c2f35c",
+      "size_bytes": 48657
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775164239845591895,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/GM_breakout_volume_momentum_monte_carlo_results.csv",
+      "sha256": "471ba0a3259ee6d26263d58e10855e315cafac9b6a65e8819bdc8f0cb5c1562e",
+      "size_bytes": 48288
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775164239886183276,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/GM_mean_reversion_vol_filter_monte_carlo_results.csv",
+      "sha256": "a8acbfaea7cbfaba485402334245d909174b2018f2ad985888223de728812877",
+      "size_bytes": 50632
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775164239927510707,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/GM_trend_momentum_verification_monte_carlo_results.csv",
+      "sha256": "40b318aa9fffddf768035ffe295cdaef83a1510c3b16dbb7c19996e850a26911",
+      "size_bytes": 48587
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775164239972533097,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/GM_adx_trend_following_monte_carlo_results.csv",
+      "sha256": "c2c529c9744e4a850342e361cd912e07e84872515b9ac93223c163529a8bbda5",
+      "size_bytes": 48303
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775164240014789331,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/GM_uptrend_oversold_reversion_monte_carlo_results.csv",
+      "sha256": "35018f32e56c361f301eee0233b6f4f55b03f1e60b1650561e01a6a460e5c61d",
+      "size_bytes": 49315
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775164240054753872,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/GM_volatility_squeeze_breakout_monte_carlo_results.csv",
+      "sha256": "cdf333d724e9ec2cd33061fd6d55bbc844b68a6425d0bc2f4ac7f19621758454",
+      "size_bytes": 49742
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775164240114468806,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/GM_random_monte_carlo_results.csv",
+      "sha256": "e47dcd769c44923ff735f6f1482daabd69dea6f82f0779280647660adf42bacd",
+      "size_bytes": 47527
+    }
+  ],
+  "parameters": {
+    "context_bucket_count": 5,
+    "context_matching_enabled": false,
+    "simulate_execution_costs": true,
+    "simulation_count": 2000
+  },
+  "pipeline_profile": "standard",
+  "producer": "monte_carlo.main",
+  "research_grade": false,
+  "row_count": 8,
+  "run_id": "run_20260402T211016Z_pid16529",
+  "ticker": "GM",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/GM_monte_carlo_summary__run_20260402T211016Z_pid16529.csv"
+}

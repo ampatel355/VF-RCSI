@@ -1,0 +1,37 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/1h/BTC-USD_adx_trend_following_monte_carlo_results.csv",
+  "canonical_policy": "always",
+  "column_names": [
+    "simulation_id",
+    "simulated_cumulative_return"
+  ],
+  "created_at_utc": "2026-04-02T22:45:03Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775169880946227528,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/1h/BTC-USD_adx_trend_following_trades.csv",
+      "sha256": "ea2190359dc7efbe64c1229bebc8890a1ad14d4162414990cb2e4c79dd784feb",
+      "size_bytes": 5139
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775169869305846280,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/1h/BTC-USD_regimes.csv",
+      "sha256": "81b61d0461687410b49ac41e6cae09d834f3b41bb4205783f233f874efc3d29c",
+      "size_bytes": 14643201
+    }
+  ],
+  "parameters": {
+    "agent_name": "adx_trend_following",
+    "null_model_type": "timing_null_results",
+    "simulation_count": 2000
+  },
+  "pipeline_profile": "standard",
+  "producer": "monte_carlo.save_simulation_results",
+  "research_grade": false,
+  "row_count": 2000,
+  "run_id": "run_20260402T224112Z_pid45834",
+  "ticker": "BTC-USD",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/1h/BTC-USD_adx_trend_following_monte_carlo_results__run_20260402T224112Z_pid45834.csv"
+}

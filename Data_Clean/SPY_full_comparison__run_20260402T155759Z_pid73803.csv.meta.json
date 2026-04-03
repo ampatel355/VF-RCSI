@@ -1,0 +1,62 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/SPY_full_comparison.csv",
+  "canonical_policy": "always",
+  "column_names": [
+    "agent",
+    "skill_luck_verdict",
+    "evidence_label",
+    "confidence_label",
+    "final_classification",
+    "stability_classification",
+    "verdict_reason",
+    "cumulative_return",
+    "annualized_sharpe",
+    "trade_level_return_ratio",
+    "max_drawdown",
+    "RCSI",
+    "RCSI_z",
+    "p_value",
+    "adjusted_p_value",
+    "p_value_prominence",
+    "actual_percentile",
+    "number_of_trades",
+    "number_of_periods",
+    "transaction_cost",
+    "research_grade",
+    "artifact_run_id",
+    "signal_count",
+    "trades_per_month",
+    "average_holding_bars",
+    "average_holding_days",
+    "average_holding_hours",
+    "activity_status",
+    "activity_warning"
+  ],
+  "created_at_utc": "2026-04-02T15:58:12Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775145492084661286,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/SPY_monte_carlo_summary.csv",
+      "sha256": "193402b0e39fe8db4c93dcaf3a5704d42e9dbdd9f6d1e4f562a8985cffecae07",
+      "size_bytes": 2402
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775145492095976740,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/SPY_rcsi.csv",
+      "sha256": "d823a27310b50d3611afc29d5548b4395a833e046f83befac929faaf4ae1b4cf",
+      "size_bytes": 1290
+    }
+  ],
+  "parameters": {
+    "artifact_type": "full_comparison"
+  },
+  "pipeline_profile": "standard",
+  "producer": "compare_agents.main",
+  "research_grade": true,
+  "row_count": 7,
+  "run_id": "run_20260402T155759Z_pid73803",
+  "ticker": "SPY",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/SPY_full_comparison__run_20260402T155759Z_pid73803.csv"
+}

@@ -1,0 +1,2 @@
+ticker,agent,timeframe_label,data_interval,signal_count,executed_trade_count,rejected_signal_count,months_covered
+XLU,trend_momentum_verification,Daily,1d,85,85,0,306.3983572895277

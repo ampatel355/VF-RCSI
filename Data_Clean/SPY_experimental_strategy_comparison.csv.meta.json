@@ -1,0 +1,45 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/SPY_experimental_strategy_comparison.csv",
+  "canonical_policy": "always",
+  "canonical_updated": true,
+  "column_names": [
+    "agent",
+    "strategy_name",
+    "number_of_trades",
+    "actual_cumulative_return",
+    "RCSI",
+    "RCSI_z",
+    "p_value",
+    "adjusted_p_value",
+    "actual_percentile",
+    "final_classification",
+    "classification_bucket",
+    "null_model",
+    "simulation_count"
+  ],
+  "created_at_utc": "2026-04-02T19:55:09Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775159709488330253,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/SPY_experimental_monte_carlo_summary.csv",
+      "sha256": "cdae8ad0936c131cc94cfa7f48bbd1a81116c578aafb6d82c6ea89ab5b6e65b9",
+      "size_bytes": 1371
+    }
+  ],
+  "parameters": {
+    "artifact_type": "experimental_strategy_comparison",
+    "strategies": [
+      "adx_trend_following",
+      "uptrend_oversold_reversion",
+      "volatility_squeeze_breakout"
+    ]
+  },
+  "pipeline_profile": "standard",
+  "producer": "experimental_strategy_tester.main",
+  "research_grade": false,
+  "row_count": 3,
+  "run_id": "run_20260402T195506Z_pid98752",
+  "ticker": "SPY",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/SPY_experimental_strategy_comparison__run_20260402T195506Z_pid98752.csv"
+}

@@ -1,0 +1,37 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/BTC-USD_random_monte_carlo_results.csv",
+  "canonical_policy": "always",
+  "column_names": [
+    "simulation_id",
+    "simulated_cumulative_return"
+  ],
+  "created_at_utc": "2026-04-02T01:16:37Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775092542696420908,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/BTC-USD_random_trades.csv",
+      "sha256": "64d275f69a687f208b99e8a5355415e9c04c8047c1eaf23afb6cc6435a6aee0d",
+      "size_bytes": 191422
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775092510654488296,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/BTC-USD_regimes.csv",
+      "sha256": "e43aa4821025a8cc6ee7aaaa125de4c6a4c9167ee04ae8c1efca62d0ec6e3354",
+      "size_bytes": 15919577
+    }
+  ],
+  "parameters": {
+    "agent_name": "random",
+    "null_model_type": "timing_null_results",
+    "simulation_count": 5000
+  },
+  "pipeline_profile": "standard",
+  "producer": "monte_carlo.save_simulation_results",
+  "research_grade": true,
+  "row_count": 5000,
+  "run_id": "run_20260402T011419Z_pid94352",
+  "ticker": "BTC-USD",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/BTC-USD_random_monte_carlo_results__run_20260402T011419Z_pid94352.csv"
+}

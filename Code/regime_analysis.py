@@ -2,48 +2,67 @@
 
 import os
 from pathlib import Path
+from collections.abc import Callable
 
 import pandas as pd
 import numpy as np
 
 try:
+    from connors_rsi2_pullback_agent import main as create_connors_rsi2_trades
+    from donchian_trend_reentry_agent import main as create_donchian_reentry_trades
+    from adx_trend_following_agent import main as create_adx_trend_trades
     from breakout_volume_momentum_agent import main as create_breakout_trades
     from mean_reversion_vol_filter_agent import main as create_mean_reversion_trades
     from momentum_relative_strength_agent import main as create_momentum_trades
     from random_agent import main as create_random_trades
     from strategy_config import AGENT_ORDER
+    from trend_momentum_verification_agent import main as create_trend_momentum_verification_trades
     from trend_pullback_agent import main as create_trend_trades
-    from volatility_managed_tsmom_agent import main as create_volatility_managed_tsmom_trades
+    from turn_of_month_seasonality_agent import main as create_turn_of_month_trades
+    from uptrend_oversold_reversion_agent import main as create_oversold_reversion_trades
+    from volatility_squeeze_breakout_agent import main as create_squeeze_breakout_trades
     from research_metrics import calculate_trade_level_return_ratio
 except ModuleNotFoundError:
+    from Code.connors_rsi2_pullback_agent import main as create_connors_rsi2_trades
+    from Code.donchian_trend_reentry_agent import main as create_donchian_reentry_trades
+    from Code.adx_trend_following_agent import main as create_adx_trend_trades
     from Code.breakout_volume_momentum_agent import main as create_breakout_trades
     from Code.mean_reversion_vol_filter_agent import main as create_mean_reversion_trades
     from Code.momentum_relative_strength_agent import main as create_momentum_trades
     from Code.random_agent import main as create_random_trades
     from Code.strategy_config import AGENT_ORDER
+    from Code.trend_momentum_verification_agent import main as create_trend_momentum_verification_trades
     from Code.trend_pullback_agent import main as create_trend_trades
-    from Code.volatility_managed_tsmom_agent import main as create_volatility_managed_tsmom_trades
+    from Code.turn_of_month_seasonality_agent import main as create_turn_of_month_trades
+    from Code.uptrend_oversold_reversion_agent import main as create_oversold_reversion_trades
+    from Code.volatility_squeeze_breakout_agent import main as create_squeeze_breakout_trades
     from Code.research_metrics import calculate_trade_level_return_ratio
+
+try:
+    from timeframe_config import timeframe_output_suffix
+except ModuleNotFoundError:
+    from Code.timeframe_config import timeframe_output_suffix
 
 
 # Read the active ticker from the environment, or fall back to SPY.
 ticker = os.environ.get("TICKER", "SPY")
 REGIME_ORDER = ["calm", "neutral", "stressed"]
-REGIME_MIN_TRADES = int(os.environ.get("REGIME_MIN_TRADES", "20"))
+REGIME_MIN_TRADES = int(os.environ.get("REGIME_MIN_TRADES", "5"))
 
 
 def resolve_data_clean_dir(project_root: Path) -> Path:
-    """Return the project's clean-data folder, supporting either naming style."""
-    lowercase_dir = project_root / "data_clean"
-    uppercase_dir = project_root / "Data_Clean"
+    """Return the project's clean-data folder, preferring the uppercase path."""
+    suffix = timeframe_output_suffix()
+    lowercase_dir = project_root / f"data_clean{suffix}"
+    uppercase_dir = project_root / f"Data_Clean{suffix}"
 
-    if lowercase_dir.exists():
-        return lowercase_dir
     if uppercase_dir.exists():
         return uppercase_dir
+    if lowercase_dir.exists():
+        return lowercase_dir
 
-    lowercase_dir.mkdir(parents=True, exist_ok=True)
-    return lowercase_dir
+    uppercase_dir.mkdir(parents=True, exist_ok=True)
+    return uppercase_dir
 
 
 def load_csv_checked(
@@ -137,31 +156,76 @@ def summarize_group(group: pd.DataFrame) -> pd.Series:
     )
 
 
+def build_trade_file_map(
+    data_clean_dir: Path,
+    *,
+    current_ticker: str,
+) -> dict[str, tuple[Path, Callable[[], None]]]:
+    """Return the trade-file and generator mapping for each supported agent."""
+    return {
+        "trend_pullback": (
+            data_clean_dir / f"{current_ticker}_trend_pullback_trades.csv",
+            create_trend_trades,
+        ),
+        "breakout_volume_momentum": (
+            data_clean_dir / f"{current_ticker}_breakout_volume_momentum_trades.csv",
+            create_breakout_trades,
+        ),
+        "mean_reversion_vol_filter": (
+            data_clean_dir / f"{current_ticker}_mean_reversion_vol_filter_trades.csv",
+            create_mean_reversion_trades,
+        ),
+        "momentum_relative_strength": (
+            data_clean_dir / f"{current_ticker}_momentum_relative_strength_trades.csv",
+            create_momentum_trades,
+        ),
+        "trend_momentum_verification": (
+            data_clean_dir / f"{current_ticker}_trend_momentum_verification_trades.csv",
+            create_trend_momentum_verification_trades,
+        ),
+        "adx_trend_following": (
+            data_clean_dir / f"{current_ticker}_adx_trend_following_trades.csv",
+            create_adx_trend_trades,
+        ),
+        "uptrend_oversold_reversion": (
+            data_clean_dir / f"{current_ticker}_uptrend_oversold_reversion_trades.csv",
+            create_oversold_reversion_trades,
+        ),
+        "volatility_squeeze_breakout": (
+            data_clean_dir / f"{current_ticker}_volatility_squeeze_breakout_trades.csv",
+            create_squeeze_breakout_trades,
+        ),
+        "connors_rsi2_pullback": (
+            data_clean_dir / f"{current_ticker}_connors_rsi2_pullback_trades.csv",
+            create_connors_rsi2_trades,
+        ),
+        "donchian_trend_reentry": (
+            data_clean_dir / f"{current_ticker}_donchian_trend_reentry_trades.csv",
+            create_donchian_reentry_trades,
+        ),
+        "turn_of_month_seasonality": (
+            data_clean_dir / f"{current_ticker}_turn_of_month_seasonality_trades.csv",
+            create_turn_of_month_trades,
+        ),
+        "random": (
+            data_clean_dir / f"{current_ticker}_random_trades.csv",
+            create_random_trades,
+        ),
+    }
+
+
 def main() -> None:
     """Create the regime analysis table for the active ticker."""
     project_root = Path(__file__).resolve().parents[1]
     data_clean_dir = resolve_data_clean_dir(project_root)
 
-    trade_file_map = {
-        "trend_pullback": (data_clean_dir / f"{ticker}_trend_pullback_trades.csv", create_trend_trades),
-        "breakout_volume_momentum": (
-            data_clean_dir / f"{ticker}_breakout_volume_momentum_trades.csv",
-            create_breakout_trades,
-        ),
-        "mean_reversion_vol_filter": (
-            data_clean_dir / f"{ticker}_mean_reversion_vol_filter_trades.csv",
-            create_mean_reversion_trades,
-        ),
-        "volatility_managed_tsmom": (
-            data_clean_dir / f"{ticker}_volatility_managed_tsmom_trades.csv",
-            create_volatility_managed_tsmom_trades,
-        ),
-        "random": (data_clean_dir / f"{ticker}_random_trades.csv", create_random_trades),
-        "momentum_relative_strength": (
-            data_clean_dir / f"{ticker}_momentum_relative_strength_trades.csv",
-            create_momentum_trades,
-        ),
-    }
+    trade_file_map = build_trade_file_map(data_clean_dir, current_ticker=ticker)
+    missing_agents = [agent_name for agent_name in AGENT_ORDER if agent_name not in trade_file_map]
+    if missing_agents:
+        raise KeyError(
+            "regime_analysis trade-file map is missing active agents: "
+            + ", ".join(missing_agents)
+        )
     output_path = data_clean_dir / f"{ticker}_regime_analysis.csv"
 
     all_trade_frames = []
@@ -177,11 +241,11 @@ def main() -> None:
     if all_trades_df.empty:
         analysis_df = pd.DataFrame(columns=["agent", "regime_at_entry"])
     else:
-        analysis_df = (
-            all_trades_df.groupby(["agent", "regime_at_entry"], dropna=False)
-            .apply(summarize_group)
-            .reset_index()
-        )
+        grouped = all_trades_df.groupby(["agent", "regime_at_entry"], dropna=False)
+        try:
+            analysis_df = grouped.apply(summarize_group, include_groups=False).reset_index()
+        except TypeError:
+            analysis_df = grouped.apply(summarize_group).reset_index()
 
     full_index = pd.MultiIndex.from_product(
         [AGENT_ORDER, REGIME_ORDER],
@@ -204,7 +268,10 @@ def main() -> None:
                 pd.NA,
             )
         elif isinstance(default_value, (bool, np.bool_)):
-            analysis_df[column_name] = analysis_df[column_name].fillna(default_value).astype(bool)
+            normalized = analysis_df[column_name].astype(str).str.strip().str.lower()
+            mapped = normalized.map({"true": True, "false": False})
+            mapped = mapped.where(mapped.notna(), bool(default_value))
+            analysis_df[column_name] = mapped.astype(bool)
         elif isinstance(default_value, (int, np.integer)):
             analysis_df[column_name] = pd.to_numeric(
                 analysis_df[column_name],

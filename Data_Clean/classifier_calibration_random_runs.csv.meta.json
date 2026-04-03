@@ -1,0 +1,37 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/classifier_calibration_random_runs.csv",
+  "canonical_policy": "auto",
+  "canonical_updated": true,
+  "column_names": [
+    "seed_used",
+    "number_of_trades",
+    "actual_cumulative_return",
+    "mean_simulated_return",
+    "std_simulated_return",
+    "actual_percentile",
+    "p_value",
+    "RCSI",
+    "RCSI_z",
+    "evidence_bucket",
+    "null_model",
+    "ticker",
+    "legacy_evidence_bucket",
+    "recalibrated_evidence_bucket"
+  ],
+  "created_at_utc": "2026-04-02T01:31:54Z",
+  "dependencies": [],
+  "parameters": {
+    "audit_tickers": [
+      "SPY",
+      "QQQ",
+      "BTC-USD"
+    ]
+  },
+  "pipeline_profile": "standard",
+  "producer": "classifier_calibration_audit.main",
+  "research_grade": true,
+  "row_count": 90,
+  "run_id": "run_20260402T013154Z_pid8498",
+  "ticker": "",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/classifier_calibration_random_runs__run_20260402T013154Z_pid8498.csv"
+}

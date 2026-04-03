@@ -1,0 +1,84 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/BTC-USD_monte_carlo_summary.csv",
+  "canonical_policy": "always",
+  "column_names": [
+    "agent",
+    "actual_cumulative_return",
+    "median_simulated_return",
+    "mean_simulated_return",
+    "std_simulated_return",
+    "actual_percentile",
+    "p_value",
+    "p_value_prominence",
+    "p_value_interpretation",
+    "lower_5pct",
+    "upper_95pct",
+    "number_of_trades",
+    "transaction_cost",
+    "execution_cost_model",
+    "simulation_count",
+    "research_grade",
+    "reproducible",
+    "seed_used",
+    "null_model",
+    "bh_adjusted_p_value"
+  ],
+  "created_at_utc": "2026-04-02T02:28:16Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775096815797066533,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/BTC-USD_regimes.csv",
+      "sha256": "43f1596bd69103733cdbbeb98f91b842706dbc1d1c5b60987fe25fc529f4b447",
+      "size_bytes": 15920508
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775096863337336522,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/BTC-USD_trend_pullback_monte_carlo_results.csv",
+      "sha256": "3f508717819c8f06c6b2d582ded0f16ec768ccaae2da431665e42cdf27e3a1af",
+      "size_bytes": 125986
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775096868475462502,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/BTC-USD_breakout_volume_momentum_monte_carlo_results.csv",
+      "sha256": "1db48873242bcff5e15ce665f13eac2922ade11d971517e9aa4c9d6a129bc79c",
+      "size_bytes": 126002
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775096870507524489,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/BTC-USD_mean_reversion_vol_filter_monte_carlo_results.csv",
+      "sha256": "b1064abab0fe448e1b612f599ff05cc1cb6f1e209b021c45333e1d28e005f39d",
+      "size_bytes": 128878
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775096888088450427,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/BTC-USD_momentum_relative_strength_monte_carlo_results.csv",
+      "sha256": "a37203c96f4f59597e4ef9d8cb727609fce276b52ce4619e855873ddce56e477",
+      "size_bytes": 125989
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775096896809154839,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/BTC-USD_random_monte_carlo_results.csv",
+      "sha256": "dab1c2c566e5ae3f6ef22d1c2ff5245e81cecf96ee98de8662e2c4068ba627dd",
+      "size_bytes": 124221
+    }
+  ],
+  "parameters": {
+    "context_bucket_count": 5,
+    "context_matching_enabled": true,
+    "simulate_execution_costs": true,
+    "simulation_count": 5000
+  },
+  "pipeline_profile": "standard",
+  "producer": "monte_carlo.main",
+  "research_grade": true,
+  "row_count": 5,
+  "run_id": "run_20260402T022516Z_pid19088",
+  "ticker": "BTC-USD",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/BTC-USD_monte_carlo_summary__run_20260402T022516Z_pid19088.csv"
+}

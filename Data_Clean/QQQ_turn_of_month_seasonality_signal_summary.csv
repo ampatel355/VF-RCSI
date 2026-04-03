@@ -1,0 +1,2 @@
+ticker,agent,timeframe_label,data_interval,signal_count,executed_trade_count,rejected_signal_count,months_covered
+QQQ,turn_of_month_seasonality,Daily,1d,210,210,0,307.9425051334702

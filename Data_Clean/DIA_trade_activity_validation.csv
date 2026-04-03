@@ -1,0 +1,7 @@
+ticker,agent,timeframe_label,data_interval,total_trades,signal_count,rejected_signal_count,signal_to_trade_conversion,total_bars,signal_rate_pct,trades_per_month,average_holding_bars,average_holding_days,average_holding_hours,activity_status,activity_warning
+DIA,trend_pullback,Daily,1d,125,0,0,0.0,6775,0.0,0.3985217869487797,2.912,2.912,0.0,underactive,Too few trades for strong statistical power. Consider reviewing thresholds or sample length.
+DIA,breakout_volume_momentum,Daily,1d,72,0,0,0.0,6775,0.0,0.2312196665963283,9.722222222222221,9.722222222222221,0.0,underactive,Too few trades for strong statistical power. Consider reviewing thresholds or sample length.
+DIA,mean_reversion_vol_filter,Daily,1d,65,0,0,0.0,6775,0.0,0.22274684755685656,2.246153846153846,2.246153846153846,0.0,underactive,Too few trades for strong statistical power. Consider reviewing thresholds or sample length.
+DIA,momentum_relative_strength,Daily,1d,222,0,0,0.0,6775,0.0,0.7759675011483693,11.572072072072071,11.572072072072071,0.0,acceptable,Trade activity is in a reasonable range for daily research and null-hypothesis testing.
+DIA,trend_momentum_verification,Daily,1d,88,88,0,1.0,6775,1.2988929889298892,0.2739312742892207,19.386363636363637,28.170454545454547,676.0909090909091,underactive,Too few trades for strong statistical power. Consider reviewing thresholds or sample length.
+DIA,random,Daily,1d,181,0,0,0.0,6775,0.0,0.5771199979048816,10.0939226519337,14.685082872928177,0.0,underactive,Too few trades for strong statistical power. Consider reviewing thresholds or sample length.

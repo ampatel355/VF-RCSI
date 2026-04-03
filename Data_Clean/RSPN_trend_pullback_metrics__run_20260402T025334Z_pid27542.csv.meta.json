@@ -1,0 +1,41 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/RSPN_trend_pullback_metrics.csv",
+  "canonical_policy": "always",
+  "column_names": [
+    "total_trades",
+    "average_return",
+    "median_return",
+    "win_rate",
+    "std_return",
+    "trade_level_return_ratio",
+    "average_win",
+    "average_loss",
+    "expected_value",
+    "average_holding_period_days",
+    "average_holding_period_hours",
+    "average_holding_bars",
+    "trades_per_month",
+    "stop_loss_exit_rate",
+    "take_profit_exit_rate"
+  ],
+  "created_at_utc": "2026-04-02T02:53:50Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775098420647717364,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/RSPN_trend_pullback_trades.csv",
+      "sha256": "b1f8a6e5dce770b926f8ad72e687bb10c9cd162aa4d93b886b3e5ba9fd8fa081",
+      "size_bytes": 33086
+    }
+  ],
+  "parameters": {
+    "artifact_type": "strategy_metrics"
+  },
+  "pipeline_profile": "standard",
+  "producer": "create_and_save_metrics",
+  "research_grade": true,
+  "row_count": 1,
+  "run_id": "run_20260402T025334Z_pid27542",
+  "ticker": "RSPN",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/RSPN_trend_pullback_metrics__run_20260402T025334Z_pid27542.csv"
+}

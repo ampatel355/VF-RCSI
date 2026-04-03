@@ -1,0 +1,38 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/NVAX_trend_pullback_monte_carlo_results.csv",
+  "canonical_policy": "always",
+  "canonical_updated": true,
+  "column_names": [
+    "simulation_id",
+    "simulated_cumulative_return"
+  ],
+  "created_at_utc": "2026-04-02T17:11:14Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775149852248818164,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/NVAX_trend_pullback_trades.csv",
+      "sha256": "a732623c31408b75ecd60ee4f23f95a8b4b534f9a12c7d4868b797ad2705b5ef",
+      "size_bytes": 38926
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775149850450176799,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/NVAX_regimes.csv",
+      "sha256": "b105f6b08c2990b07eac480553f911e2f7fead15a56f4f65b04e7d720eb8af09",
+      "size_bytes": 6882597
+    }
+  ],
+  "parameters": {
+    "agent_name": "trend_pullback",
+    "null_model_type": "timing_null_results",
+    "simulation_count": 2000
+  },
+  "pipeline_profile": "standard",
+  "producer": "monte_carlo.save_simulation_results",
+  "research_grade": false,
+  "row_count": 2000,
+  "run_id": "run_20260402T171046Z_pid84435",
+  "ticker": "NVAX",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/NVAX_trend_pullback_monte_carlo_results__run_20260402T171046Z_pid84435.csv"
+}

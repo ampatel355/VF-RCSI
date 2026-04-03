@@ -9,16 +9,16 @@ import pandas as pd
 from plot_config import data_clean_dir, format_agent_name, load_csv_checked
 
 try:
+    from artifact_provenance import write_dataframe_artifact
     from monte_carlo import (
         NULL_MODEL_NAME,
         RELATIVE_STRENGTH_NULL_MODEL_NAME,
         TRANSACTION_COST,
         adjust_trade_returns,
+        calculate_actual_percentile,
         calculate_cumulative_return_from_log_returns,
         calculate_p_value,
-        calculate_trade_durations,
         convert_to_log_returns,
-        extract_position_value_fractions,
         interpret_p_value,
         load_market_data,
         load_trade_data,
@@ -33,28 +33,28 @@ try:
     from strategy_config import AGENT_ORDER
     from strategy_artifact_utils import ensure_trade_file_exists
     from strategy_curve_utils import load_saved_strategy_curve
+    from single_ticker_agent_common import load_regime_data
+    from strategy_simulator import run_strategy
     from strategy_verdicts import (
-        adjust_for_evaluation_power,
-        classify_robustness_evidence,
-        confidence_bucket_from_score,
+        classify_confidence,
+        classify_metrics,
         confidence_label,
         evidence_label,
-        evaluation_power_label,
-        evaluation_power_score,
         format_verdict_label,
         verdict_from_evidence_bucket,
     )
+    from timeframe_config import infer_bars_per_year
 except ModuleNotFoundError:
+    from Code.artifact_provenance import write_dataframe_artifact
     from Code.monte_carlo import (
         NULL_MODEL_NAME,
         RELATIVE_STRENGTH_NULL_MODEL_NAME,
         TRANSACTION_COST,
         adjust_trade_returns,
+        calculate_actual_percentile,
         calculate_cumulative_return_from_log_returns,
         calculate_p_value,
-        calculate_trade_durations,
         convert_to_log_returns,
-        extract_position_value_fractions,
         interpret_p_value,
         load_market_data,
         load_trade_data,
@@ -69,17 +69,17 @@ except ModuleNotFoundError:
     from Code.strategy_config import AGENT_ORDER
     from Code.strategy_artifact_utils import ensure_trade_file_exists
     from Code.strategy_curve_utils import load_saved_strategy_curve
+    from Code.single_ticker_agent_common import load_regime_data
+    from Code.strategy_simulator import run_strategy
     from Code.strategy_verdicts import (
-        adjust_for_evaluation_power,
-        classify_robustness_evidence,
-        confidence_bucket_from_score,
+        classify_confidence,
+        classify_metrics,
         confidence_label,
         evidence_label,
-        evaluation_power_label,
-        evaluation_power_score,
         format_verdict_label,
         verdict_from_evidence_bucket,
     )
+    from Code.timeframe_config import infer_bars_per_year
 
 
 # Read the active ticker from the environment, or fall back to SPY.
@@ -90,6 +90,7 @@ SIMULATIONS_PER_RUN = int(os.environ.get("ROBUSTNESS_SIMULATIONS_PER_RUN", "5000
 OUTER_RUNS = int(os.environ.get("ROBUSTNESS_OUTER_RUNS", "100"))
 BASE_SEED = int(os.environ.get("ROBUSTNESS_BASE_SEED", "100"))
 PROGRESS_EVERY = max(1, int(os.environ.get("ROBUSTNESS_PROGRESS_EVERY", "1")))
+ROBUSTNESS_SCOPE = "monte_carlo_seed_stability_only"
 
 # These thresholds control the plain-English stability interpretation.
 STABLE_PERCENTILE_RANGE_MAX = 5.0
@@ -163,81 +164,121 @@ def calculate_annualized_return(
     if trading_bars <= 0:
         return calculate_cumulative_return_from_log_returns(log_returns)
 
-    annualized_log_return = float(log_returns.sum()) * (252.0 / trading_bars)
+    annualized_log_return = float(log_returns.sum()) * (
+        infer_bars_per_year(market_df["Date"]) / trading_bars
+    )
     return float(np.expm1(annualized_log_return))
 
 
-def load_agent_inputs() -> tuple[pd.DataFrame, np.ndarray, dict[str, dict[str, object]]]:
+def build_actual_metrics_from_trade_df(
+    agent_name: str,
+    trade_df: pd.DataFrame,
+    market_df: pd.DataFrame,
+    market_curve_df: pd.DataFrame,
+    input_path,
+) -> dict[str, float | int | str | pd.DataFrame | object]:
+    """Turn one realized trade log into the metrics needed for null testing."""
+    if trade_df.empty:
+        adjusted_returns = np.array([], dtype=float)
+        log_returns = np.array([], dtype=float)
+        actual_cumulative_return = 0.0
+        annualized_return = 0.0
+        daily_curve_df = build_daily_strategy_curve(trade_df, market_curve_df)
+    else:
+        raw_returns = trade_df["return"].to_numpy(dtype=float)
+        adjusted_returns = adjust_trade_returns(
+            raw_returns=raw_returns,
+            transaction_cost=TRANSACTION_COST,
+            input_path=input_path,
+        )
+        log_returns = convert_to_log_returns(adjusted_returns)
+        actual_cumulative_return = calculate_cumulative_return_from_log_returns(log_returns)
+        annualized_return = calculate_annualized_return(
+            log_returns=log_returns,
+            trade_df=trade_df,
+            market_df=market_df,
+            input_path=input_path,
+        )
+        daily_curve_df = build_daily_strategy_curve(trade_df, market_curve_df)
+
+    curve_summary = summarize_daily_curve(daily_curve_df)
+    trade_level_return_ratio = calculate_trade_level_return_ratio(adjusted_returns)
+    max_drawdown = float(curve_summary["max_drawdown"])
+
+    return {
+        "actual_cumulative_return": actual_cumulative_return,
+        "annualized_return": annualized_return,
+        "annualized_sharpe": float(curve_summary["annualized_sharpe"]),
+        "trade_level_return_ratio": trade_level_return_ratio,
+        "max_drawdown": max_drawdown,
+        "number_of_trades": len(trade_df),
+        "trade_df": trade_df.copy(),
+        "input_path": input_path,
+        "null_model": (
+            RELATIVE_STRENGTH_NULL_MODEL_NAME
+            if agent_name == "momentum_relative_strength"
+            else NULL_MODEL_NAME
+        ),
+    }
+
+
+def load_agent_inputs() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, dict[str, dict[str, object]]]:
     """Load each strategy's realized trades and matched duration profile."""
     market_path = data_clean_dir() / f"{ticker}_regimes.csv"
     market_df = load_market_data(market_path)
+    regime_df = load_regime_data(
+        market_path,
+        required_columns=["Date", "Open", "High", "Low", "Close", "avg_volume_20", "regime"],
+    )
+    regime_df.attrs["ticker"] = ticker
     market_curve_df = load_csv_checked(
         market_path,
         required_columns=["Date", "Close"],
     )
-    market_curve_df["Date"] = pd.to_datetime(market_curve_df["Date"], errors="coerce")
+    market_curve_df["Date"] = pd.to_datetime(market_curve_df["Date"], errors="coerce", utc=True).dt.tz_convert(None)
     market_curve_df["Close"] = pd.to_numeric(market_curve_df["Close"], errors="coerce")
     market_curve_df = market_curve_df.dropna(subset=["Date", "Close"]).sort_values("Date").reset_index(
         drop=True
     )
-    open_prices = market_df["Open"].to_numpy(dtype=float)
     agent_inputs: dict[str, dict[str, object]] = {}
 
     for agent_name in AGENT_ORDER:
         input_path = ensure_trade_file_exists(ticker, agent_name)
         trade_df = load_trade_data(input_path, allow_empty=True)
-        if trade_df.empty:
-            adjusted_returns = np.array([], dtype=float)
-            log_returns = np.array([], dtype=float)
-            actual_cumulative_return = 0.0
-            durations = np.array([], dtype=int)
-            position_value_fractions = np.array([], dtype=float)
-            annualized_return = 0.0
-        else:
-            raw_returns = trade_df["return"].to_numpy(dtype=float)
-            adjusted_returns = adjust_trade_returns(
-                raw_returns=raw_returns,
-                transaction_cost=TRANSACTION_COST,
-                input_path=input_path,
-            )
-            log_returns = convert_to_log_returns(adjusted_returns)
-            actual_cumulative_return = calculate_cumulative_return_from_log_returns(log_returns)
-            durations = calculate_trade_durations(
+        try:
+            actual_metrics = build_actual_metrics_from_trade_df(
+                agent_name=agent_name,
                 trade_df=trade_df,
                 market_df=market_df,
+                market_curve_df=market_curve_df,
                 input_path=input_path,
             )
-            position_value_fractions = extract_position_value_fractions(trade_df)
-            annualized_return = calculate_annualized_return(
-                log_returns=log_returns,
+        except ValueError as error:
+            error_text = str(error).lower()
+            recoverable_alignment_error = "do not align with the market data" in error_text
+            recoverable_return_error = "adjusted return" in error_text and "too low for log-return conversion" in error_text
+            if not (recoverable_alignment_error or recoverable_return_error):
+                raise
+            # One recovery attempt for stale artifacts that may still be on disk.
+            if input_path.exists():
+                input_path.unlink()
+            input_path = ensure_trade_file_exists(ticker, agent_name)
+            trade_df = load_trade_data(input_path, allow_empty=True)
+            actual_metrics = build_actual_metrics_from_trade_df(
+                agent_name=agent_name,
                 trade_df=trade_df,
                 market_df=market_df,
+                market_curve_df=market_curve_df,
                 input_path=input_path,
             )
         daily_curve_df = load_saved_strategy_curve(ticker, agent_name)
-        if daily_curve_df is None:
-            daily_curve_df = build_daily_strategy_curve(trade_df, market_curve_df)
-        curve_summary = summarize_daily_curve(daily_curve_df)
-        trade_level_return_ratio = calculate_trade_level_return_ratio(adjusted_returns)
-        max_drawdown = float(curve_summary["max_drawdown"])
+        if daily_curve_df is not None and not trade_df.empty:
+            curve_summary = summarize_daily_curve(daily_curve_df)
+            actual_metrics["annualized_sharpe"] = float(curve_summary["annualized_sharpe"])
+            actual_metrics["max_drawdown"] = float(curve_summary["max_drawdown"])
+        agent_inputs[agent_name] = actual_metrics
 
-        agent_inputs[agent_name] = {
-            "actual_cumulative_return": actual_cumulative_return,
-            "annualized_return": annualized_return,
-            "annualized_sharpe": float(curve_summary["annualized_sharpe"]),
-            "trade_level_return_ratio": trade_level_return_ratio,
-            "max_drawdown": max_drawdown,
-            "number_of_trades": len(trade_df),
-            "durations": durations,
-            "position_value_fractions": position_value_fractions,
-            "null_model": (
-                RELATIVE_STRENGTH_NULL_MODEL_NAME
-                if agent_name == "momentum_relative_strength"
-                else NULL_MODEL_NAME
-            ),
-        }
-
-    return market_df, open_prices, agent_inputs
+    return market_df, regime_df, market_curve_df, agent_inputs
 
 
 def build_run_row(
@@ -255,14 +296,20 @@ def build_run_row(
     mean_simulated_return = float(np.mean(simulated_array))
     std_simulated_return = float(np.std(simulated_array, ddof=0))
     median_simulated_return = float(np.median(simulated_array))
-    actual_percentile = float((simulated_array <= actual_cumulative_return).mean() * 100)
+    actual_percentile = calculate_actual_percentile(
+        simulated_array,
+        actual_cumulative_return,
+    )
     p_value = calculate_p_value(simulated_array, actual_cumulative_return)
     p_value_prominence = calculate_p_value_prominence(p_value)
-    rcsi = actual_cumulative_return - median_simulated_return
+    # RCSI and RCSI_z must use the same central tendency (mean) so that
+    # RCSI_z is the standardized form of RCSI.  Using median for RCSI but
+    # mean for RCSI_z was an inconsistency that made interpretation ambiguous.
+    rcsi = actual_cumulative_return - mean_simulated_return
 
     rcsi_z = np.nan
     if std_simulated_return > 0:
-        rcsi_z = (actual_cumulative_return - mean_simulated_return) / std_simulated_return
+        rcsi_z = rcsi / std_simulated_return
 
     return {
         "agent": agent_name,
@@ -402,50 +449,47 @@ def aggregate_runs(runs_df: pd.DataFrame) -> pd.DataFrame:
     summary_df["number_of_outer_runs"] = OUTER_RUNS
     summary_df["simulations_per_run"] = SIMULATIONS_PER_RUN
     summary_df["transaction_cost"] = TRANSACTION_COST
+    summary_df["research_grade"] = bool(
+        OUTER_RUNS >= 30 and SIMULATIONS_PER_RUN >= 1000
+    )
+    summary_df["robustness_scope"] = ROBUSTNESS_SCOPE
     summary_df["p_value_interpretation"] = summary_df["mean_p_value"].apply(
         lambda value: interpret_p_value(value) if pd.notna(value) else "no trades"
     )
     summary_df["null_model"] = grouped["null_model"].first()["null_model"].to_numpy(dtype=str)
     summary_df["stability_classification"] = summary_df.apply(classify_stability, axis=1)
-    evidence_and_confidence = summary_df.apply(
-        lambda row: classify_robustness_evidence(
-            p_value=row["mean_p_value"],
-            rcsi=row["mean_RCSI"],
+    summary_df["evidence_bucket"] = summary_df.apply(
+        lambda row: classify_metrics(
             rcsi_z=row["mean_RCSI_z"],
+            p_value=row["mean_p_value"],
             percentile=row["mean_percentile"],
-            proportion_significant=row["proportion_significant"],
-            proportion_outperforming_null_median=row["proportion_outperforming_null_median"],
+        ),
+        axis=1,
+    )
+    summary_df["confidence_score"] = summary_df["evidence_bucket"].map(
+        {
+            "strong_skill": 0.90,
+            "moderate_skill": 0.75,
+            "weak_skill": 0.60,
+            "random_luck": 0.35,
+            "negative_skill": 0.60,
+            "suspicious": 0.25,
+            "no_trades": np.nan,
+        }
+    )
+    summary_df["evaluation_power_score"] = np.nan
+    no_trade_mask = summary_df["mean_number_of_trades"].fillna(np.nan).le(0)
+    summary_df.loc[no_trade_mask, "evidence_bucket"] = "no_trades"
+    summary_df.loc[no_trade_mask, "confidence_score"] = np.nan
+    summary_df["confidence_bucket"] = summary_df.apply(
+        lambda row: classify_confidence(
+            p_value=row["mean_p_value"],
             stability_classification=str(row["stability_classification"]),
         ),
         axis=1,
     )
-    summary_df["evidence_bucket"] = evidence_and_confidence.map(lambda value: value[0])
-    summary_df["confidence_score"] = evidence_and_confidence.map(lambda value: value[1])
-    summary_df["evaluation_power_score"] = summary_df.apply(
-        lambda row: evaluation_power_score(
-            number_of_outer_runs=OUTER_RUNS,
-            simulations_per_run=SIMULATIONS_PER_RUN,
-        ),
-        axis=1,
-    )
-    adjusted_evidence = summary_df.apply(
-        lambda row: adjust_for_evaluation_power(
-            evidence_bucket=row["evidence_bucket"],
-            confidence_score=row["confidence_score"],
-            power_score=row["evaluation_power_score"],
-        ),
-        axis=1,
-    )
-    summary_df["evidence_bucket"] = adjusted_evidence.map(lambda value: value[0])
-    summary_df["confidence_score"] = adjusted_evidence.map(lambda value: value[1])
-    no_trade_mask = summary_df["mean_number_of_trades"].fillna(np.nan).le(0)
-    summary_df.loc[no_trade_mask, "evidence_bucket"] = "no_trades"
-    summary_df.loc[no_trade_mask, "confidence_score"] = np.nan
-    summary_df["confidence_bucket"] = summary_df["confidence_score"].apply(confidence_bucket_from_score)
     summary_df.loc[no_trade_mask, "confidence_bucket"] = "not_applicable"
-    summary_df["evaluation_power_label"] = summary_df["evaluation_power_score"].apply(
-        evaluation_power_label
-    )
+    summary_df["evaluation_power_label"] = "Not Used"
     summary_df.loc[no_trade_mask, "evaluation_power_score"] = np.nan
     summary_df.loc[no_trade_mask, "evaluation_power_label"] = "Not Applicable"
     summary_df["evidence_label"] = summary_df["evidence_bucket"].apply(evidence_label)
@@ -532,7 +576,7 @@ def main() -> None:
     runs_output_path = data_clean_dir() / f"{ticker}_monte_carlo_robustness_runs.csv"
     summary_output_path = data_clean_dir() / f"{ticker}_monte_carlo_robustness_summary.csv"
 
-    _, open_prices, agent_inputs = load_agent_inputs()
+    market_df, regime_df, market_curve_df, agent_inputs = load_agent_inputs()
     run_rows: list[dict[str, float | int | str]] = []
     start_time = time.perf_counter()
 
@@ -550,6 +594,20 @@ def main() -> None:
 
         for agent_name, child_sequence in zip(AGENT_ORDER, child_sequences):
             agent_input = agent_inputs[agent_name]
+            if agent_name == "random":
+                random_trade_df = run_strategy(
+                    "random",
+                    regime_df.copy(),
+                    random_decision_seed=seed_used,
+                    ticker=ticker,
+                )
+                agent_input = build_actual_metrics_from_trade_df(
+                    agent_name="random",
+                    trade_df=random_trade_df,
+                    market_df=market_df,
+                    market_curve_df=market_curve_df,
+                    input_path=f"{ticker}_random_robustness_seed_{seed_used}",
+                )
             null_model_name = str(agent_input["null_model"])
             if int(agent_input["number_of_trades"]) == 0:
                 run_rows.append(
@@ -566,9 +624,9 @@ def main() -> None:
             simulated_returns, null_model_name = simulate_agent_null_cumulative_returns(
                 agent_name=agent_name,
                 current_ticker=ticker,
-                single_asset_open_prices=open_prices,
-                durations=agent_input["durations"],
-                position_value_fractions=agent_input["position_value_fractions"],
+                trade_df=agent_input["trade_df"],
+                market_df=market_df,
+                input_path=agent_input["input_path"],
                 simulation_count=SIMULATIONS_PER_RUN,
                 rng=rng,
             )
@@ -612,12 +670,45 @@ def main() -> None:
             "transaction_cost",
             "simulations_per_run",
             "null_model",
+            "robustness_scope",
         ],
     )
-    runs_df.to_csv(runs_output_path, index=False)
+    runs_df["research_grade"] = bool(
+        OUTER_RUNS >= 30 and SIMULATIONS_PER_RUN >= 1000
+    )
+    runs_df["robustness_scope"] = ROBUSTNESS_SCOPE
+    write_dataframe_artifact(
+        runs_df,
+        runs_output_path,
+        producer="monte_carlo_robustness.main",
+        current_ticker=ticker,
+        dependencies=[
+            data_clean_dir() / f"{ticker}_monte_carlo_summary.csv",
+        ],
+        research_grade=bool(OUTER_RUNS >= 30 and SIMULATIONS_PER_RUN >= 1000),
+        canonical_policy="always",
+        parameters={
+            "outer_runs": OUTER_RUNS,
+            "simulations_per_run": SIMULATIONS_PER_RUN,
+            "robustness_scope": ROBUSTNESS_SCOPE,
+        },
+    )
 
     summary_df = aggregate_runs(runs_df)
-    summary_df.to_csv(summary_output_path, index=False)
+    write_dataframe_artifact(
+        summary_df,
+        summary_output_path,
+        producer="monte_carlo_robustness.main",
+        current_ticker=ticker,
+        dependencies=[runs_output_path],
+        research_grade=bool(OUTER_RUNS >= 30 and SIMULATIONS_PER_RUN >= 1000),
+        canonical_policy="always",
+        parameters={
+            "outer_runs": OUTER_RUNS,
+            "simulations_per_run": SIMULATIONS_PER_RUN,
+            "robustness_scope": ROBUSTNESS_SCOPE,
+        },
+    )
 
     total_elapsed_seconds = time.perf_counter() - start_time
     print(

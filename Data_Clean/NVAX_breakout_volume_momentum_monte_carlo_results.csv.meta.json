@@ -1,0 +1,38 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/NVAX_breakout_volume_momentum_monte_carlo_results.csv",
+  "canonical_policy": "always",
+  "canonical_updated": true,
+  "column_names": [
+    "simulation_id",
+    "simulated_cumulative_return"
+  ],
+  "created_at_utc": "2026-04-02T17:11:14Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775149853774719068,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/NVAX_breakout_volume_momentum_trades.csv",
+      "sha256": "d25adc188d533677fb9bd6333997f99d9b4de06dc70a6f06db96f56d0eda5add",
+      "size_bytes": 60759
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775149850450176799,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/NVAX_regimes.csv",
+      "sha256": "b105f6b08c2990b07eac480553f911e2f7fead15a56f4f65b04e7d720eb8af09",
+      "size_bytes": 6882597
+    }
+  ],
+  "parameters": {
+    "agent_name": "breakout_volume_momentum",
+    "null_model_type": "timing_null_results",
+    "simulation_count": 2000
+  },
+  "pipeline_profile": "standard",
+  "producer": "monte_carlo.save_simulation_results",
+  "research_grade": false,
+  "row_count": 2000,
+  "run_id": "run_20260402T171046Z_pid84435",
+  "ticker": "NVAX",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/NVAX_breakout_volume_momentum_monte_carlo_results__run_20260402T171046Z_pid84435.csv"
+}

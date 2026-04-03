@@ -5,8 +5,7 @@ import os
 from plot_config import (
     ACTUAL_LINE_COLOR,
     DEFAULT_FIGSIZE,
-    MEDIAN_LINE_COLOR,
-    add_note_box,
+    add_figure_caption,
     apply_axis_number_format,
     apply_clean_style,
     create_placeholder_chart,
@@ -24,19 +23,25 @@ import numpy as np
 import pandas as pd
 
 try:
+    from artifact_provenance import artifact_run_id
     from monte_carlo import (
         TRANSACTION_COST,
         adjust_trade_returns,
+        calculate_actual_percentile,
         calculate_cumulative_return_from_log_returns,
+        calculate_p_value,
         convert_to_log_returns,
         load_trade_data,
     )
     from strategy_config import AGENT_ORDER
 except ModuleNotFoundError:
+    from Code.artifact_provenance import artifact_run_id
     from Code.monte_carlo import (
         TRANSACTION_COST,
         adjust_trade_returns,
+        calculate_actual_percentile,
         calculate_cumulative_return_from_log_returns,
+        calculate_p_value,
         convert_to_log_returns,
         load_trade_data,
     )
@@ -47,6 +52,8 @@ except ModuleNotFoundError:
 ticker = os.environ.get("TICKER", "SPY")
 DEFAULT_CLIP_RANGE = (0.005, 0.995)
 TIGHT_CLIP_RANGE = (0.01, 0.99)
+MONTE_CARLO_MEDIAN_LINE_COLOR = "#111111"
+INTERVAL_LINE_COLOR = "#70757D"
 
 
 def load_simulation_results(input_path):
@@ -146,99 +153,70 @@ def validate_summary_against_results(
     simulation_df: pd.DataFrame,
     actual_cumulative_return: float,
     number_of_trades: int,
-) -> None:
+) -> pd.Series:
     """Catch stale or mismatched files before plotting."""
     simulated_returns = simulation_df["simulated_cumulative_return"].to_numpy(dtype=float)
+    expected_values = {
+        "simulation_count": int(len(simulated_returns)),
+        "median_simulated_return": float(np.median(simulated_returns)),
+        "mean_simulated_return": float(np.mean(simulated_returns)),
+        "std_simulated_return": float(np.std(simulated_returns, ddof=0)),
+        "lower_5pct": float(np.percentile(simulated_returns, 5)),
+        "upper_95pct": float(np.percentile(simulated_returns, 95)),
+        "actual_percentile": float(
+            calculate_actual_percentile(
+                simulated_returns,
+                actual_cumulative_return,
+            )
+        ),
+        "p_value": float(
+            calculate_p_value(
+                simulated_returns,
+                actual_cumulative_return,
+            )
+        ),
+        "actual_cumulative_return": float(actual_cumulative_return),
+        "number_of_trades": int(number_of_trades),
+    }
 
-    checks = [
-        (
-            "simulation_count",
-            int(summary_row["simulation_count"]) == len(simulated_returns),
-        ),
-        (
-            "median_simulated_return",
-            np.isclose(
-                float(summary_row["median_simulated_return"]),
-                float(np.median(simulated_returns)),
-                rtol=1e-9,
-                atol=1e-12,
-            ),
-        ),
-        (
-            "mean_simulated_return",
-            np.isclose(
-                float(summary_row["mean_simulated_return"]),
-                float(np.mean(simulated_returns)),
-                rtol=1e-9,
-                atol=1e-12,
-            ),
-        ),
-        (
-            "std_simulated_return",
-            np.isclose(
-                float(summary_row["std_simulated_return"]),
-                float(np.std(simulated_returns, ddof=0)),
-                rtol=1e-9,
-                atol=1e-12,
-            ),
-        ),
-        (
-            "lower_5pct",
-            np.isclose(
-                float(summary_row["lower_5pct"]),
-                float(np.percentile(simulated_returns, 5)),
-                rtol=1e-9,
-                atol=1e-12,
-            ),
-        ),
-        (
-            "upper_95pct",
-            np.isclose(
-                float(summary_row["upper_95pct"]),
-                float(np.percentile(simulated_returns, 95)),
-                rtol=1e-9,
-                atol=1e-12,
-            ),
-        ),
-        (
-            "actual_percentile",
-            np.isclose(
-                float(summary_row["actual_percentile"]),
-                float((simulated_returns <= actual_cumulative_return).mean() * 100),
-                rtol=1e-9,
-                atol=1e-12,
-            ),
-        ),
-        (
-            "p_value",
-            np.isclose(
-                float(summary_row["p_value"]),
-                float((simulated_returns >= actual_cumulative_return).mean()),
-                rtol=1e-9,
-                atol=1e-12,
-            ),
-        ),
-        (
-            "actual_cumulative_return",
-            np.isclose(
-                float(summary_row["actual_cumulative_return"]),
-                float(actual_cumulative_return),
-                rtol=1e-9,
-                atol=1e-12,
-            ),
-        ),
-        (
-            "number_of_trades",
-            int(summary_row["number_of_trades"]) == number_of_trades,
-        ),
-    ]
+    corrected_summary = summary_row.copy()
+    critical_mismatches: list[str] = []
+    recomputed_mismatches: list[str] = []
 
-    failed_checks = [name for name, passed in checks if not passed]
-    if failed_checks:
+    for field_name, expected_value in expected_values.items():
+        if field_name in {"simulation_count", "number_of_trades"}:
+            matches = int(summary_row[field_name]) == int(expected_value)
+        else:
+            matches = np.isclose(
+                float(summary_row[field_name]),
+                float(expected_value),
+                rtol=1e-9,
+                atol=1e-12,
+            )
+
+        if matches:
+            continue
+
+        if field_name in {"actual_cumulative_return", "number_of_trades"}:
+            critical_mismatches.append(field_name)
+            continue
+
+        corrected_summary[field_name] = expected_value
+        recomputed_mismatches.append(field_name)
+
+    if critical_mismatches:
         raise ValueError(
             "Monte Carlo summary and result files do not match for "
-            f"{summary_row['agent']}. Mismatched fields: {', '.join(failed_checks)}"
+            f"{summary_row['agent']}. Mismatched fields: {', '.join(critical_mismatches)}"
         )
+
+    if recomputed_mismatches:
+        print(
+            "Warning: recomputed stale Monte Carlo summary fields for "
+            f"{summary_row['agent']}: {', '.join(recomputed_mismatches)}"
+        )
+
+    return corrected_summary
 
 
 def choose_display_clip_range(simulated_returns: pd.Series) -> tuple[float, float]:
@@ -396,8 +374,14 @@ def set_log1p_actual_value_ticks(ax, display_min: float, display_max: float) -> 
     ax.set_xticklabels([format_large_number(value) for value in actual_ticks])
 
 
-def create_annotation_text(summary_row: pd.Series, clipping_used: bool, clip_lower_q: float, clip_upper_q: float, use_log1p_display: bool) -> str:
-    """Create the note-box text inside the Monte Carlo histogram."""
+def create_caption_text(
+    summary_row: pd.Series,
+    clipping_used: bool,
+    clip_lower_q: float,
+    clip_upper_q: float,
+    use_log1p_display: bool,
+) -> str:
+    """Create a compact caption for the Monte Carlo histogram."""
     clipping_text = "No"
     if clipping_used:
         clipping_text = (
@@ -409,16 +393,15 @@ def create_annotation_text(summary_row: pd.Series, clipping_used: bool, clip_low
         display_mode = "Actual values shown on log1p spacing"
 
     return (
-        f"Actual result: {summary_row['actual_cumulative_return']:.6f}\n"
-        f"Median simulation: {summary_row['median_simulated_return']:.6f}\n"
-        f"p-value: {summary_row['p_value']:.6f}\n"
-        f"5th percentile: {summary_row['lower_5pct']:.6f}\n"
-        f"95th percentile: {summary_row['upper_95pct']:.6f}\n"
-        f"Actual percentile: {summary_row['actual_percentile']:.2f}\n"
-        f"Number of trades: {int(summary_row['number_of_trades'])}\n"
-        f"Simulation count: {int(summary_row['simulation_count'])}\n"
-        f"Transaction cost: {summary_row['transaction_cost']:.6f}\n"
-        f"Display clipping used: {clipping_text}\n"
+        f"Actual return = {summary_row['actual_cumulative_return']:.4f}; "
+        f"median simulated return = {summary_row['median_simulated_return']:.4f}; "
+        f"simulated 5th/95th = ({summary_row['lower_5pct']:.4f}, {summary_row['upper_95pct']:.4f}); "
+        f"p-value = {summary_row['p_value']:.4f}; "
+        f"actual percentile = {summary_row['actual_percentile']:.1f}; "
+        f"trades = {int(summary_row['number_of_trades'])}; "
+        f"simulations = {int(summary_row['simulation_count'])}; "
+        f"transaction cost = {summary_row['transaction_cost']:.6f}; "
+        f"display clipping = {clipping_text}; "
         f"Display mode: {display_mode}"
     )
 
@@ -432,6 +415,13 @@ def create_monte_carlo_chart(agent_name: str) -> None:
 
     simulation_df = load_simulation_results(results_path)
     summary_row = load_summary_row(summary_path, agent_name)
+    summary_run_id = artifact_run_id(summary_path)
+    results_run_id = artifact_run_id(results_path)
+    if summary_run_id and results_run_id and summary_run_id != results_run_id:
+        raise ValueError(
+            "Monte Carlo summary and result files come from different runs for "
+            f"{agent_name}. summary={summary_run_id}, results={results_run_id}"
+        )
     actual_cumulative_return, number_of_trades = calculate_actual_return_from_trade_file(
         trade_path
     )
@@ -450,7 +440,7 @@ def create_monte_carlo_chart(agent_name: str) -> None:
         )
         return
 
-    validate_summary_against_results(
+    summary_row = validate_summary_against_results(
         summary_row=summary_row,
         simulation_df=simulation_df,
         actual_cumulative_return=actual_cumulative_return,
@@ -509,24 +499,24 @@ def create_monte_carlo_chart(agent_name: str) -> None:
     )
     ax.axvline(
         median_display_value,
-        color=MEDIAN_LINE_COLOR,
+        color=MONTE_CARLO_MEDIAN_LINE_COLOR,
         linestyle=":",
         linewidth=1.8,
         label="Median simulation",
     )
     ax.axvline(
         lower_display_value,
-        color="#9CA3AF",
+        color=INTERVAL_LINE_COLOR,
         linestyle="-.",
-        linewidth=1.0,
-        alpha=0.8,
+        linewidth=1.3,
+        label="5th percentile simulation",
     )
     ax.axvline(
         upper_display_value,
-        color="#9CA3AF",
-        linestyle="-.",
-        linewidth=1.0,
-        alpha=0.8,
+        color=INTERVAL_LINE_COLOR,
+        linestyle=(0, (4, 2)),
+        linewidth=1.3,
+        label="95th percentile simulation",
     )
 
     x_axis_label = "Final Cumulative Return (decimal, where 1.0 = 100%)"
@@ -556,18 +546,37 @@ def create_monte_carlo_chart(agent_name: str) -> None:
         display_right + display_span * 0.04,
     )
 
-    add_note_box(
-        ax,
-        create_annotation_text(
+    ax.text(
+        0.02,
+        0.98,
+        (
+            f"5th pct: {lower_5pct:.3f}\n"
+            f"95th pct: {upper_95pct:.3f}"
+        ),
+        transform=ax.transAxes,
+        ha="left",
+        va="top",
+        fontsize=8.0,
+        color="#1F2937",
+        bbox={
+            "facecolor": "white",
+            "edgecolor": "#9CA3AF",
+            "linewidth": 0.8,
+            "boxstyle": "square,pad=0.25",
+            "alpha": 0.92,
+        },
+        zorder=5,
+    )
+
+    add_figure_caption(
+        fig,
+        create_caption_text(
             summary_row=summary_row,
             clipping_used=clipping_used,
             clip_lower_q=clip_lower_q,
             clip_upper_q=clip_upper_q,
             use_log1p_display=use_log1p_display,
         ),
-        x=0.02,
-        y=0.97,
-        va="top",
     )
 
     save_chart(fig, output_filename)

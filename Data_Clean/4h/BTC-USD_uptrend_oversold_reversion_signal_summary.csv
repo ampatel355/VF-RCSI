@@ -1,0 +1,2 @@
+ticker,agent,timeframe_label,data_interval,signal_count,executed_trade_count,rejected_signal_count,months_covered
+BTC-USD,uptrend_oversold_reversion,4-Hour,4h,22,22,0,15.62217659137577

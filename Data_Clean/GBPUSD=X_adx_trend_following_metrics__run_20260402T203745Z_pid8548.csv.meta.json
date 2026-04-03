@@ -1,0 +1,41 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/GBPUSD=X_adx_trend_following_metrics.csv",
+  "canonical_policy": "always",
+  "column_names": [
+    "total_trades",
+    "average_return",
+    "median_return",
+    "win_rate",
+    "std_return",
+    "trade_level_return_ratio",
+    "average_win",
+    "average_loss",
+    "expected_value",
+    "average_holding_period_days",
+    "average_holding_period_hours",
+    "average_holding_bars",
+    "trades_per_month",
+    "stop_loss_exit_rate",
+    "take_profit_exit_rate"
+  ],
+  "created_at_utc": "2026-04-02T20:38:11Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775162282470045399,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/GBPUSD=X_adx_trend_following_trades.csv",
+      "sha256": "2c7f93994d77a2d5d86fdfde17b68f4b8898bd3b48ccd380ca7c2b2fc8662d45",
+      "size_bytes": 28501
+    }
+  ],
+  "parameters": {
+    "artifact_type": "strategy_metrics"
+  },
+  "pipeline_profile": "standard",
+  "producer": "create_and_save_metrics",
+  "research_grade": true,
+  "row_count": 1,
+  "run_id": "run_20260402T203745Z_pid8548",
+  "ticker": "GBPUSD=X",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/GBPUSD=X_adx_trend_following_metrics__run_20260402T203745Z_pid8548.csv"
+}

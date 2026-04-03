@@ -1,0 +1,38 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/USDC-USD_trend_pullback_monte_carlo_results.csv",
+  "canonical_policy": "always",
+  "canonical_updated": true,
+  "column_names": [
+    "simulation_id",
+    "simulated_cumulative_return"
+  ],
+  "created_at_utc": "2026-04-02T03:10:44Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775099401773054891,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/USDC-USD_trend_pullback_trades.csv",
+      "sha256": "5e8b41dfddd2b68ed82285cb99ccef46b501563069adc707691b9d4056a3f1f8",
+      "size_bytes": 624969
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775099388131946948,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/USDC-USD_regimes.csv",
+      "sha256": "c19c3d599bf5b2566fd29848cbdfaf6e3f7ab37fc364f578add22b3456ce1cdc",
+      "size_bytes": 17771408
+    }
+  ],
+  "parameters": {
+    "agent_name": "trend_pullback",
+    "null_model_type": "timing_null_results",
+    "simulation_count": 500
+  },
+  "pipeline_profile": "standard",
+  "producer": "monte_carlo.save_simulation_results",
+  "research_grade": false,
+  "row_count": 500,
+  "run_id": "run_20260402T030941Z_pid31359",
+  "ticker": "USDC-USD",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/USDC-USD_trend_pullback_monte_carlo_results__run_20260402T030941Z_pid31359.csv"
+}

@@ -1,0 +1,2 @@
+ticker,agent,timeframe_label,data_interval,signal_count,executed_trade_count,rejected_signal_count,months_covered
+GC=F,trend_pullback,Daily,1d,82,78,4,288.13141683778235

@@ -1,0 +1,84 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/RSPN_monte_carlo_summary.csv",
+  "canonical_policy": "always",
+  "column_names": [
+    "agent",
+    "actual_cumulative_return",
+    "median_simulated_return",
+    "mean_simulated_return",
+    "std_simulated_return",
+    "actual_percentile",
+    "p_value",
+    "p_value_prominence",
+    "p_value_interpretation",
+    "lower_5pct",
+    "upper_95pct",
+    "number_of_trades",
+    "transaction_cost",
+    "execution_cost_model",
+    "simulation_count",
+    "research_grade",
+    "reproducible",
+    "seed_used",
+    "null_model",
+    "bh_adjusted_p_value"
+  ],
+  "created_at_utc": "2026-04-02T02:54:04Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775098418738344411,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/RSPN_regimes.csv",
+      "sha256": "e751a79138ac2412c9955c103bc33b1dd6c2b338afa616f0d65daa87b6986f2e",
+      "size_bytes": 4537093
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775098436889587705,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/RSPN_trend_pullback_monte_carlo_results.csv",
+      "sha256": "4d668e03f975c504eae4b3dcbfbe4a0417e0fd345a70c6b5e8ecfc6dc543b1fe",
+      "size_bytes": 12517
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775098436948449428,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/RSPN_breakout_volume_momentum_monte_carlo_results.csv",
+      "sha256": "6c26dfb489badfd93af0049cf827c41058e8ebf0537316d22be3806011fd9533",
+      "size_bytes": 12580
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775098437003728888,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/RSPN_mean_reversion_vol_filter_monte_carlo_results.csv",
+      "sha256": "bacfa28217359b69022a147a7272eff01a82ac7c947497a645f235de4aeb1d4a",
+      "size_bytes": 12770
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775098444037753746,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/RSPN_momentum_relative_strength_monte_carlo_results.csv",
+      "sha256": "1b98ba191fca9d33bbcca6b4e3d45b57f2bf6c7e0ce9ef92b9e46b03137e39a2",
+      "size_bytes": 11393
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775098444091534700,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/RSPN_random_monte_carlo_results.csv",
+      "sha256": "d856d9f29b94394ca3687dc98711493193e6c19c2b5d1f085a1b2c19f8cc7162",
+      "size_bytes": 12378
+    }
+  ],
+  "parameters": {
+    "context_bucket_count": 5,
+    "context_matching_enabled": false,
+    "simulate_execution_costs": true,
+    "simulation_count": 500
+  },
+  "pipeline_profile": "standard",
+  "producer": "monte_carlo.main",
+  "research_grade": false,
+  "row_count": 5,
+  "run_id": "run_20260402T025334Z_pid27542",
+  "ticker": "RSPN",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/RSPN_monte_carlo_summary__run_20260402T025334Z_pid27542.csv"
+}

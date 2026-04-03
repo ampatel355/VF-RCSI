@@ -1,0 +1,2 @@
+ticker,agent,timeframe_label,data_interval,signal_count,executed_trade_count,rejected_signal_count,months_covered
+QQQ,connors_rsi2_pullback,4-Hour,4h,23,23,0,15.408624229979466

@@ -1,0 +1,2 @@
+ticker,agent,timeframe_label,data_interval,signal_count,executed_trade_count,rejected_signal_count,months_covered
+GBPUSD=X,breakout_volume_momentum,Daily,1d,41,41,0,243.3182751540041

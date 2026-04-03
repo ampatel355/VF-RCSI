@@ -1,0 +1,41 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/1h/BTC-USD_turn_of_month_seasonality_metrics.csv",
+  "canonical_policy": "always",
+  "column_names": [
+    "total_trades",
+    "average_return",
+    "median_return",
+    "win_rate",
+    "std_return",
+    "trade_level_return_ratio",
+    "average_win",
+    "average_loss",
+    "expected_value",
+    "average_holding_period_days",
+    "average_holding_period_hours",
+    "average_holding_bars",
+    "trades_per_month",
+    "stop_loss_exit_rate",
+    "take_profit_exit_rate"
+  ],
+  "created_at_utc": "2026-04-02T22:53:03Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775170376053860142,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/1h/BTC-USD_turn_of_month_seasonality_trades.csv",
+      "sha256": "367f01bf98ecf5e79d6bbc92b139a5cc1f9f48f7bd71144fdc80ff6c980ba485",
+      "size_bytes": 6167
+    }
+  ],
+  "parameters": {
+    "artifact_type": "strategy_metrics"
+  },
+  "pipeline_profile": "standard",
+  "producer": "create_and_save_metrics",
+  "research_grade": true,
+  "row_count": 1,
+  "run_id": "run_20260402T224910Z_pid51173",
+  "ticker": "BTC-USD",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/1h/BTC-USD_turn_of_month_seasonality_metrics__run_20260402T224910Z_pid51173.csv"
+}

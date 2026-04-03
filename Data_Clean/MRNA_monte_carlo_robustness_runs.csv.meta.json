@@ -1,0 +1,55 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/MRNA_monte_carlo_robustness_runs.csv",
+  "canonical_policy": "always",
+  "canonical_updated": true,
+  "column_names": [
+    "agent",
+    "outer_run",
+    "seed_used",
+    "actual_cumulative_return",
+    "annualized_return",
+    "annualized_sharpe",
+    "trade_level_return_ratio",
+    "max_drawdown",
+    "median_simulated_return",
+    "mean_simulated_return",
+    "std_simulated_return",
+    "actual_percentile",
+    "p_value",
+    "p_value_prominence",
+    "RCSI",
+    "RCSI_z",
+    "significant_run",
+    "outperform_null_median",
+    "lower_5pct",
+    "upper_95pct",
+    "number_of_trades",
+    "transaction_cost",
+    "simulations_per_run",
+    "null_model",
+    "robustness_scope",
+    "research_grade"
+  ],
+  "created_at_utc": "2026-04-02T18:25:51Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775154171371173721,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/MRNA_monte_carlo_summary.csv",
+      "sha256": "18de2bdadaa8fd45175a393f1bf80c84e55fb5348739eb91a30c703e2da05746",
+      "size_bytes": 2224
+    }
+  ],
+  "parameters": {
+    "outer_runs": 2,
+    "robustness_scope": "monte_carlo_seed_stability_only",
+    "simulations_per_run": 60
+  },
+  "pipeline_profile": "standard",
+  "producer": "monte_carlo_robustness.main",
+  "research_grade": false,
+  "row_count": 12,
+  "run_id": "run_20260402T182551Z_pid90704",
+  "ticker": "MRNA",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/MRNA_monte_carlo_robustness_runs__run_20260402T182551Z_pid90704.csv"
+}

@@ -1,0 +1,2 @@
+ticker,agent,timeframe_label,data_interval,signal_count,executed_trade_count,rejected_signal_count,months_covered
+ES=F,adx_trend_following,Daily,1d,92,92,0,268.0246406570842

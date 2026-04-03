@@ -1,0 +1,41 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/strategy_discovery_selection_summary.csv",
+  "canonical_policy": "always",
+  "column_names": [
+    "candidate_id",
+    "candidate_name",
+    "candidate_family",
+    "train_median_trade_count",
+    "validation_median_trade_count",
+    "train_positive_share",
+    "validation_positive_share",
+    "train_median_RCSI_z",
+    "validation_median_RCSI_z",
+    "train_median_p_value",
+    "validation_median_p_value",
+    "passed_train_gate",
+    "passed_validation_gate",
+    "selected_for_holdout"
+  ],
+  "created_at_utc": "2026-04-02T14:30:48Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775140248108850597,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/strategy_discovery_candidate_results.csv",
+      "sha256": "8c908e8608f765933a99bfee06b741b3b638da1ad34a9650a0c65a619bad5d05",
+      "size_bytes": 153235
+    }
+  ],
+  "parameters": {
+    "artifact_type": "strategy_discovery_selection_summary",
+    "selection_rule": "train+validation gates: median trades >= min_trades, positive share >= 0.40, median RCSI_z >= 0.20, median p <= 0.35"
+  },
+  "pipeline_profile": "standard",
+  "producer": "strategy_discovery.main",
+  "research_grade": true,
+  "row_count": 20,
+  "run_id": "run_20260402T142826Z_pid62714",
+  "ticker": "MULTI",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/strategy_discovery_selection_summary__run_20260402T142826Z_pid62714.csv"
+}

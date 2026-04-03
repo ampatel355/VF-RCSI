@@ -1,0 +1,2 @@
+ticker,random_baseline_runs,random_baseline_simulations,mean_percentile,median_percentile,mean_p_value,false_positive_rate_p_le_0_05,random_luck_rate,weak_skill_rate,moderate_or_strong_skill_rate
+BTC-USD,30,1000,92.54745254745254,100.0,0.07552447552447553,0.8666666666666667,0.1,0.0,0.8666666666666667

@@ -1,0 +1,84 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/SNAP_monte_carlo_summary.csv",
+  "canonical_policy": "always",
+  "column_names": [
+    "agent",
+    "actual_cumulative_return",
+    "median_simulated_return",
+    "mean_simulated_return",
+    "std_simulated_return",
+    "actual_percentile",
+    "p_value",
+    "p_value_prominence",
+    "p_value_interpretation",
+    "lower_5pct",
+    "upper_95pct",
+    "number_of_trades",
+    "transaction_cost",
+    "execution_cost_model",
+    "simulation_count",
+    "research_grade",
+    "reproducible",
+    "seed_used",
+    "null_model",
+    "bh_adjusted_p_value"
+  ],
+  "created_at_utc": "2026-04-02T03:00:10Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775098780583623328,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/SNAP_regimes.csv",
+      "sha256": "596b368a7420bd5a186f5d7f17faf6b626a6d6cca137df82cfa1e53ab5de16ce",
+      "size_bytes": 4749102
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775098804737861318,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/SNAP_trend_pullback_monte_carlo_results.csv",
+      "sha256": "15d917de4a96d35864026b2b514a0bebc392e387ba5485301faee9aa04808986",
+      "size_bytes": 12121
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775098804854104093,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/SNAP_breakout_volume_momentum_monte_carlo_results.csv",
+      "sha256": "8716605036248e2a1ecd5ed71adc2532346af40eaa4336d42b11f3e719fdfcfd",
+      "size_bytes": 12004
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775098804922939228,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/SNAP_mean_reversion_vol_filter_monte_carlo_results.csv",
+      "sha256": "6d86e01f03c5eca516230d7c7d3d2d05f0309d5af43f20c27af68320139d1cb3",
+      "size_bytes": 12474
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775098809907686394,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/SNAP_momentum_relative_strength_monte_carlo_results.csv",
+      "sha256": "d1fdd1e61db2c20e9f712b9c4aa82bdc3e55445ff34d5ef706afbf20b98d7993",
+      "size_bytes": 11387
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775098810171415353,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/SNAP_random_monte_carlo_results.csv",
+      "sha256": "4d32235874e3a549840c5b82ebca43b9f45a4beeaef8173bbd53d111b0cc3be3",
+      "size_bytes": 12027
+    }
+  ],
+  "parameters": {
+    "context_bucket_count": 5,
+    "context_matching_enabled": false,
+    "simulate_execution_costs": true,
+    "simulation_count": 500
+  },
+  "pipeline_profile": "standard",
+  "producer": "monte_carlo.main",
+  "research_grade": false,
+  "row_count": 5,
+  "run_id": "run_20260402T025935Z_pid28925",
+  "ticker": "SNAP",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/SNAP_monte_carlo_summary__run_20260402T025935Z_pid28925.csv"
+}

@@ -1,0 +1,37 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/TQQQ_rcsi.csv",
+  "canonical_policy": "always",
+  "column_names": [
+    "agent",
+    "actual_cumulative_return",
+    "median_simulated_return",
+    "mean_simulated_return",
+    "std_simulated_return",
+    "actual_percentile",
+    "RCSI",
+    "RCSI_z",
+    "simulation_count",
+    "bh_adjusted_p_value",
+    "research_grade"
+  ],
+  "created_at_utc": "2026-04-02T18:23:22Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775154202109020988,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/TQQQ_monte_carlo_summary.csv",
+      "sha256": "62de29807b25f497779d2c4f0900d954640cefce0ca7a63f22b6ca8fdb791f32",
+      "size_bytes": 2401
+    }
+  ],
+  "parameters": {
+    "artifact_type": "rcsi_summary"
+  },
+  "pipeline_profile": "standard",
+  "producer": "rcsi.main",
+  "research_grade": true,
+  "row_count": 6,
+  "run_id": "run_20260402T182312Z_pid90335",
+  "ticker": "TQQQ",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/TQQQ_rcsi__run_20260402T182312Z_pid90335.csv"
+}

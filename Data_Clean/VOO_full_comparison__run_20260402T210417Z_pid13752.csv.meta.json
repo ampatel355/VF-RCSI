@@ -1,0 +1,62 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/VOO_full_comparison.csv",
+  "canonical_policy": "always",
+  "column_names": [
+    "agent",
+    "skill_luck_verdict",
+    "evidence_label",
+    "confidence_label",
+    "final_classification",
+    "stability_classification",
+    "verdict_reason",
+    "cumulative_return",
+    "annualized_sharpe",
+    "trade_level_return_ratio",
+    "max_drawdown",
+    "RCSI",
+    "RCSI_z",
+    "p_value",
+    "adjusted_p_value",
+    "p_value_prominence",
+    "actual_percentile",
+    "number_of_trades",
+    "number_of_periods",
+    "transaction_cost",
+    "research_grade",
+    "artifact_run_id",
+    "signal_count",
+    "trades_per_month",
+    "average_holding_bars",
+    "average_holding_days",
+    "average_holding_hours",
+    "activity_status",
+    "activity_warning"
+  ],
+  "created_at_utc": "2026-04-02T21:04:46Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775163878038503573,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/VOO_monte_carlo_summary.csv",
+      "sha256": "19e541b196e9137603c19cbbf90ac21bab7e1f0d9045fcd2900091ccaa9a438e",
+      "size_bytes": 3087
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775163878442603989,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/VOO_rcsi.csv",
+      "sha256": "a2f809e29575f959b86d1144ad1dbebe938f0d89b75cacd9cc0df1e50fd84572",
+      "size_bytes": 1667
+    }
+  ],
+  "parameters": {
+    "artifact_type": "full_comparison"
+  },
+  "pipeline_profile": "standard",
+  "producer": "compare_agents.main",
+  "research_grade": false,
+  "row_count": 9,
+  "run_id": "run_20260402T210417Z_pid13752",
+  "ticker": "VOO",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/VOO_full_comparison__run_20260402T210417Z_pid13752.csv"
+}

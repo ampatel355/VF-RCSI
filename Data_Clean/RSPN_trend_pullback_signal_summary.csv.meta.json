@@ -1,0 +1,28 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/RSPN_trend_pullback_signal_summary.csv",
+  "canonical_policy": "always",
+  "canonical_updated": true,
+  "column_names": [
+    "ticker",
+    "agent",
+    "timeframe_label",
+    "data_interval",
+    "signal_count",
+    "executed_trade_count",
+    "rejected_signal_count",
+    "months_covered"
+  ],
+  "created_at_utc": "2026-04-02T02:53:40Z",
+  "dependencies": [],
+  "parameters": {
+    "agent_name": "trend_pullback",
+    "artifact_type": "signal_summary"
+  },
+  "pipeline_profile": "standard",
+  "producer": "save_trade_outputs",
+  "research_grade": true,
+  "row_count": 1,
+  "run_id": "run_20260402T025334Z_pid27542",
+  "ticker": "RSPN",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/RSPN_trend_pullback_signal_summary__run_20260402T025334Z_pid27542.csv"
+}

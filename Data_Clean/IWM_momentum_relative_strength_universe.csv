@@ -1,0 +1,10 @@
+anchor_ticker,universe_position,universe_ticker,included_in_aligned_universe,aligned_rows
+IWM,1,SPY,True,6489
+IWM,2,QQQ,True,6489
+IWM,3,DIA,True,6489
+IWM,4,MDY,True,6489
+IWM,5,XLK,True,6489
+IWM,6,XLF,True,6489
+IWM,7,XLV,True,6489
+IWM,8,XLY,True,6489
+IWM,9,XLP,True,6489

@@ -1,0 +1,42 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/GM_mean_reversion_vol_filter_metrics.csv",
+  "canonical_policy": "always",
+  "canonical_updated": true,
+  "column_names": [
+    "total_trades",
+    "average_return",
+    "median_return",
+    "win_rate",
+    "std_return",
+    "trade_level_return_ratio",
+    "average_win",
+    "average_loss",
+    "expected_value",
+    "average_holding_period_days",
+    "average_holding_period_hours",
+    "average_holding_bars",
+    "trades_per_month",
+    "stop_loss_exit_rate",
+    "take_profit_exit_rate"
+  ],
+  "created_at_utc": "2026-04-02T21:10:33Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775164224367423723,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/GM_mean_reversion_vol_filter_trades.csv",
+      "sha256": "2c8118592271d5e744ee50581c6d3f65256dac1e01630ecc732a0f4b8e6a5f21",
+      "size_bytes": 1607
+    }
+  ],
+  "parameters": {
+    "artifact_type": "strategy_metrics"
+  },
+  "pipeline_profile": "standard",
+  "producer": "create_and_save_metrics",
+  "research_grade": true,
+  "row_count": 1,
+  "run_id": "run_20260402T211016Z_pid16529",
+  "ticker": "GM",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/GM_mean_reversion_vol_filter_metrics__run_20260402T211016Z_pid16529.csv"
+}

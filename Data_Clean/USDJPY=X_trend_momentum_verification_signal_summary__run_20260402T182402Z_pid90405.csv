@@ -1,0 +1,2 @@
+ticker,agent,timeframe_label,data_interval,signal_count,executed_trade_count,rejected_signal_count,months_covered
+USDJPY=X,trend_momentum_verification,Daily,1d,57,56,1,336.49281314168377

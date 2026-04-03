@@ -1,0 +1,84 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/GBPUSD=X_monte_carlo_summary.csv",
+  "canonical_policy": "always",
+  "column_names": [
+    "agent",
+    "actual_cumulative_return",
+    "median_simulated_return",
+    "mean_simulated_return",
+    "std_simulated_return",
+    "actual_percentile",
+    "p_value",
+    "p_value_prominence",
+    "p_value_interpretation",
+    "lower_5pct",
+    "upper_95pct",
+    "number_of_trades",
+    "transaction_cost",
+    "execution_cost_model",
+    "simulation_count",
+    "research_grade",
+    "reproducible",
+    "seed_used",
+    "null_model",
+    "bh_adjusted_p_value"
+  ],
+  "created_at_utc": "2026-04-02T01:59:01Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775095109388198175,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/GBPUSD=X_regimes.csv",
+      "sha256": "fec250cc08de5ce4307629bee3c946f1b970d94e4479c18d389a250c66eaaf12",
+      "size_bytes": 16697112
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775095135317843338,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/GBPUSD=X_trend_pullback_monte_carlo_results.csv",
+      "sha256": "34172998c988e16f81e2245ab4a289dd5b80f10aa5d23c87b170cff7ed00ba4f",
+      "size_bytes": 12359
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775095135626383285,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/GBPUSD=X_breakout_volume_momentum_monte_carlo_results.csv",
+      "sha256": "ddbf7d66e9ed3ae6b93e2232e9011edf7ef5dc847f4914c1a7c2537d4452d271",
+      "size_bytes": 12414
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775095135802878388,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/GBPUSD=X_mean_reversion_vol_filter_monte_carlo_results.csv",
+      "sha256": "6e4a6354912f9751ea6bc17ba4ff7611e3ec09a817a08d658ff2a1715812d1fa",
+      "size_bytes": 12422
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775095141195697963,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/GBPUSD=X_momentum_relative_strength_monte_carlo_results.csv",
+      "sha256": "8226b37802d588483e5b234ce62fe111b829de0d534cfab72d08e047d511e51e",
+      "size_bytes": 12346
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775095141339151084,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/GBPUSD=X_random_monte_carlo_results.csv",
+      "sha256": "8f5c41d2a66dd81ae64edd7feb42767a6a711d5e31a6c00453832b689275aa38",
+      "size_bytes": 12305
+    }
+  ],
+  "parameters": {
+    "context_bucket_count": 5,
+    "context_matching_enabled": false,
+    "simulate_execution_costs": true,
+    "simulation_count": 500
+  },
+  "pipeline_profile": "standard",
+  "producer": "monte_carlo.main",
+  "research_grade": false,
+  "row_count": 5,
+  "run_id": "run_20260402T015823Z_pid14331",
+  "ticker": "GBPUSD=X",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/GBPUSD=X_monte_carlo_summary__run_20260402T015823Z_pid14331.csv"
+}

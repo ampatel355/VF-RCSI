@@ -1,0 +1,2 @@
+ticker,agent,timeframe_label,data_interval,signal_count,executed_trade_count,rejected_signal_count,months_covered
+BTC-USD,donchian_trend_reentry,4-Hour,4h,12,12,0,12.24914442162902

@@ -1,0 +1,69 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/strategy_discovery_holdout_deep_results.csv",
+  "canonical_policy": "always",
+  "column_names": [
+    "candidate_id",
+    "candidate_name",
+    "candidate_family",
+    "is_control",
+    "ticker",
+    "split",
+    "split_start",
+    "split_end",
+    "split_rows",
+    "signal_count",
+    "rejected_signal_count",
+    "trade_count",
+    "average_holding_bars",
+    "actual_cumulative_return",
+    "mean_simulated_return",
+    "median_simulated_return",
+    "std_simulated_return",
+    "RCSI",
+    "RCSI_z",
+    "p_value",
+    "percentile",
+    "classification_raw",
+    "classification_raw_label",
+    "simulation_count",
+    "research_grade",
+    "null_model",
+    "seed",
+    "selected_for_holdout",
+    "fallback_diagnostic_holdout",
+    "holdout_bh_adjusted_p_by_ticker",
+    "holdout_bh_adjusted_p_global",
+    "holdout_classification_bh_by_ticker",
+    "holdout_classification_bh_by_ticker_label",
+    "holdout_classification_bh_global",
+    "holdout_classification_bh_global_label"
+  ],
+  "created_at_utc": "2026-04-02T14:35:52Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775140549911485412,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/strategy_discovery_candidate_results.csv",
+      "sha256": "0f943815768c38a5358911b131b527d48f770e23d9f75b17b0ea95d89d41e1f7",
+      "size_bytes": 160676
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775140549942090920,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/strategy_discovery_selection_summary.csv",
+      "sha256": "f1d0258d515cc2c27b230525c895f7e3e801d77f62e9209aa243dca881c23095",
+      "size_bytes": 4273
+    }
+  ],
+  "parameters": {
+    "artifact_type": "strategy_discovery_holdout_deep_results",
+    "holdout_simulations": 5000
+  },
+  "pipeline_profile": "standard",
+  "producer": "strategy_discovery.main",
+  "research_grade": true,
+  "row_count": 15,
+  "run_id": "run_20260402T143313Z_pid63611",
+  "ticker": "MULTI",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/strategy_discovery_holdout_deep_results__run_20260402T143313Z_pid63611.csv"
+}

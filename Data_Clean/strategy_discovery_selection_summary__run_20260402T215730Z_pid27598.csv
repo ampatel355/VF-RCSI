@@ -1,0 +1,27 @@
+candidate_id,candidate_name,candidate_family,train_median_trade_count,validation_median_trade_count,train_positive_share,validation_positive_share,train_median_RCSI_z,validation_median_RCSI_z,train_median_p_value,validation_median_p_value,passed_train_gate,passed_validation_gate,selected_for_holdout
+cand_trend_pullback_ema_rsi,Trend Pullback (EMA + RSI),pullback,69.0,13.0,0.0,0.5,-0.14457464014932728,0.631169264088297,0.48148148148148145,0.2716049382716049,False,False,False
+existing_trend_pullback,Existing Strategy: Trend + Pullback,existing_production,63.0,22.0,0.2,0.0,-0.6053450163090551,0.6182598375203736,0.6049382716049383,0.2962962962962963,False,False,False
+cand_ma_cross_50_200,50/200 Moving-Average Crossover,trend_following,8.0,2.0,0.0,0.0,0.2656226779332529,0.1127903775223941,0.41975308641975306,0.43209876543209874,False,False,False
+existing_connors_rsi2_pullback,Existing Strategy: Connors RSI(2) Pullback,existing_production,49.0,18.0,0.4,0.0,0.7085222608211168,0.062333301944930315,0.2222222222222222,0.4567901234567901,True,False,False
+cand_cross_asset_monthly_momentum_nostop,Cross-Asset Monthly Momentum (No Trailing Stop),relative_strength_momentum,39.0,18.0,0.0,0.0,-0.15794373291575936,0.002404506137923892,0.7407407407407407,0.48148148148148145,False,False,False
+cand_mean_reversion_zscore,Z-Score Mean Reversion (Calm Regime),mean_reversion,21.0,3.0,0.0,1.0,-0.5653114467106116,0.0,0.7530864197530864,0.6296296296296297,False,False,False
+cand_mean_reversion_bbands,Bollinger Mean Reversion,mean_reversion,6.0,1.0,0.0,0.0,-0.7304380556343464,0.0,0.8271604938271605,0.7654320987654321,False,False,False
+existing_mean_reversion_vol_filter,Existing Strategy: Mean Reversion + Volatility Filter,existing_production,2.0,2.0,0.0,0.0,0.0,0.0,0.7407407407407407,0.654320987654321,False,False,False
+cand_medium_term_momentum_63,Medium-Term Momentum (63-Day),momentum,159.0,67.0,0.2,0.0,0.1747520729031387,-0.0413011179725745,0.30864197530864196,0.48148148148148145,False,False,False
+existing_momentum_relative_strength,Existing Strategy: Momentum + Relative Strength,existing_production,312.0,124.0,0.0,0.0,-0.3438593941974669,-0.1396126359027956,0.9753086419753086,0.5802469135802469,False,False,False
+cand_cross_asset_monthly_momentum,Cross-Asset Monthly Momentum Rotation,relative_strength_momentum,48.0,21.0,0.0,0.3333333333333333,-0.4670595921292638,-0.2717243628741798,0.9382716049382716,0.6049382716049383,False,False,False
+cand_cross_asset_monthly_momentum_63,Cross-Asset Monthly Momentum (63/126),relative_strength_momentum,44.0,16.0,0.0,0.0,-0.29240362396102926,-0.3467237582751012,0.691358024691358,0.6419753086419753,False,False,False
+existing_breakout_volume_momentum,Existing Strategy: Breakout + Volume + Momentum,existing_production,58.0,19.0,0.4,0.0,0.43434127450981286,-0.43967969636766396,0.2839506172839506,0.654320987654321,True,False,False
+existing_turn_of_month_seasonality,Existing Strategy: Turn-of-Month Seasonality,existing_production,118.0,37.0,0.0,0.25,0.4577008387646547,-0.4446926847659352,0.3333333333333333,0.6172839506172839,False,False,False
+cand_bb_squeeze_breakout,Bollinger Squeeze Breakout,breakout,34.0,19.0,0.0,0.0,-0.2124279327974803,-0.4480800757257904,0.4444444444444444,0.6790123456790124,False,False,False
+cand_trend_pullback_adx,Trend Pullback (ADX Confirmed),pullback,86.0,31.0,0.0,0.0,-0.5745697593348712,-0.5156812374189722,0.7283950617283951,0.654320987654321,False,False,False
+cand_regime_filtered_momentum,Regime-Filtered Momentum,hybrid,124.0,48.0,0.4,0.0,0.2720731031946941,-0.6906971733120458,0.38271604938271603,0.7654320987654321,False,False,False
+cand_breakout_20_volume,20-Day Breakout + Volume Confirmation,breakout,41.0,16.0,0.25,0.0,0.013282016616196317,-0.72115732325262,0.5185185185185185,0.9135802469135802,False,False,False
+cand_tsmom_12m_filter,TSMOM 12M + Trend Filter,time_series_momentum,113.0,48.0,0.2,0.0,-0.25102759391982443,-0.7436693190889179,0.5802469135802469,0.7530864197530864,False,False,False
+existing_donchian_trend_reentry,Existing Strategy: Donchian Trend Reentry,existing_production,40.0,25.0,0.25,0.0,-0.22766916451856903,-0.8042732706380243,0.5061728395061729,0.7654320987654321,False,False,False
+cand_hybrid_trend_breakout_pullback,Hybrid Trend + Breakout/Pullback,hybrid,85.0,38.0,0.2,0.0,-0.44003654965549277,-0.8093513266864153,0.5925925925925926,0.7901234567901234,False,False,False
+cand_vol_managed_momentum,Volatility-Managed Momentum,volatility_scaled_momentum,122.0,59.0,0.2,0.0,-0.10116414716119347,-0.8918703308184158,0.4691358024691358,0.8395061728395061,False,False,False
+cand_dual_momentum_trend_filter,Dual Momentum + Trend Filter,momentum,279.0,119.0,0.2,0.2,-0.48942057710764153,-0.9271615357963562,0.6419753086419753,0.8518518518518519,False,False,False
+cand_donchian_55_breakout,Donchian 55-Day Breakout,breakout,59.0,27.0,0.0,0.0,-0.5225426079510956,-1.0551687313557214,0.7160493827160493,0.7901234567901234,False,False,False
+cand_dual_horizon_trend,Dual-Horizon Trend Stack,trend_following,102.0,43.0,0.0,0.0,-0.6181997693942847,-1.1653666899057702,0.6419753086419753,0.9012345679012346,False,False,False
+cand_faber_10m_timing,Faber 10-Month Timing Rule,trend_following,62.0,9.0,0.0,0.0,-0.26394140665517607,-1.475487243437368,0.4691358024691358,0.9382716049382716,False,False,False

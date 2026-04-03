@@ -1,0 +1,37 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/1h/BTC-USD_trend_pullback_monte_carlo_results.csv",
+  "canonical_policy": "always",
+  "column_names": [
+    "simulation_id",
+    "simulated_cumulative_return"
+  ],
+  "created_at_utc": "2026-04-02T22:45:02Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775169871833604263,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/1h/BTC-USD_trend_pullback_trades.csv",
+      "sha256": "2d1f31c00476a7219bce08bb0921e8be91a9278402d8d0cd6a9abb477a3d5c69",
+      "size_bytes": 3451
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775169869305846280,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/1h/BTC-USD_regimes.csv",
+      "sha256": "81b61d0461687410b49ac41e6cae09d834f3b41bb4205783f233f874efc3d29c",
+      "size_bytes": 14643201
+    }
+  ],
+  "parameters": {
+    "agent_name": "trend_pullback",
+    "null_model_type": "timing_null_results",
+    "simulation_count": 2000
+  },
+  "pipeline_profile": "standard",
+  "producer": "monte_carlo.save_simulation_results",
+  "research_grade": false,
+  "row_count": 2000,
+  "run_id": "run_20260402T224112Z_pid45834",
+  "ticker": "BTC-USD",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/1h/BTC-USD_trend_pullback_monte_carlo_results__run_20260402T224112Z_pid45834.csv"
+}

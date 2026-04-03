@@ -1,0 +1,54 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/HEI_monte_carlo_robustness_runs.csv",
+  "canonical_policy": "always",
+  "column_names": [
+    "agent",
+    "outer_run",
+    "seed_used",
+    "actual_cumulative_return",
+    "annualized_return",
+    "annualized_sharpe",
+    "trade_level_return_ratio",
+    "max_drawdown",
+    "median_simulated_return",
+    "mean_simulated_return",
+    "std_simulated_return",
+    "actual_percentile",
+    "p_value",
+    "p_value_prominence",
+    "RCSI",
+    "RCSI_z",
+    "significant_run",
+    "outperform_null_median",
+    "lower_5pct",
+    "upper_95pct",
+    "number_of_trades",
+    "transaction_cost",
+    "simulations_per_run",
+    "null_model",
+    "robustness_scope",
+    "research_grade"
+  ],
+  "created_at_utc": "2026-04-02T02:56:48Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775098597260005758,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/HEI_monte_carlo_summary.csv",
+      "sha256": "608db0e4f4097f4bed4baf2e1fae4e7f9e18b63d1c1e664e4ef69e7bc4866ada",
+      "size_bytes": 2071
+    }
+  ],
+  "parameters": {
+    "outer_runs": 8,
+    "robustness_scope": "monte_carlo_seed_stability_only",
+    "simulations_per_run": 250
+  },
+  "pipeline_profile": "standard",
+  "producer": "monte_carlo_robustness.main",
+  "research_grade": false,
+  "row_count": 40,
+  "run_id": "run_20260402T025605Z_pid28132",
+  "ticker": "HEI",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/HEI_monte_carlo_robustness_runs__run_20260402T025605Z_pid28132.csv"
+}

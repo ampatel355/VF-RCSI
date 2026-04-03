@@ -1,0 +1,23 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/strategy_discovery_sources.csv",
+  "canonical_policy": "always",
+  "column_names": [
+    "candidate_id",
+    "candidate_name",
+    "source_key",
+    "citation",
+    "url"
+  ],
+  "created_at_utc": "2026-04-02T21:57:30Z",
+  "dependencies": [],
+  "parameters": {
+    "artifact_type": "strategy_discovery_sources"
+  },
+  "pipeline_profile": "standard",
+  "producer": "strategy_discovery.save_sources_table",
+  "research_grade": true,
+  "row_count": 42,
+  "run_id": "run_20260402T215730Z_pid27598",
+  "ticker": "MULTI",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/strategy_discovery_sources__run_20260402T215730Z_pid27598.csv"
+}

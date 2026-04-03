@@ -1,0 +1,37 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/VOO_adx_trend_following_monte_carlo_results.csv",
+  "canonical_policy": "always",
+  "column_names": [
+    "simulation_id",
+    "simulated_cumulative_return"
+  ],
+  "created_at_utc": "2026-04-02T20:51:04Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775163046535733571,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/VOO_adx_trend_following_trades.csv",
+      "sha256": "bd9ea9257129f27384356bfa52484083091668892b0979af32066dbf2db8185c",
+      "size_bytes": 39286
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775163034316714749,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/VOO_regimes.csv",
+      "sha256": "13eee386f17df3504fe1324d4691fb5296cb5bf4a3b3b2ccd12f134bfeb6c47c",
+      "size_bytes": 3571346
+    }
+  ],
+  "parameters": {
+    "agent_name": "adx_trend_following",
+    "null_model_type": "timing_null_results",
+    "simulation_count": 2000
+  },
+  "pipeline_profile": "standard",
+  "producer": "monte_carlo.save_simulation_results",
+  "research_grade": false,
+  "row_count": 2000,
+  "run_id": "run_20260402T205030Z_pid10953",
+  "ticker": "VOO",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/VOO_adx_trend_following_monte_carlo_results__run_20260402T205030Z_pid10953.csv"
+}

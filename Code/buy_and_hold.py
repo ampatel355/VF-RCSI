@@ -7,24 +7,31 @@ from plot_config import data_clean_dir, load_csv_checked
 import pandas as pd
 
 try:
+    from execution_model import EXPECTED_ROUND_TRIP_EXECUTION_COST
     from features import main as create_features
     from research_metrics import (
         build_buy_and_hold_curve as build_daily_buy_and_hold_curve,
         summarize_daily_curve,
     )
+    from timeframe_config import RESEARCH_INTERVAL, RESEARCH_TIMEFRAME_LABEL, normalize_timestamp_series
 except ModuleNotFoundError:
+    from Code.execution_model import EXPECTED_ROUND_TRIP_EXECUTION_COST
     from Code.features import main as create_features
     from Code.research_metrics import (
         build_buy_and_hold_curve as build_daily_buy_and_hold_curve,
         summarize_daily_curve,
     )
+    from Code.timeframe_config import RESEARCH_INTERVAL, RESEARCH_TIMEFRAME_LABEL, normalize_timestamp_series
 
 
 # Read the active ticker from the environment, or fall back to SPY.
 ticker = os.environ.get("TICKER", "SPY")
 
-# Keep benchmark friction simple and easy to change.
-BUY_HOLD_TRANSACTION_COST = 0.0
+# Apply a single round-trip execution cost so buy-and-hold is compared
+# fairly against active strategies that pay spread, slippage, and
+# commissions on every trade.  A single buy-and-sell still incurs one
+# round trip of friction.
+BUY_HOLD_TRANSACTION_COST = EXPECTED_ROUND_TRIP_EXECUTION_COST
 
 
 def load_feature_data(input_path: Path) -> pd.DataFrame:
@@ -36,8 +43,19 @@ def load_feature_data(input_path: Path) -> pd.DataFrame:
         input_path,
         required_columns=["Date", "Close"],
     )
+    interval_is_compatible = (
+        df.get("data_interval", pd.Series(dtype="object")).astype(str).str.lower().eq(RESEARCH_INTERVAL).any()
+        if "data_interval" in df.columns
+        else False
+    )
+    if not interval_is_compatible:
+        create_features()
+        df = load_csv_checked(
+            input_path,
+            required_columns=["Date", "Close"],
+        )
 
-    df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
+    df["Date"] = normalize_timestamp_series(df["Date"])
     df["Close"] = pd.to_numeric(df["Close"], errors="coerce")
     df = df.dropna(subset=["Date", "Close"]).sort_values("Date").reset_index(drop=True)
 
@@ -62,8 +80,8 @@ def build_metrics(curve_df: pd.DataFrame) -> pd.DataFrame:
     metrics_df = pd.DataFrame(
         [
             {
-                "start_date": curve_df["Date"].iloc[0].strftime("%Y-%m-%d"),
-                "end_date": curve_df["Date"].iloc[-1].strftime("%Y-%m-%d"),
+                "start_date": curve_df["Date"].iloc[0].strftime("%Y-%m-%d %H:%M"),
+                "end_date": curve_df["Date"].iloc[-1].strftime("%Y-%m-%d %H:%M"),
                 "first_close": float(curve_df["Close"].iloc[0]),
                 "last_close": float(curve_df["Close"].iloc[-1]),
                 "buy_hold_return": float(curve_summary["cumulative_return"]),
@@ -71,6 +89,8 @@ def build_metrics(curve_df: pd.DataFrame) -> pd.DataFrame:
                 "max_drawdown": float(curve_summary["max_drawdown"]),
                 "number_of_periods": int(curve_summary["number_of_periods"]),
                 "transaction_cost": BUY_HOLD_TRANSACTION_COST,
+                "timeframe_label": RESEARCH_TIMEFRAME_LABEL,
+                "data_interval": RESEARCH_INTERVAL,
             }
         ]
     )

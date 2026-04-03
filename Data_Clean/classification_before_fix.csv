@@ -1,0 +1,7 @@
+agent,reference_rcsi_z,reference_p_value,reference_percentile,reference_adjusted_p_value,evidence_bucket,evidence_label,verdict_label,final_classification
+trend_pullback,-0.2721066379358415,0.5528894221155769,44.731053789242154,0.8439112177564487,random_luck,Random / Luck,Random / Luck,random / luck
+breakout_volume_momentum,-0.1201697487254613,0.494501099780044,50.56988602279544,0.8439112177564487,random_luck,Random / Luck,Random / Luck,random / luck
+mean_reversion_vol_filter,-0.5228071525126085,0.7032593481303739,29.69406118776245,0.8439112177564487,negative_skill,Negative Skill,Negative Skill,negative skill
+momentum_relative_strength,-0.8749979283877811,0.9992001599680064,0.0999800039992001,0.9992001599680064,negative_skill,Negative Skill,Negative Skill,negative skill
+trend_momentum_verification,-0.5024265735716005,0.6532693461307738,34.69306138772246,0.8439112177564487,random_luck,Random / Luck,Random / Luck,random / luck
+random,-0.2954643427464492,0.5416916616676665,45.85082983403319,0.8439112177564487,random_luck,Random / Luck,Random / Luck,random / luck

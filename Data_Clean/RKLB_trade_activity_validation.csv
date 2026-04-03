@@ -1,0 +1,6 @@
+ticker,agent,timeframe_label,data_interval,total_trades,signal_count,rejected_signal_count,signal_to_trade_conversion,total_bars,signal_rate_pct,trades_per_month,average_holding_bars,average_holding_hours,activity_status,activity_warning
+RKLB,trend_pullback,1H,1h,76,76,0,1.0,4750,1.6,2.360559547599813,6.447368421052632,33.88157894736842,acceptable,Trade activity is in a reasonable range for 1-hour research and null-hypothesis testing.
+RKLB,breakout_volume_momentum,1H,1h,73,73,0,1.0,4750,1.5368421052631578,2.2376007049345414,9.67123287671233,46.26027397260274,acceptable,Trade activity is in a reasonable range for 1-hour research and null-hypothesis testing.
+RKLB,mean_reversion_vol_filter,1H,1h,0,0,0,0.0,4750,0.0,0.0,0.0,0.0,underactive,Too few trades for strong statistical power. Consider reviewing thresholds or sample length.
+RKLB,momentum_relative_strength,1H,1h,304,308,4,0.987012987012987,4750,6.484210526315789,9.318227593152063,13.197368421052632,63.21052631578947,acceptable,Trade activity is in a reasonable range for 1-hour research and null-hypothesis testing.
+RKLB,random,1H,1h,90,90,0,1.0,4750,1.8947368421052633,2.7729975958496773,12.122222222222222,63.91111111111111,acceptable,Trade activity is in a reasonable range for 1-hour research and null-hypothesis testing.

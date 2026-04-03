@@ -1,0 +1,10 @@
+ticker,timeframe,success,error,strategies,with_trades,label_counts,random_classification,random_trades
+SPY,1d,True,,12,11,"{'random / luck': 7, 'negative skill': 3, 'moderate skill': 1, 'benchmark': 1}",random / luck,312
+QQQ,1d,False,volatility_squeeze_breakout_agent.py failed with exit code 1. See the captured logs for details.,12,11,"{'random / luck': 5, 'negative skill': 4, 'weak skill': 2, 'benchmark': 1}",negative skill,226
+BTC-USD,1d,True,,12,10,"{'strong skill': 4, 'negative skill': 2, 'weak skill': 2, 'random / luck': 2, 'no trades': 1, 'benchmark': 1}",random / luck,155
+SPY,4h,True,,12,11,"{'random / luck': 7, 'negative skill': 3, 'moderate skill': 1, 'benchmark': 1}",random / luck,312
+QQQ,4h,True,,12,11,"{'random / luck': 5, 'negative skill': 4, 'weak skill': 2, 'benchmark': 1}",negative skill,226
+BTC-USD,4h,True,,12,10,"{'strong skill': 4, 'negative skill': 2, 'weak skill': 2, 'random / luck': 2, 'no trades': 1, 'benchmark': 1}",random / luck,155
+SPY,1h,True,,12,11,"{'random / luck': 7, 'negative skill': 3, 'moderate skill': 1, 'benchmark': 1}",random / luck,312
+QQQ,1h,True,,12,11,"{'random / luck': 5, 'negative skill': 4, 'weak skill': 2, 'benchmark': 1}",negative skill,226
+BTC-USD,1h,True,,12,10,"{'strong skill': 4, 'negative skill': 2, 'weak skill': 2, 'random / luck': 2, 'no trades': 1, 'benchmark': 1}",random / luck,155

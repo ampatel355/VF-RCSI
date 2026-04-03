@@ -1,0 +1,37 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/SPY_breakout_volume_momentum_monte_carlo_results.csv",
+  "canonical_policy": "always",
+  "column_names": [
+    "simulation_id",
+    "simulated_cumulative_return"
+  ],
+  "created_at_utc": "2026-04-02T13:57:37Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775138226431735261,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/SPY_breakout_volume_momentum_trades.csv",
+      "sha256": "495f4a4cdbd10924d0c07fa1f49612520905596b846545c386063774b0ee65e3",
+      "size_bytes": 63261
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775138256715498046,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/SPY_regimes.csv",
+      "sha256": "6b9f9ba99d14513a01f06652a0b5047f845dcfd33f939bdd04d4b8618524b67b",
+      "size_bytes": 7975839
+    }
+  ],
+  "parameters": {
+    "agent_name": "breakout_volume_momentum",
+    "null_model_type": "timing_null_results",
+    "simulation_count": 5000
+  },
+  "pipeline_profile": "standard",
+  "producer": "monte_carlo.save_simulation_results",
+  "research_grade": true,
+  "row_count": 5000,
+  "run_id": "run_20260402T135651Z_pid57571",
+  "ticker": "SPY",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/SPY_breakout_volume_momentum_monte_carlo_results__run_20260402T135651Z_pid57571.csv"
+}

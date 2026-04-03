@@ -1,0 +1,41 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/BTC-USD_connors_rsi2_pullback_metrics.csv",
+  "canonical_policy": "always",
+  "column_names": [
+    "total_trades",
+    "average_return",
+    "median_return",
+    "win_rate",
+    "std_return",
+    "trade_level_return_ratio",
+    "average_win",
+    "average_loss",
+    "expected_value",
+    "average_holding_period_days",
+    "average_holding_period_hours",
+    "average_holding_bars",
+    "trades_per_month",
+    "stop_loss_exit_rate",
+    "take_profit_exit_rate"
+  ],
+  "created_at_utc": "2026-04-03T00:14:32Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775175265125616912,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/BTC-USD_connors_rsi2_pullback_trades.csv",
+      "sha256": "830242764bd4d8d28be90823cb32c6d8eed69813633dc3fea9a608ca230c0c04",
+      "size_bytes": 23769
+    }
+  ],
+  "parameters": {
+    "artifact_type": "strategy_metrics"
+  },
+  "pipeline_profile": "standard",
+  "producer": "create_and_save_metrics",
+  "research_grade": true,
+  "row_count": 1,
+  "run_id": "run_20260403T001410Z_pid67897",
+  "ticker": "BTC-USD",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/BTC-USD_connors_rsi2_pullback_metrics__run_20260403T001410Z_pid67897.csv"
+}

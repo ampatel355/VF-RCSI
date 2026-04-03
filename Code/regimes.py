@@ -18,9 +18,6 @@ try:
         RELATIVE_STRENGTH_RETURN_COLUMN,
         TREND_PULLBACK_STOP_LOW_COLUMN,
         TREND_PULLBACK_TARGET_HIGH_COLUMN,
-        VOL_MANAGED_TSMOM_ENTRY_RETURN_COLUMN,
-        VOL_MANAGED_TSMOM_EXIT_RETURN_COLUMN,
-        VOL_MANAGED_TSMOM_VOL_COLUMN,
     )
 except ModuleNotFoundError:
     from Code.features import build_features_for_ticker
@@ -32,28 +29,35 @@ except ModuleNotFoundError:
         RELATIVE_STRENGTH_RETURN_COLUMN,
         TREND_PULLBACK_STOP_LOW_COLUMN,
         TREND_PULLBACK_TARGET_HIGH_COLUMN,
-        VOL_MANAGED_TSMOM_ENTRY_RETURN_COLUMN,
-        VOL_MANAGED_TSMOM_EXIT_RETURN_COLUMN,
-        VOL_MANAGED_TSMOM_VOL_COLUMN,
     )
+try:
+    from timeframe_config import RESEARCH_INTERVAL, RESEARCH_TIMEFRAME_LABEL, normalize_timestamp_series, scale_daily_bars, timeframe_output_suffix
+except ModuleNotFoundError:
+    from Code.timeframe_config import RESEARCH_INTERVAL, RESEARCH_TIMEFRAME_LABEL, normalize_timestamp_series, scale_daily_bars, timeframe_output_suffix
 
 
 ticker = os.environ.get("TICKER", "SPY")
-MIN_REGIME_HISTORY = int(os.environ.get("MIN_REGIME_HISTORY", "252"))
+_regime_history_explicit = os.environ.get("MIN_REGIME_HISTORY")
+MIN_REGIME_HISTORY = (
+    int(_regime_history_explicit)
+    if _regime_history_explicit is not None
+    else scale_daily_bars(120)
+)
 
 
 def resolve_data_clean_dir(project_root: Path) -> Path:
-    """Return the project's clean-data folder, supporting either naming style."""
-    lowercase_dir = project_root / "data_clean"
-    uppercase_dir = project_root / "Data_Clean"
+    """Return the project's clean-data folder, preferring the uppercase path."""
+    suffix = timeframe_output_suffix()
+    lowercase_dir = project_root / f"data_clean{suffix}"
+    uppercase_dir = project_root / f"Data_Clean{suffix}"
 
-    if lowercase_dir.exists():
-        return lowercase_dir
     if uppercase_dir.exists():
         return uppercase_dir
+    if lowercase_dir.exists():
+        return lowercase_dir
 
-    lowercase_dir.mkdir(parents=True, exist_ok=True)
-    return lowercase_dir
+    uppercase_dir.mkdir(parents=True, exist_ok=True)
+    return uppercase_dir
 
 
 def load_feature_data(input_path: Path, current_ticker: str | None = None) -> pd.DataFrame:
@@ -71,6 +75,11 @@ def load_feature_data(input_path: Path, current_ticker: str | None = None) -> pd
         "Close",
         "Volume",
         "daily_return",
+        "ema_20",
+        "sma_20",
+        "sma_50",
+        "sma_100",
+        "sma_200",
         "ma_20",
         "ma_50",
         "ma_100",
@@ -82,6 +91,9 @@ def load_feature_data(input_path: Path, current_ticker: str | None = None) -> pd
         "rsi_14",
         "atr_14",
         "atr_percent",
+        "adx_14",
+        "plus_di_14",
+        "minus_di_14",
         "bollinger_mid",
         "bollinger_upper",
         "bollinger_lower",
@@ -92,9 +104,6 @@ def load_feature_data(input_path: Path, current_ticker: str | None = None) -> pd
         BREAKOUT_HIGH_COLUMN,
         BREAKOUT_LOW_COLUMN,
         BREAKOUT_MOMENTUM_RETURN_COLUMN,
-        VOL_MANAGED_TSMOM_ENTRY_RETURN_COLUMN,
-        VOL_MANAGED_TSMOM_EXIT_RETURN_COLUMN,
-        VOL_MANAGED_TSMOM_VOL_COLUMN,
         RELATIVE_STRENGTH_RETURN_COLUMN,
         TREND_PULLBACK_STOP_LOW_COLUMN,
         TREND_PULLBACK_TARGET_HIGH_COLUMN,
@@ -109,7 +118,15 @@ def load_feature_data(input_path: Path, current_ticker: str | None = None) -> pd
     if df.empty or any(column not in df.columns for column in required_columns):
         df = build_features_for_ticker(current_ticker, save_output=True)
 
-    df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
+    interval_is_compatible = (
+        df.get("data_interval", pd.Series(dtype="object")).astype(str).str.lower().eq(RESEARCH_INTERVAL).any()
+        if "data_interval" in df.columns
+        else False
+    )
+    if not interval_is_compatible:
+        df = build_features_for_ticker(current_ticker, save_output=True)
+
+    df["Date"] = normalize_timestamp_series(df["Date"])
     numeric_columns = [column for column in required_columns if column != "Date"]
     for column in numeric_columns:
         df[column] = pd.to_numeric(df[column], errors="coerce")
@@ -124,10 +141,12 @@ def load_feature_data(input_path: Path, current_ticker: str | None = None) -> pd
 def add_regime_labels(feature_df: pd.DataFrame) -> pd.DataFrame:
     """Add calm / neutral / stressed labels using only past information."""
     df = feature_df.copy()
+    df["timeframe_label"] = RESEARCH_TIMEFRAME_LABEL
+    df["data_interval"] = RESEARCH_INTERVAL
 
-    # We use expanding quantiles of recent close-to-close volatility. Each day's
-    # thresholds are shifted by one bar, so the label for today depends only on
-    # history that was already known before today's close.
+    # We use expanding quantiles of recent close-to-close bar volatility. Each
+    # threshold is shifted by one bar, so the label for the current bar depends
+    # only on information that was already known before the current bar closed.
     lower_quantile = (
         df["std_20"]
         .expanding(min_periods=MIN_REGIME_HISTORY)

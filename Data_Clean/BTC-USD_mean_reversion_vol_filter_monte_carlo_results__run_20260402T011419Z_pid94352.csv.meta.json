@@ -1,0 +1,37 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/BTC-USD_mean_reversion_vol_filter_monte_carlo_results.csv",
+  "canonical_policy": "always",
+  "column_names": [
+    "simulation_id",
+    "simulated_cumulative_return"
+  ],
+  "created_at_utc": "2026-04-02T01:16:11Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775092523433947022,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/BTC-USD_mean_reversion_vol_filter_trades.csv",
+      "sha256": "edc8b9f070789941f0a705ab29486450dc1be58b3d99292b5f24824f730108bf",
+      "size_bytes": 60470
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775092510654488296,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/BTC-USD_regimes.csv",
+      "sha256": "e43aa4821025a8cc6ee7aaaa125de4c6a4c9167ee04ae8c1efca62d0ec6e3354",
+      "size_bytes": 15919577
+    }
+  ],
+  "parameters": {
+    "agent_name": "mean_reversion_vol_filter",
+    "null_model_type": "timing_null_results",
+    "simulation_count": 5000
+  },
+  "pipeline_profile": "standard",
+  "producer": "monte_carlo.save_simulation_results",
+  "research_grade": true,
+  "row_count": 5000,
+  "run_id": "run_20260402T011419Z_pid94352",
+  "ticker": "BTC-USD",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/BTC-USD_mean_reversion_vol_filter_monte_carlo_results__run_20260402T011419Z_pid94352.csv"
+}

@@ -1,0 +1,6 @@
+ticker,agent,timeframe_label,data_interval,total_trades,signal_count,rejected_signal_count,signal_to_trade_conversion,total_bars,signal_rate_pct,trades_per_month,average_holding_bars,average_holding_hours,activity_status,activity_warning
+AMD,trend_pullback,1H,1h,57,57,0,1.0,4750,1.2,1.920949437165529,7.7894736842105265,49.12280701754386,underactive,Too few trades for strong statistical power. Consider reviewing thresholds or sample length.
+AMD,breakout_volume_momentum,1H,1h,74,75,1,0.9866666666666667,4750,1.5789473684210527,2.3220360824742268,10.18918918918919,42.189189189189186,acceptable,Trade activity is in a reasonable range for 1-hour research and null-hypothesis testing.
+AMD,mean_reversion_vol_filter,1H,1h,0,0,0,0.0,4750,0.0,0.0,0.0,0.0,underactive,Too few trades for strong statistical power. Consider reviewing thresholds or sample length.
+AMD,momentum_relative_strength,1H,1h,304,308,4,0.987012987012987,4750,6.484210526315789,9.318227593152063,13.197368421052632,63.21052631578947,acceptable,Trade activity is in a reasonable range for 1-hour research and null-hypothesis testing.
+AMD,random,1H,1h,90,90,0,1.0,4750,1.8947368421052633,2.7729975958496773,12.122222222222222,63.91111111111111,acceptable,Trade activity is in a reasonable range for 1-hour research and null-hypothesis testing.

@@ -1,0 +1,85 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/VTEB_monte_carlo_summary.csv",
+  "canonical_policy": "always",
+  "canonical_updated": true,
+  "column_names": [
+    "agent",
+    "actual_cumulative_return",
+    "median_simulated_return",
+    "mean_simulated_return",
+    "std_simulated_return",
+    "actual_percentile",
+    "p_value",
+    "p_value_prominence",
+    "p_value_interpretation",
+    "lower_5pct",
+    "upper_95pct",
+    "number_of_trades",
+    "transaction_cost",
+    "execution_cost_model",
+    "simulation_count",
+    "research_grade",
+    "reproducible",
+    "seed_used",
+    "null_model",
+    "bh_adjusted_p_value"
+  ],
+  "created_at_utc": "2026-04-02T02:47:55Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775098044469083111,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/VTEB_regimes.csv",
+      "sha256": "8ed653754b23af13d597c98edbeb7c5cde40767a4091080894d283ee25ee23d3",
+      "size_bytes": 4735059
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775098070825197968,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/VTEB_trend_pullback_monte_carlo_results.csv",
+      "sha256": "8d1ec3ccc971cc207c5cf70d59da55cce0a87d68114aef66f728d998af358329",
+      "size_bytes": 12658
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775098071050239447,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/VTEB_breakout_volume_momentum_monte_carlo_results.csv",
+      "sha256": "c3d9d956245a8597f51d90e6eb22099fc804cd837149982473f3c731b1a63f28",
+      "size_bytes": 12707
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775098071118700290,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/VTEB_mean_reversion_vol_filter_monte_carlo_results.csv",
+      "sha256": "d85a9f2f71e2129ce0991bb81c58d74dfb4d6ffbd0ca49ec1106db152e93bb9e",
+      "size_bytes": 12821
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775098075254009900,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/VTEB_momentum_relative_strength_monte_carlo_results.csv",
+      "sha256": "19e9b9e8e2bd7ee4536570f08c0cfb77f9a84a2c9e2d899516c038a6f445c83b",
+      "size_bytes": 11420
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775098075413390296,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/VTEB_random_monte_carlo_results.csv",
+      "sha256": "54fbc6063ad8e661b1b86dbc5681efa39f23524faa55b3bc4b2c53a575201dd1",
+      "size_bytes": 12575
+    }
+  ],
+  "parameters": {
+    "context_bucket_count": 5,
+    "context_matching_enabled": false,
+    "simulate_execution_costs": true,
+    "simulation_count": 500
+  },
+  "pipeline_profile": "standard",
+  "producer": "monte_carlo.main",
+  "research_grade": false,
+  "row_count": 5,
+  "run_id": "run_20260402T024718Z_pid26038",
+  "ticker": "VTEB",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/VTEB_monte_carlo_summary__run_20260402T024718Z_pid26038.csv"
+}

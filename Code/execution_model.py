@@ -10,14 +10,22 @@ import pandas as pd
 
 try:
     from asset_class_universe import is_crypto_ticker
+    from timeframe_config import RESEARCH_INTERVAL, RESEARCH_TIMEFRAME_LABEL
 except ModuleNotFoundError:
     from Code.asset_class_universe import is_crypto_ticker
+    from Code.timeframe_config import RESEARCH_INTERVAL, RESEARCH_TIMEFRAME_LABEL
 
 
 STARTING_CAPITAL = float(os.environ.get("STARTING_CAPITAL", "100000"))
 MAX_CAPITAL_FRACTION = float(os.environ.get("MAX_CAPITAL_FRACTION", "1.0"))
 MAX_AVG_DAILY_VOLUME_FRACTION = float(
     os.environ.get("MAX_AVG_DAILY_VOLUME_FRACTION", "0.05")
+)
+MAX_AVG_BAR_VOLUME_FRACTION = float(
+    os.environ.get(
+        "MAX_AVG_BAR_VOLUME_FRACTION",
+        str(MAX_AVG_DAILY_VOLUME_FRACTION),
+    )
 )
 HALF_SPREAD_BPS = float(os.environ.get("HALF_SPREAD_BPS", "0.5"))
 MIN_SLIPPAGE_BPS = float(os.environ.get("MIN_SLIPPAGE_BPS", "0.5"))
@@ -49,6 +57,7 @@ TRADE_LOG_COLUMNS = [
     "exit_reference_open",
     "entry_price",
     "exit_price",
+    "entry_reason",
     "shares",
     "entry_commission",
     "exit_commission",
@@ -68,10 +77,13 @@ TRADE_LOG_COLUMNS = [
     "return",
     "holding_bars",
     "holding_period_days",
+    "holding_period_hours",
     "regime_at_entry",
     "stop_loss_used",
     "take_profit_used",
     "exit_reason",
+    "timeframe_label",
+    "data_interval",
 ]
 
 
@@ -84,18 +96,19 @@ class OpenPosition:
     entry_date: pd.Timestamp
     entry_reference_open: float
     entry_price: float
-    shares: int
+    shares: float
     entry_commission: float
     entry_slippage_bps: float
     capital_before: float
     capital_deployed: float
-    liquidity_cap_shares: int
+    liquidity_cap_shares: float
     regime_at_entry: str
     entry_index: int
     strategy_name: str
     asset_ticker: str
     stop_loss_used: float | None
     take_profit_used: float | None
+    entry_reason: str
 
 
 def is_forex_ticker(ticker: str | None = None) -> bool:
@@ -109,11 +122,21 @@ def _strategy_seed_component(strategy_name: str) -> int:
     return sum((index + 1) * ord(character) for index, character in enumerate(strategy_name))
 
 
-def build_execution_rng(strategy_name: str) -> np.random.Generator:
+def _ticker_seed_component(ticker: str | None) -> int:
+    """Build a stable integer component from a ticker symbol."""
+    normalized_ticker = (ticker or ACTIVE_TICKER).strip().upper()
+    return sum((index + 1) * ord(character) for index, character in enumerate(normalized_ticker))
+
+
+def build_execution_rng(strategy_name: str, ticker: str | None = None) -> np.random.Generator:
     """Create a dedicated RNG for one strategy's execution effects."""
     if EXECUTION_MODEL_REPRODUCIBLE:
         seed_sequence = np.random.SeedSequence(
-            [EXECUTION_MODEL_SEED, _strategy_seed_component(strategy_name)]
+            [
+                EXECUTION_MODEL_SEED,
+                _strategy_seed_component(strategy_name),
+                _ticker_seed_component(ticker),
+            ]
         )
         return np.random.default_rng(seed_sequence)
 
@@ -121,7 +144,7 @@ def build_execution_rng(strategy_name: str) -> np.random.Generator:
 
 
 def commission_for_position(
-    shares: int,
+    shares: float,
     execution_price: float,
     *,
     ticker: str | None = None,
@@ -169,10 +192,10 @@ def calculate_liquidity_cap_shares(
     cash_limit: float | None = None,
     entry_price: float | None = None,
     ticker: str | None = None,
-) -> int:
+) -> float:
     """Convert historical volume into a conservative position cap."""
     if not pd.isna(avg_volume_20) and avg_volume_20 > 0:
-        return max(int(np.floor(avg_volume_20 * MAX_AVG_DAILY_VOLUME_FRACTION)), 0)
+        return float(max(avg_volume_20 * MAX_AVG_BAR_VOLUME_FRACTION, 0.0))
 
     if (
         is_forex_ticker(ticker)
@@ -183,34 +206,57 @@ def calculate_liquidity_cap_shares(
     ):
         # Yahoo forex downloads expose price history but usually not exchange volume.
         # Fall back to a cash-funded cap so the strategies can still be evaluated.
-        return max(int(np.floor(cash_limit / entry_price)), 0)
+        return float(max(cash_limit / entry_price, 0.0))
 
-    return 0
+    return 0.0
+
+
+def quantity_step_for_ticker(ticker: str | None = None) -> float:
+    """Return the minimum tradable quantity step used by this simplified model."""
+    normalized_ticker = (ticker or ACTIVE_TICKER).strip().upper()
+    if is_crypto_ticker(normalized_ticker):
+        # Crypto brokers generally allow fractional units. We round to four
+        # decimals to keep the backtest simple while avoiding the unrealistic
+        # "must afford a whole coin" constraint.
+        return 0.0001
+    return 1.0
 
 
 def calculate_affordable_share_count(
     cash_limit: float,
     entry_price: float,
-    liquidity_cap_shares: int,
+    liquidity_cap_shares: float,
     *,
     ticker: str | None = None,
-) -> int:
-    """Find the largest integer share count the account can actually fund."""
+) -> float:
+    """Find the largest tradable quantity the account can actually fund."""
     if cash_limit <= 0 or entry_price <= 0 or liquidity_cap_shares <= 0:
-        return 0
+        return 0.0
 
-    shares = min(int(np.floor(cash_limit / entry_price)), liquidity_cap_shares)
+    quantity_step = quantity_step_for_ticker(ticker)
+    raw_quantity = min(float(cash_limit / entry_price), float(liquidity_cap_shares))
+    if quantity_step >= 1.0:
+        shares = float(np.floor(raw_quantity))
+    else:
+        shares = float(np.floor(raw_quantity / quantity_step) * quantity_step)
+
     while shares > 0:
         total_entry_cost = (shares * entry_price) + commission_for_position(
             shares,
             entry_price,
             ticker=ticker,
         )
-        if total_entry_cost <= cash_limit:
-            return shares
-        shares -= 1
+        estimated_exit_commission = commission_for_position(
+            shares,
+            entry_price,
+            ticker=ticker,
+        )
+        total_round_trip_commitment = total_entry_cost + estimated_exit_commission
+        if total_round_trip_commitment <= cash_limit:
+            return float(shares)
+        shares = float(max(shares - quantity_step, 0.0))
 
-    return 0
+    return 0.0
 
 
 def open_position_from_signal(
@@ -225,6 +271,7 @@ def open_position_from_signal(
     stop_loss_used: float | None = None,
     take_profit_used: float | None = None,
     capital_fraction_override: float | None = None,
+    entry_reason: str = "signal",
 ) -> OpenPosition | None:
     """Create an open position if the trade is affordable and liquid enough."""
     asset_ticker = (ticker or ACTIVE_TICKER).strip().upper()
@@ -282,6 +329,7 @@ def open_position_from_signal(
         asset_ticker=asset_ticker,
         stop_loss_used=float(stop_loss_used) if stop_loss_used is not None else None,
         take_profit_used=float(take_profit_used) if take_profit_used is not None else None,
+        entry_reason=str(entry_reason),
     )
 
 
@@ -334,6 +382,7 @@ def close_position_from_signal(
         "exit_reference_open": exit_reference_open,
         "entry_price": position.entry_price,
         "exit_price": exit_price,
+        "entry_reason": position.entry_reason,
         "shares": position.shares,
         "entry_commission": position.entry_commission,
         "exit_commission": exit_commission,
@@ -352,9 +401,14 @@ def close_position_from_signal(
         "net_position_return": net_position_return,
         "return": portfolio_return,
         "holding_bars": int(exit_index - position.entry_index),
-        "holding_period_days": int(exit_index - position.entry_index),
+        "holding_period_days": int((pd.Timestamp(next_row.Date) - position.entry_date).days),
+        "holding_period_hours": float(
+            (pd.Timestamp(next_row.Date) - position.entry_date).total_seconds() / 3600.0
+        ),
         "regime_at_entry": position.regime_at_entry,
         "stop_loss_used": position.stop_loss_used,
         "take_profit_used": position.take_profit_used,
         "exit_reason": str(exit_reason),
+        "timeframe_label": RESEARCH_TIMEFRAME_LABEL,
+        "data_interval": RESEARCH_INTERVAL,
     }

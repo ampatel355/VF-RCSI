@@ -6,17 +6,15 @@ from plot_config import (
     ACTUAL_LINE_COLOR,
     AGENT_COLORS,
     BAR_EDGE_COLOR,
-    DEFAULT_FIGSIZE,
-    add_subtitle,
+    add_figure_caption,
     apply_categorical_tick_labels,
     apply_clean_style,
     create_placeholder_chart,
-    data_clean_dir,
     emphasize_tiny_bars,
     format_agent_name,
-    load_csv_checked,
     save_chart,
     show_chart,
+    size_for_categories,
 )
 import matplotlib.pyplot as plt
 import numpy as np
@@ -36,51 +34,29 @@ SIGNIFICANCE_LEVEL = 0.05
 
 
 def load_p_value_data() -> pd.DataFrame:
-    """Load the Monte Carlo summary rows needed for the p-value chart."""
-    input_path = data_clean_dir() / f"{ticker}_monte_carlo_summary.csv"
-    df = load_csv_checked(
-        input_path,
-        required_columns=["agent", "p_value"],
-    )
-
-    df["agent"] = df["agent"].astype(str).str.strip()
-    df["p_value"] = pd.to_numeric(df["p_value"], errors="coerce")
-    df = df.dropna(subset=["agent", "p_value"]).reset_index(drop=True)
-
-    if df.empty:
-        raise ValueError(f"No usable p-value rows were found in: {input_path}")
-
-    available_agents = [agent for agent in AGENT_ORDER if agent in df["agent"].tolist()]
-    if not available_agents:
-        raise ValueError(f"No expected strategy names were found in: {input_path}")
-
-    df = df.set_index("agent").reindex(available_agents).reset_index()
+    """Load the classifier-aligned p-values used in the chart."""
     verdict_df = load_strategy_verdicts(ticker)[
-        ["agent", "compact_evidence_label", "confidence_label", "evidence_bucket"]
-    ]
-    df = df.merge(verdict_df, on="agent", how="left")
-    return df.loc[df["evidence_bucket"] != "no_trades"].reset_index(drop=True)
+        [
+            "agent",
+            "reference_p_value",
+            "compact_evidence_label",
+            "confidence_label",
+            "evidence_bucket",
+        ]
+    ].copy()
+    verdict_df["agent"] = verdict_df["agent"].astype(str).str.strip()
+    verdict_df["p_value"] = pd.to_numeric(verdict_df["reference_p_value"], errors="coerce")
+    verdict_df = verdict_df.dropna(subset=["agent", "p_value"]).reset_index(drop=True)
 
+    if verdict_df.empty:
+        raise ValueError(f"No usable classifier-aligned p-value rows were found for: {ticker}")
 
-def add_value_labels(
-    ax,
-    x_positions: np.ndarray,
-    values: np.ndarray,
-    evidence_labels: list[str],
-) -> None:
-    """Add compact p-value plus evidence labels above the bars."""
-    offset = 0.02
+    available_agents = [agent for agent in AGENT_ORDER if agent in verdict_df["agent"].tolist()]
+    if not available_agents:
+        raise ValueError(f"No expected strategy names were found for: {ticker}")
 
-    for x_position, value, evidence_label in zip(x_positions, values, evidence_labels):
-        ax.text(
-            x_position,
-            min(value + offset, 1.045),
-            f"{value:.3f}\n{evidence_label}",
-            ha="center",
-            va="bottom",
-            fontsize=8.4,
-            fontweight="semibold",
-        )
+    verdict_df = verdict_df.set_index("agent").reindex(available_agents).reset_index()
+    return verdict_df.loc[verdict_df["evidence_bucket"] != "no_trades"].reset_index(drop=True)
 
 
 def main() -> None:
@@ -101,11 +77,9 @@ def main() -> None:
 
     x_positions = np.arange(len(df))
     values = df["p_value"].to_numpy(dtype=float)
-    evidence_labels = df["compact_evidence_label"].fillna("Inconclusive").tolist()
     colors = [AGENT_COLORS.get(agent, "#355C7D") for agent in df["agent"]]
 
-    figure_width = max(DEFAULT_FIGSIZE[0], 1.7 * len(df) + 2.0)
-    fig, ax = plt.subplots(figsize=(figure_width, DEFAULT_FIGSIZE[1]))
+    fig, ax = plt.subplots(figsize=size_for_categories(len(df), height=6.0))
     bars = ax.bar(
         x_positions,
         values,
@@ -121,6 +95,7 @@ def main() -> None:
         linestyle="--",
         linewidth=1.2,
         zorder=2,
+        label="p = 0.05 threshold",
     )
 
     ax.set_xticks(x_positions)
@@ -135,16 +110,20 @@ def main() -> None:
         x_label="Strategy",
         y_label="p-value",
         show_y_grid=True,
-        add_legend=False,
-    )
-    add_subtitle(
-        ax,
-        "The dashed line marks p = 0.05. Lower values indicate stronger evidence against the simulated-random baseline. Labels show the overall evidence class.",
+        add_legend=True,
+        legend_location="upper right",
     )
     ax.set_ylim(0, 1.08)
     emphasize_tiny_bars(ax, bars, values)
 
-    add_value_labels(ax, x_positions, values, evidence_labels)
+    add_figure_caption(
+        fig,
+        (
+            "Lower p-values indicate that the observed strategy result was less common under "
+            "the strategy-specific Monte Carlo null. The dashed reference line marks the "
+            "conventional 0.05 threshold."
+        ),
+    )
 
     save_chart(fig, output_filename)
     show_chart()

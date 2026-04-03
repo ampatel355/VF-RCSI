@@ -49,4 +49,7 @@ def load_saved_strategy_curve(ticker: str, agent_name: str) -> pd.DataFrame | No
     for column in numeric_columns:
         df[column] = pd.to_numeric(df[column], errors="coerce")
 
+    if "bar_return" not in df.columns:
+        df["bar_return"] = df["daily_return"]
+
     return df.dropna(subset=["Date", "equity", "cumulative_return"]).sort_values("Date").reset_index(drop=True)

@@ -1,0 +1,54 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/GM_monte_carlo_robustness_runs.csv",
+  "canonical_policy": "always",
+  "column_names": [
+    "agent",
+    "outer_run",
+    "seed_used",
+    "actual_cumulative_return",
+    "annualized_return",
+    "annualized_sharpe",
+    "trade_level_return_ratio",
+    "max_drawdown",
+    "median_simulated_return",
+    "mean_simulated_return",
+    "std_simulated_return",
+    "actual_percentile",
+    "p_value",
+    "p_value_prominence",
+    "RCSI",
+    "RCSI_z",
+    "significant_run",
+    "outperform_null_median",
+    "lower_5pct",
+    "upper_95pct",
+    "number_of_trades",
+    "transaction_cost",
+    "simulations_per_run",
+    "null_model",
+    "robustness_scope",
+    "research_grade"
+  ],
+  "created_at_utc": "2026-04-02T21:10:47Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775164240119542364,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/GM_monte_carlo_summary.csv",
+      "sha256": "42c3879abc9213cba860bed5b3178a322b7f91d799e8f04e9c43153ae0cf2111",
+      "size_bytes": 3091
+    }
+  ],
+  "parameters": {
+    "outer_runs": 10,
+    "robustness_scope": "monte_carlo_seed_stability_only",
+    "simulations_per_run": 500
+  },
+  "pipeline_profile": "standard",
+  "producer": "monte_carlo_robustness.main",
+  "research_grade": false,
+  "row_count": 80,
+  "run_id": "run_20260402T211016Z_pid16529",
+  "ticker": "GM",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/GM_monte_carlo_robustness_runs__run_20260402T211016Z_pid16529.csv"
+}

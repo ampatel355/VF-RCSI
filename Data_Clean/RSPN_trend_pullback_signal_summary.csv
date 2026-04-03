@@ -1,0 +1,2 @@
+ticker,agent,timeframe_label,data_interval,signal_count,executed_trade_count,rejected_signal_count,months_covered
+RSPN,trend_pullback,1H,1h,60,59,1,27.763175906913073

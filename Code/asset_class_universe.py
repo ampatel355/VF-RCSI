@@ -174,8 +174,13 @@ def resolve_relative_strength_setup(anchor_ticker: str) -> dict[str, object]:
 
     asset_class = classify_ticker_asset_class(normalized_anchor)
     base_universe = ASSET_CLASS_UNIVERSES.get(asset_class, ASSET_CLASS_UNIVERSES["us_equity_stock"]).copy()
+    include_anchor = os.environ.get("RELATIVE_STRENGTH_INCLUDE_ANCHOR", "0") == "1"
+    anchor_removed_for_independence = False
     if normalized_anchor not in base_universe:
         base_universe.append(normalized_anchor)
+    if not include_anchor and normalized_anchor in base_universe and len(base_universe) > 2:
+        base_universe = [ticker for ticker in base_universe if ticker != normalized_anchor]
+        anchor_removed_for_independence = True
 
     return {
         "anchor_ticker": normalized_anchor,
@@ -186,6 +191,12 @@ def resolve_relative_strength_setup(anchor_ticker: str) -> dict[str, object]:
         "selection_reason": (
             f"Using the {ASSET_CLASS_DISPLAY_NAMES.get(asset_class, asset_class)} peer universe so "
             "relative-strength ranking stays within a sensible asset class."
+            + (
+                " The anchor ticker is excluded by default to avoid self-referential ranking "
+                "and to keep cross-anchor validations more independent."
+                if anchor_removed_for_independence
+                else ""
+            )
         ),
         "fallback_rule": FALLBACK_RULE_DESCRIPTION,
     }

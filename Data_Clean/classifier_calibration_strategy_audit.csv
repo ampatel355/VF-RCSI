@@ -1,0 +1,16 @@
+ticker,agent,reference_p_value,reference_rcsi,reference_rcsi_z,reference_percentile,legacy_evidence_bucket,recalibrated_evidence_bucket,verdict_label,final_classification
+SPY,trend_pullback,0.7526494701059788,-0.0466556834553235,-0.6892062554377856,24.75504899020196,negative_skill,random_luck,Random / Luck,random / luck
+SPY,breakout_volume_momentum,0.5926814637072585,-0.0248293398492907,-0.2551480717658063,40.751849630073984,random_luck,random_luck,Random / Luck,random / luck
+SPY,mean_reversion_vol_filter,0.9596080783843232,-0.0650544016918823,-1.7077690783354456,4.059188162367526,negative_skill,negative_skill,Negative Skill,negative skill
+SPY,momentum_relative_strength,0.977004599080184,-0.6543226105529162,-1.4792149722187982,2.3195360927814437,negative_skill,random_luck,Random / Luck,random / luck
+SPY,random,0.1227754449110178,0.1281266611635592,1.1802863786865367,87.74245150969806,weak_skill,random_luck,Random / Luck,random / luck
+QQQ,trend_pullback,0.8342331533693261,-0.085794763702512,-0.9517387695789956,16.59668066386723,negative_skill,random_luck,Random / Luck,random / luck
+QQQ,breakout_volume_momentum,0.4015196960607878,0.0257312153213448,0.194097535875402,59.86802639472105,random_luck,random_luck,Random / Luck,random / luck
+QQQ,mean_reversion_vol_filter,0.7626474705058989,-0.032902574654121,-0.7134448759259712,23.75524895020996,negative_skill,random_luck,Random / Luck,random / luck
+QQQ,momentum_relative_strength,0.966006798640272,-0.5741706365037498,-1.3595105323968657,3.4193161367726455,negative_skill,random_luck,Random / Luck,random / luck
+QQQ,random,0.24375124975005,0.09426555064372,0.6495447365488657,75.64487102579484,weak_skill,random_luck,Random / Luck,random / luck
+BTC-USD,trend_pullback,0.5788842231553689,-0.0486966796045832,-0.2867803362377447,42.13157368526295,random_luck,random_luck,Random / Luck,random / luck
+BTC-USD,breakout_volume_momentum,0.506498700259948,-0.0312286579535836,-0.138547085123551,49.37012597480504,random_luck,random_luck,Random / Luck,random / luck
+BTC-USD,mean_reversion_vol_filter,0.4217156568686263,0.0155939102485769,0.1443795107940634,57.848430313937214,random_luck,random_luck,Random / Luck,random / luck
+BTC-USD,momentum_relative_strength,0.621875624875025,-0.5879624594869372,-0.4558243169712926,37.83243351329734,random_luck,random_luck,Random / Luck,random / luck
+BTC-USD,random,0.3663267346530693,0.0474073627877466,0.1767116199034006,63.3873225354929,random_luck,random_luck,Random / Luck,random / luck

@@ -1,0 +1,2 @@
+ticker,agent,timeframe_label,data_interval,signal_count,executed_trade_count,rejected_signal_count,months_covered
+GC=F,volatility_squeeze_breakout,Daily,1d,4,4,0,266.2505133470226

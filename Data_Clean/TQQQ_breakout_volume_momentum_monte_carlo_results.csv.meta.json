@@ -1,0 +1,38 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/TQQQ_breakout_volume_momentum_monte_carlo_results.csv",
+  "canonical_policy": "always",
+  "canonical_updated": true,
+  "column_names": [
+    "simulation_id",
+    "simulated_cumulative_return"
+  ],
+  "created_at_utc": "2026-04-02T18:23:12Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1774982935780313635,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/TQQQ_breakout_volume_momentum_trades.csv",
+      "sha256": "6645aa748d01960ea22ab8f308770cbca8cb0723b8f40cdcaaf61e842a72f57a",
+      "size_bytes": 9949
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775154192032171530,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/TQQQ_regimes.csv",
+      "sha256": "287f2c0552c3c2cbe5f2352039c4a17ab4b0ab2e9fa7609d66cdae094422fb56",
+      "size_bytes": 3711540
+    }
+  ],
+  "parameters": {
+    "agent_name": "breakout_volume_momentum",
+    "null_model_type": "timing_null_results",
+    "simulation_count": 5000
+  },
+  "pipeline_profile": "standard",
+  "producer": "monte_carlo.save_simulation_results",
+  "research_grade": true,
+  "row_count": 5000,
+  "run_id": "run_20260402T182312Z_pid90335",
+  "ticker": "TQQQ",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/TQQQ_breakout_volume_momentum_monte_carlo_results__run_20260402T182312Z_pid90335.csv"
+}

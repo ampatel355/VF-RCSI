@@ -1,0 +1,37 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/NVAX_trend_momentum_verification_monte_carlo_results.csv",
+  "canonical_policy": "always",
+  "column_names": [
+    "simulation_id",
+    "simulated_cumulative_return"
+  ],
+  "created_at_utc": "2026-04-02T16:51:57Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775148700044874638,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/NVAX_trend_momentum_verification_trades.csv",
+      "sha256": "9dc27a3b0b882f03e0dca96c25580e7f9071e651d593e8c23ade0ca184b16f36",
+      "size_bytes": 23789
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775148681869235299,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/NVAX_regimes.csv",
+      "sha256": "c7d4a079a491d06e48d86e67fa672eee005ac90185d33b9c2ae0d72f754117f2",
+      "size_bytes": 6882601
+    }
+  ],
+  "parameters": {
+    "agent_name": "trend_momentum_verification",
+    "null_model_type": "timing_null_results",
+    "simulation_count": 2000
+  },
+  "pipeline_profile": "standard",
+  "producer": "monte_carlo.save_simulation_results",
+  "research_grade": false,
+  "row_count": 2000,
+  "run_id": "run_20260402T165118Z_pid82625",
+  "ticker": "NVAX",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/NVAX_trend_momentum_verification_monte_carlo_results__run_20260402T165118Z_pid82625.csv"
+}

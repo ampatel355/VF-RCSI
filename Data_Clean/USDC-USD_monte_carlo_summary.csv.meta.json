@@ -1,0 +1,85 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/USDC-USD_monte_carlo_summary.csv",
+  "canonical_policy": "always",
+  "canonical_updated": true,
+  "column_names": [
+    "agent",
+    "actual_cumulative_return",
+    "median_simulated_return",
+    "mean_simulated_return",
+    "std_simulated_return",
+    "actual_percentile",
+    "p_value",
+    "p_value_prominence",
+    "p_value_interpretation",
+    "lower_5pct",
+    "upper_95pct",
+    "number_of_trades",
+    "transaction_cost",
+    "execution_cost_model",
+    "simulation_count",
+    "research_grade",
+    "reproducible",
+    "seed_used",
+    "null_model",
+    "bh_adjusted_p_value"
+  ],
+  "created_at_utc": "2026-04-02T03:10:54Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775099388131946948,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/USDC-USD_regimes.csv",
+      "sha256": "c19c3d599bf5b2566fd29848cbdfaf6e3f7ab37fc364f578add22b3456ce1cdc",
+      "size_bytes": 17771408
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775099444505290146,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/USDC-USD_trend_pullback_monte_carlo_results.csv",
+      "sha256": "1a48bf723fb3557f90ae30751bdebf3d0d5071ce5bf84f4c733aa210a40d652a",
+      "size_bytes": 12102
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775099444756466170,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/USDC-USD_breakout_volume_momentum_monte_carlo_results.csv",
+      "sha256": "7f64f03e548f999adea90ac7b627a99f426feeb2979ee75303853e7a554eecea",
+      "size_bytes": 12748
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775099444942493050,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/USDC-USD_mean_reversion_vol_filter_monte_carlo_results.csv",
+      "sha256": "52ba7ed6511cde3c22f8fb5655ca95bb3e9d067ef12270e4afbe8aecadba37c6",
+      "size_bytes": 3934
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775099454557991106,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/USDC-USD_momentum_relative_strength_monte_carlo_results.csv",
+      "sha256": "98e608061407fe11e28a06ce3e321645b218030cbbc22e39d4cf809e5eb6046a",
+      "size_bytes": 11610
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775099454825467104,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/USDC-USD_random_monte_carlo_results.csv",
+      "sha256": "13dd667719f2f18ae507e06379377723daadaf3b607985137572c3af680ba13f",
+      "size_bytes": 12301
+    }
+  ],
+  "parameters": {
+    "context_bucket_count": 5,
+    "context_matching_enabled": false,
+    "simulate_execution_costs": true,
+    "simulation_count": 500
+  },
+  "pipeline_profile": "standard",
+  "producer": "monte_carlo.main",
+  "research_grade": false,
+  "row_count": 5,
+  "run_id": "run_20260402T030941Z_pid31359",
+  "ticker": "USDC-USD",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/USDC-USD_monte_carlo_summary__run_20260402T030941Z_pid31359.csv"
+}

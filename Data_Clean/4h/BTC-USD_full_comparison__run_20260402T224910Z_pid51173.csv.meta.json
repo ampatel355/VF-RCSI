@@ -1,0 +1,62 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/4h/BTC-USD_full_comparison.csv",
+  "canonical_policy": "always",
+  "column_names": [
+    "agent",
+    "skill_luck_verdict",
+    "evidence_label",
+    "confidence_label",
+    "final_classification",
+    "stability_classification",
+    "verdict_reason",
+    "cumulative_return",
+    "annualized_sharpe",
+    "trade_level_return_ratio",
+    "max_drawdown",
+    "RCSI",
+    "RCSI_z",
+    "p_value",
+    "adjusted_p_value",
+    "p_value_prominence",
+    "actual_percentile",
+    "number_of_trades",
+    "number_of_periods",
+    "transaction_cost",
+    "research_grade",
+    "artifact_run_id",
+    "signal_count",
+    "trades_per_month",
+    "average_holding_bars",
+    "average_holding_days",
+    "average_holding_hours",
+    "activity_status",
+    "activity_warning"
+  ],
+  "created_at_utc": "2026-04-02T22:52:28Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775170346747854718,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/4h/BTC-USD_monte_carlo_summary.csv",
+      "sha256": "cddee02863508917c63c957ea97e711146df77a59e5c11f09bdef7be1310906f",
+      "size_bytes": 4044
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775170347195111459,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/4h/BTC-USD_rcsi.csv",
+      "sha256": "c0b993f1e21b37a6e0d5fac7f99e231bc90639cfa645e5053e7a577c16bea490",
+      "size_bytes": 2128
+    }
+  ],
+  "parameters": {
+    "artifact_type": "full_comparison"
+  },
+  "pipeline_profile": "standard",
+  "producer": "compare_agents.main",
+  "research_grade": false,
+  "row_count": 12,
+  "run_id": "run_20260402T224910Z_pid51173",
+  "ticker": "BTC-USD",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/4h/BTC-USD_full_comparison__run_20260402T224910Z_pid51173.csv"
+}

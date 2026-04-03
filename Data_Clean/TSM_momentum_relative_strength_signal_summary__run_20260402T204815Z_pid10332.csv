@@ -1,0 +1,2 @@
+ticker,agent,timeframe_label,data_interval,signal_count,executed_trade_count,rejected_signal_count,months_covered
+TSM,momentum_relative_strength,Daily,1d,1226,1224,2,325.19096509240245

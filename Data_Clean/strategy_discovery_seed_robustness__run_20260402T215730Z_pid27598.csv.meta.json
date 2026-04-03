@@ -1,0 +1,48 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/strategy_discovery_seed_robustness.csv",
+  "canonical_policy": "always",
+  "column_names": [
+    "candidate_id",
+    "candidate_name",
+    "candidate_family",
+    "ticker",
+    "seed_runs",
+    "trade_count_median",
+    "RCSI_z_mean",
+    "RCSI_z_std",
+    "p_value_mean",
+    "p_value_std",
+    "percentile_mean",
+    "share_p_le_0_20",
+    "share_rcsi_z_ge_0_5"
+  ],
+  "created_at_utc": "2026-04-02T22:02:31Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775167344185832616,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/strategy_discovery_selection_summary.csv",
+      "sha256": "3e5f1d2d7b0b1959e575657b60beb310eb1e10f00d81f3aa94fe22d75a470163",
+      "size_bytes": 5313
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775167346538660778,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/strategy_discovery_holdout_deep_results.csv",
+      "sha256": "ee68147bec9da7ab2157e82a5aebe00165a3075c89c17bf9aaeb38e480753755",
+      "size_bytes": 7832
+    }
+  ],
+  "parameters": {
+    "artifact_type": "strategy_discovery_seed_robustness",
+    "robustness_seeds": 2,
+    "robustness_simulations": 120
+  },
+  "pipeline_profile": "standard",
+  "producer": "strategy_discovery.main",
+  "research_grade": true,
+  "row_count": 15,
+  "run_id": "run_20260402T215730Z_pid27598",
+  "ticker": "MULTI",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/strategy_discovery_seed_robustness__run_20260402T215730Z_pid27598.csv"
+}

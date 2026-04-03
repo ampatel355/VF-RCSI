@@ -1,0 +1,7 @@
+ticker,agent,timeframe_label,data_interval,total_trades,signal_count,rejected_signal_count,signal_to_trade_conversion,total_bars,signal_rate_pct,trades_per_month,average_holding_bars,average_holding_days,average_holding_hours,activity_status,activity_warning
+ETH-USD,trend_pullback,Daily,1d,54,0,0,0.0,2748,0.0,0.7081538130116329,3.3703703703703702,3.3703703703703702,0.0,underactive,Too few trades for strong statistical power. Consider reviewing thresholds or sample length.
+ETH-USD,breakout_volume_momentum,Daily,1d,45,0,0,0.0,2748,0.0,0.5300648219814241,10.28888888888889,10.28888888888889,0.0,underactive,Too few trades for strong statistical power. Consider reviewing thresholds or sample length.
+ETH-USD,mean_reversion_vol_filter,Daily,1d,4,0,0,0.0,2748,0.0,0.18037037037037038,1.0,1.0,0.0,underactive,Too few trades for strong statistical power. Consider reviewing thresholds or sample length.
+ETH-USD,momentum_relative_strength,Daily,1d,56,0,0,0.0,2748,0.0,0.682345876701361,8.625,8.625,0.0,underactive,Too few trades for strong statistical power. Consider reviewing thresholds or sample length.
+ETH-USD,trend_momentum_verification,Daily,1d,30,30,0,1.0,2748,1.0917030567685588,0.38939232409381663,12.066666666666666,12.066666666666666,289.6,underactive,Too few trades for strong statistical power. Consider reviewing thresholds or sample length.
+ETH-USD,random,Daily,1d,64,0,0,0.0,2748,0.0,0.7573872472783826,10.03125,10.03125,0.0,acceptable,Trade activity is in a reasonable range for daily research and null-hypothesis testing.

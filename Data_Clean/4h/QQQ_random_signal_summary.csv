@@ -1,0 +1,2 @@
+ticker,agent,timeframe_label,data_interval,signal_count,executed_trade_count,rejected_signal_count,months_covered
+QQQ,random,4-Hour,4h,29,29,0,20.92265571526352

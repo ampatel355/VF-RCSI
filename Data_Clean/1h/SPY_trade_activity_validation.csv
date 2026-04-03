@@ -1,0 +1,12 @@
+ticker,agent,timeframe_label,data_interval,total_trades,signal_count,rejected_signal_count,signal_to_trade_conversion,total_bars,signal_rate_pct,trades_per_month,average_holding_bars,average_holding_days,average_holding_hours,activity_status,activity_warning
+SPY,trend_pullback,1-Hour,1h,0,0,0,0.0,2829,0.0,0.0,0.0,0.0,0.0,underactive,Too few trades for strong statistical power. Consider reviewing thresholds or sample length.
+SPY,breakout_volume_momentum,1-Hour,1h,0,0,0,0.0,2829,0.0,0.0,0.0,0.0,0.0,underactive,Too few trades for strong statistical power. Consider reviewing thresholds or sample length.
+SPY,mean_reversion_vol_filter,1-Hour,1h,0,0,0,0.0,2829,0.0,0.0,0.0,0.0,0.0,underactive,Too few trades for strong statistical power. Consider reviewing thresholds or sample length.
+SPY,trend_momentum_verification,1-Hour,1h,3,3,0,1.0,2829,0.10604453870625664,0.30340578706908483,24.666666666666668,5.0,129.33333333333334,underactive,Too few trades for strong statistical power. Consider reviewing thresholds or sample length.
+SPY,adx_trend_following,1-Hour,1h,0,0,0,0.0,2829,0.0,0.0,0.0,0.0,0.0,underactive,Too few trades for strong statistical power. Consider reviewing thresholds or sample length.
+SPY,uptrend_oversold_reversion,1-Hour,1h,15,15,0,1.0,2829,0.5302226935312832,0.9967706722459747,4.2,0.26666666666666666,17.6,underactive,Too few trades for strong statistical power. Consider reviewing thresholds or sample length.
+SPY,volatility_squeeze_breakout,1-Hour,1h,0,0,0,0.0,2829,0.0,0.0,0.0,0.0,0.0,underactive,Too few trades for strong statistical power. Consider reviewing thresholds or sample length.
+SPY,connors_rsi2_pullback,1-Hour,1h,69,70,1,0.9857142857142858,2829,2.4743725698126546,4.167383216205043,2.898550724637681,0.10144927536231885,11.144927536231885,acceptable,Trade activity is in a reasonable range for 1-hour research and null-hypothesis testing.
+SPY,donchian_trend_reentry,1-Hour,1h,0,0,0,0.0,2829,0.0,0.0,0.0,0.0,0.0,underactive,Too few trades for strong statistical power. Consider reviewing thresholds or sample length.
+SPY,turn_of_month_seasonality,1-Hour,1h,8,10,2,0.8,2829,0.3534817956875221,0.5314176593616441,20.375,3.75,94.75,underactive,Too few trades for strong statistical power. Consider reviewing thresholds or sample length.
+SPY,random,1-Hour,1h,32,32,0,1.0,2829,1.1311417462000708,1.6401908504069602,75.90625,15.3125,378.03125,acceptable,Trade activity is in a reasonable range for 1-hour research and null-hypothesis testing.

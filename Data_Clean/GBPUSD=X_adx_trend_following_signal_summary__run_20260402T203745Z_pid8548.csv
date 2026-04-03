@@ -1,0 +1,2 @@
+ticker,agent,timeframe_label,data_interval,signal_count,executed_trade_count,rejected_signal_count,months_covered
+GBPUSD=X,adx_trend_following,Daily,1d,50,49,1,251.23613963039014

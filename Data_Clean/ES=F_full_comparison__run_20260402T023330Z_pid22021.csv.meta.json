@@ -1,0 +1,61 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/ES=F_full_comparison.csv",
+  "canonical_policy": "always",
+  "column_names": [
+    "agent",
+    "skill_luck_verdict",
+    "evidence_label",
+    "confidence_label",
+    "final_classification",
+    "stability_classification",
+    "verdict_reason",
+    "cumulative_return",
+    "annualized_sharpe",
+    "trade_level_return_ratio",
+    "max_drawdown",
+    "RCSI",
+    "RCSI_z",
+    "p_value",
+    "adjusted_p_value",
+    "p_value_prominence",
+    "actual_percentile",
+    "number_of_trades",
+    "number_of_periods",
+    "transaction_cost",
+    "research_grade",
+    "artifact_run_id",
+    "signal_count",
+    "trades_per_month",
+    "average_holding_bars",
+    "average_holding_hours",
+    "activity_status",
+    "activity_warning"
+  ],
+  "created_at_utc": "2026-04-02T02:37:14Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775097431472694838,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/ES=F_monte_carlo_summary.csv",
+      "sha256": "0202ebeaa8e492824ffcc4a6c9f6a261ca2e5faa35b20b4e0b6ffaf78ac41ae0",
+      "size_bytes": 2090
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775097432145855767,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/ES=F_rcsi.csv",
+      "sha256": "f4205860194cb3f2acd1f9fb636ed9ce72c5ab567d06428ef2bc7b1b3219bc81",
+      "size_bytes": 1116
+    }
+  ],
+  "parameters": {
+    "artifact_type": "full_comparison"
+  },
+  "pipeline_profile": "standard",
+  "producer": "compare_agents.main",
+  "research_grade": true,
+  "row_count": 6,
+  "run_id": "run_20260402T023330Z_pid22021",
+  "ticker": "ES=F",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/ES=F_full_comparison__run_20260402T023330Z_pid22021.csv"
+}

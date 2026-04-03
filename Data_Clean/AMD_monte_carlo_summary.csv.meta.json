@@ -1,0 +1,85 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/AMD_monte_carlo_summary.csv",
+  "canonical_policy": "always",
+  "canonical_updated": true,
+  "column_names": [
+    "agent",
+    "actual_cumulative_return",
+    "median_simulated_return",
+    "mean_simulated_return",
+    "std_simulated_return",
+    "actual_percentile",
+    "p_value",
+    "p_value_prominence",
+    "p_value_interpretation",
+    "lower_5pct",
+    "upper_95pct",
+    "number_of_trades",
+    "transaction_cost",
+    "execution_cost_model",
+    "simulation_count",
+    "research_grade",
+    "reproducible",
+    "seed_used",
+    "null_model",
+    "bh_adjusted_p_value"
+  ],
+  "created_at_utc": "2026-04-02T03:02:51Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775098941755927674,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/AMD_regimes.csv",
+      "sha256": "e75075bd409198cfd2e7d4e1a5137e5ed5cf267cb0a1336fc56f0faf00351011",
+      "size_bytes": 4764061
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775098966872762442,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/AMD_trend_pullback_monte_carlo_results.csv",
+      "sha256": "76b36c6214d407df808648f8e0f847329c6b2be1cd5cf2d9f92c661865893634",
+      "size_bytes": 12001
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775098966932407501,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/AMD_breakout_volume_momentum_monte_carlo_results.csv",
+      "sha256": "ad646ea25915529d4b9c0584e3df074408d74dcb28845a9e9d8ff114b220df39",
+      "size_bytes": 11961
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775098966964737498,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/AMD_mean_reversion_vol_filter_monte_carlo_results.csv",
+      "sha256": "52ba7ed6511cde3c22f8fb5655ca95bb3e9d067ef12270e4afbe8aecadba37c6",
+      "size_bytes": 3934
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775098971241807562,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/AMD_momentum_relative_strength_monte_carlo_results.csv",
+      "sha256": "173ba516dd649f6577b38196405b254e953d9c79fdccf3e905319562fef56f86",
+      "size_bytes": 11393
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775098971331515861,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/AMD_random_monte_carlo_results.csv",
+      "sha256": "86f97214f09cd7eb209bcf4b03e5b4a4f28953fbac8944bd9c6487d25f845b06",
+      "size_bytes": 11890
+    }
+  ],
+  "parameters": {
+    "context_bucket_count": 5,
+    "context_matching_enabled": false,
+    "simulate_execution_costs": true,
+    "simulation_count": 500
+  },
+  "pipeline_profile": "standard",
+  "producer": "monte_carlo.main",
+  "research_grade": false,
+  "row_count": 5,
+  "run_id": "run_20260402T030217Z_pid29398",
+  "ticker": "AMD",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/AMD_monte_carlo_summary__run_20260402T030217Z_pid29398.csv"
+}

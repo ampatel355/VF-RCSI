@@ -1,0 +1,12 @@
+ticker,agent,timeframe_label,data_interval,total_trades,signal_count,rejected_signal_count,signal_to_trade_conversion,total_bars,signal_rate_pct,trades_per_month,average_holding_bars,average_holding_days,average_holding_hours,activity_status,activity_warning
+QQQ,trend_pullback,1-Hour,1h,0,0,0,0.0,2830,0.0,0.0,0.0,0.0,0.0,underactive,Too few trades for strong statistical power. Consider reviewing thresholds or sample length.
+QQQ,breakout_volume_momentum,1-Hour,1h,0,0,0,0.0,2830,0.0,0.0,0.0,0.0,0.0,underactive,Too few trades for strong statistical power. Consider reviewing thresholds or sample length.
+QQQ,mean_reversion_vol_filter,1-Hour,1h,0,0,0,0.0,2830,0.0,0.0,0.0,0.0,0.0,underactive,Too few trades for strong statistical power. Consider reviewing thresholds or sample length.
+QQQ,trend_momentum_verification,1-Hour,1h,4,4,0,1.0,2830,0.1413427561837456,0.40431714404317143,23.0,4.25,114.25,underactive,Too few trades for strong statistical power. Consider reviewing thresholds or sample length.
+QQQ,adx_trend_following,1-Hour,1h,0,0,0,0.0,2830,0.0,0.0,0.0,0.0,0.0,underactive,Too few trades for strong statistical power. Consider reviewing thresholds or sample length.
+QQQ,uptrend_oversold_reversion,1-Hour,1h,10,10,0,1.0,2830,0.35335689045936397,0.8624557260920896,5.8,1.0,31.4,underactive,Too few trades for strong statistical power. Consider reviewing thresholds or sample length.
+QQQ,volatility_squeeze_breakout,1-Hour,1h,0,0,0,0.0,2830,0.0,0.0,0.0,0.0,0.0,underactive,Too few trades for strong statistical power. Consider reviewing thresholds or sample length.
+QQQ,connors_rsi2_pullback,1-Hour,1h,77,77,0,1.0,2830,2.7208480565371023,4.650558081852005,2.896103896103896,0.06493506493506493,9.35064935064935,acceptable,Trade activity is in a reasonable range for 1-hour research and null-hypothesis testing.
+QQQ,donchian_trend_reentry,1-Hour,1h,0,0,0,0.0,2830,0.0,0.0,0.0,0.0,0.0,underactive,Too few trades for strong statistical power. Consider reviewing thresholds or sample length.
+QQQ,turn_of_month_seasonality,1-Hour,1h,9,11,2,0.8181818181818182,2830,0.3886925795053004,0.5978448667818497,15.11111111111111,2.3333333333333335,59.888888888888886,underactive,Too few trades for strong statistical power. Consider reviewing thresholds or sample length.
+QQQ,random,1-Hour,1h,33,33,0,1.0,2830,1.1660777385159011,1.7311669658886892,74.0,14.93939393939394,365.8787878787879,acceptable,Trade activity is in a reasonable range for 1-hour research and null-hypothesis testing.

@@ -1,0 +1,37 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/TQQQ_random_monte_carlo_results.csv",
+  "canonical_policy": "always",
+  "column_names": [
+    "simulation_id",
+    "simulated_cumulative_return"
+  ],
+  "created_at_utc": "2026-04-02T18:23:22Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775063928846441942,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/TQQQ_random_trades.csv",
+      "sha256": "2edd94fa0eb258970018adddf0d1762e0c0799bcda6789156f99c261d739a5d1",
+      "size_bytes": 43607
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775154201157591322,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/TQQQ_regimes.csv",
+      "sha256": "97b18e24a0eaac2105b7258c704c48da6b87be2f56a70d6ebe50e55aecb1f9bb",
+      "size_bytes": 3618615
+    }
+  ],
+  "parameters": {
+    "agent_name": "random",
+    "null_model_type": "timing_null_results",
+    "simulation_count": 5000
+  },
+  "pipeline_profile": "standard",
+  "producer": "monte_carlo.save_simulation_results",
+  "research_grade": true,
+  "row_count": 5000,
+  "run_id": "run_20260402T182312Z_pid90335",
+  "ticker": "TQQQ",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/TQQQ_random_monte_carlo_results__run_20260402T182312Z_pid90335.csv"
+}

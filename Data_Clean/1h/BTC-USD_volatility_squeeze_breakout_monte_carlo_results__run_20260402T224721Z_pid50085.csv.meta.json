@@ -1,0 +1,37 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/1h/BTC-USD_volatility_squeeze_breakout_monte_carlo_results.csv",
+  "canonical_policy": "always",
+  "column_names": [
+    "simulation_id",
+    "simulated_cumulative_return"
+  ],
+  "created_at_utc": "2026-04-02T22:48:45Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775170107213813700,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/1h/BTC-USD_volatility_squeeze_breakout_trades.csv",
+      "sha256": "d50099003b764ea72596431c5a7bf5f525288246ca7ac8b9122502b68efa83c7",
+      "size_bytes": 3437
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775170090661421880,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/1h/BTC-USD_regimes.csv",
+      "sha256": "3217937126fd20e7bda43b1bf6ec7d3bb11dd0df9865bb7c86d776bd01ecd5f0",
+      "size_bytes": 14643204
+    }
+  ],
+  "parameters": {
+    "agent_name": "volatility_squeeze_breakout",
+    "null_model_type": "timing_null_results",
+    "simulation_count": 2000
+  },
+  "pipeline_profile": "standard",
+  "producer": "monte_carlo.save_simulation_results",
+  "research_grade": false,
+  "row_count": 2000,
+  "run_id": "run_20260402T224721Z_pid50085",
+  "ticker": "BTC-USD",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/1h/BTC-USD_volatility_squeeze_breakout_monte_carlo_results__run_20260402T224721Z_pid50085.csv"
+}

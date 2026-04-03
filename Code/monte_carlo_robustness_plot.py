@@ -5,10 +5,8 @@ import os
 from plot_config import (
     AGENT_COLORS,
     BAR_EDGE_COLOR,
-    DEFAULT_FIGSIZE,
     ZERO_LINE_COLOR,
-    add_note_box,
-    add_subtitle,
+    add_figure_caption,
     apply_categorical_tick_labels,
     apply_clean_style,
     create_placeholder_chart,
@@ -18,6 +16,7 @@ from plot_config import (
     load_csv_checked,
     save_chart,
     show_chart,
+    size_for_categories,
 )
 import matplotlib.pyplot as plt
 import numpy as np
@@ -31,6 +30,45 @@ except ModuleNotFoundError:
 
 # Read the active ticker from the environment, or fall back to SPY.
 ticker = os.environ.get("TICKER", "SPY")
+
+
+def annotate_interval_values(
+    ax,
+    bars,
+    means: np.ndarray,
+    stds: np.ndarray,
+    *,
+    decimals: int,
+) -> None:
+    """Annotate bars with mean ± SD so interval values are visible on the figure."""
+    y_min, y_max = ax.get_ylim()
+    axis_span = max(abs(y_max - y_min), 1e-9)
+    offset = axis_span * 0.018
+
+    for bar, mean_value, std_value in zip(bars, means, stds):
+        if np.isnan(mean_value) or np.isnan(std_value):
+            continue
+
+        upper_bound = mean_value + std_value
+        label_y = upper_bound + offset
+        vertical_align = "bottom"
+
+        # Keep text inside bounds when bars are already near the top edge.
+        if label_y > (y_max - offset * 0.5):
+            label_y = y_max - offset * 0.4
+            vertical_align = "top"
+
+        ax.text(
+            bar.get_x() + (bar.get_width() / 2),
+            label_y,
+            f"{mean_value:.{decimals}f}\n±{std_value:.{decimals}f}",
+            ha="center",
+            va=vertical_align,
+            fontsize=7.4,
+            color="#1F2937",
+            linespacing=1.0,
+            zorder=4,
+        )
 
 
 def load_robustness_data():
@@ -110,36 +148,6 @@ def load_robustness_data():
     return runs_df, summary_df
 
 
-def add_value_labels(ax, x_positions, means, stds, decimals: int) -> None:
-    """Place small mean-plus-minus-SD labels above each bar."""
-    span = max(float(np.max(means + stds) - np.min(means - stds)), 1.0)
-    offset = span * 0.04
-    y_min, y_max = ax.get_ylim()
-    top_buffer = span * 0.05
-    bottom_buffer = span * 0.05
-
-    for x_position, mean_value, std_value in zip(x_positions, means, stds):
-        label_text = f"{mean_value:.{decimals}f}\n±{std_value:.{decimals}f}"
-        label_y = mean_value + std_value + offset if mean_value >= 0 else mean_value - std_value - offset
-        vertical_alignment = "bottom" if mean_value >= 0 else "top"
-
-        if mean_value >= 0 and label_y > (y_max - top_buffer):
-            label_y = mean_value - std_value - offset
-            vertical_alignment = "top"
-        elif mean_value < 0 and label_y < (y_min + bottom_buffer):
-            label_y = mean_value + std_value + offset
-            vertical_alignment = "bottom"
-
-        ax.text(
-            x_position,
-            label_y,
-            label_text,
-            ha="center",
-            va=vertical_alignment,
-            fontsize=8.8,
-        )
-
-
 def create_rcsi_stability_chart(summary_df: pd.DataFrame) -> None:
     """Create the RCSI mean-plus-SD chart across seeds."""
     output_filename = f"{ticker}_monte_carlo_robustness_rcsi.png"
@@ -148,7 +156,7 @@ def create_rcsi_stability_chart(summary_df: pd.DataFrame) -> None:
     stds = summary_df["std_RCSI"].fillna(0.0).to_numpy(dtype=float)
     colors = [AGENT_COLORS.get(agent, "#355C7D") for agent in summary_df["agent"]]
 
-    fig, ax = plt.subplots(figsize=DEFAULT_FIGSIZE)
+    fig, ax = plt.subplots(figsize=size_for_categories(len(summary_df), height=6.0))
     bars = ax.bar(
         x_positions,
         means,
@@ -180,23 +188,19 @@ def create_rcsi_stability_chart(summary_df: pd.DataFrame) -> None:
     rcsi_low = float(np.min(means - stds))
     rcsi_high = float(np.max(means + stds))
     rcsi_span = max(rcsi_high - rcsi_low, 0.5)
-    rcsi_padding = rcsi_span * 0.18
+    rcsi_padding = rcsi_span * 0.24
     ax.set_ylim(rcsi_low - rcsi_padding, rcsi_high + rcsi_padding)
     emphasize_tiny_bars(ax, bars, means)
+    annotate_interval_values(ax, bars, means, stds, decimals=3)
 
-    add_value_labels(ax, x_positions, means, stds, decimals=3)
-
-    add_note_box(
-        ax,
+    add_figure_caption(
+        fig,
         (
-            f"Outer runs: {int(summary_df['number_of_outer_runs'].iloc[0])}\n"
-            f"Simulations per run: {int(summary_df['simulations_per_run'].iloc[0])}\n"
-            f"Transaction cost: {float(summary_df['transaction_cost'].iloc[0]):.6f}"
+            f"Bars show mean RCSI across robustness seeds with one standard deviation. "
+            f"Outer runs = {int(summary_df['number_of_outer_runs'].iloc[0])}; "
+            f"simulations per run = {int(summary_df['simulations_per_run'].iloc[0])}; "
+            f"transaction cost = {float(summary_df['transaction_cost'].iloc[0]):.6f}."
         ),
-        x=0.98,
-        y=0.97,
-        ha="right",
-        va="top",
     )
 
     save_chart(fig, output_filename)
@@ -211,7 +215,7 @@ def create_percentile_stability_chart(summary_df: pd.DataFrame) -> None:
     stds = summary_df["std_percentile"].fillna(0.0).to_numpy(dtype=float)
     colors = [AGENT_COLORS.get(agent, "#355C7D") for agent in summary_df["agent"]]
 
-    fig, ax = plt.subplots(figsize=DEFAULT_FIGSIZE)
+    fig, ax = plt.subplots(figsize=size_for_categories(len(summary_df), height=6.0))
     bars = ax.bar(
         x_positions,
         means,
@@ -238,17 +242,18 @@ def create_percentile_stability_chart(summary_df: pd.DataFrame) -> None:
         show_y_grid=True,
         add_legend=False,
     )
-    add_subtitle(
-        ax,
-        "Higher values place the observed outcome deeper into the right tail of the simulated distribution.",
-    )
 
     percentile_low = max(float(np.min(means - stds)) - 5, 0)
-    percentile_high = min(float(np.max(means + stds)) + 8, 104)
+    percentile_high = min(float(np.max(means + stds)) + 12, 106)
     ax.set_ylim(percentile_low, percentile_high)
     emphasize_tiny_bars(ax, bars, means)
+    annotate_interval_values(ax, bars, means, stds, decimals=1)
 
-    add_value_labels(ax, x_positions, means, stds, decimals=1)
+    add_figure_caption(
+        fig,
+        "Bars show mean actual percentile across robustness seeds with one standard deviation. "
+        "Higher values place the observed outcome deeper into the right tail of the simulated distribution.",
+    )
 
     save_chart(fig, output_filename)
     show_chart()

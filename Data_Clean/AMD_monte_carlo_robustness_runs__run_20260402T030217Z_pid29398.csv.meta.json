@@ -1,0 +1,54 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/AMD_monte_carlo_robustness_runs.csv",
+  "canonical_policy": "always",
+  "column_names": [
+    "agent",
+    "outer_run",
+    "seed_used",
+    "actual_cumulative_return",
+    "annualized_return",
+    "annualized_sharpe",
+    "trade_level_return_ratio",
+    "max_drawdown",
+    "median_simulated_return",
+    "mean_simulated_return",
+    "std_simulated_return",
+    "actual_percentile",
+    "p_value",
+    "p_value_prominence",
+    "RCSI",
+    "RCSI_z",
+    "significant_run",
+    "outperform_null_median",
+    "lower_5pct",
+    "upper_95pct",
+    "number_of_trades",
+    "transaction_cost",
+    "simulations_per_run",
+    "null_model",
+    "robustness_scope",
+    "research_grade"
+  ],
+  "created_at_utc": "2026-04-02T03:03:05Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775098971345169913,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/AMD_monte_carlo_summary.csv",
+      "sha256": "e94cd60462e2fb0a1f6e815c965cd0b5f06c834f3418742cd0560f17fab40522",
+      "size_bytes": 1839
+    }
+  ],
+  "parameters": {
+    "outer_runs": 8,
+    "robustness_scope": "monte_carlo_seed_stability_only",
+    "simulations_per_run": 250
+  },
+  "pipeline_profile": "standard",
+  "producer": "monte_carlo_robustness.main",
+  "research_grade": false,
+  "row_count": 40,
+  "run_id": "run_20260402T030217Z_pid29398",
+  "ticker": "AMD",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/AMD_monte_carlo_robustness_runs__run_20260402T030217Z_pid29398.csv"
+}

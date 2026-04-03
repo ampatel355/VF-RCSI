@@ -1,0 +1,37 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/GM_rcsi.csv",
+  "canonical_policy": "always",
+  "column_names": [
+    "agent",
+    "actual_cumulative_return",
+    "median_simulated_return",
+    "mean_simulated_return",
+    "std_simulated_return",
+    "actual_percentile",
+    "RCSI",
+    "RCSI_z",
+    "simulation_count",
+    "bh_adjusted_p_value",
+    "research_grade"
+  ],
+  "created_at_utc": "2026-04-02T21:10:40Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775164240119542364,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/GM_monte_carlo_summary.csv",
+      "sha256": "42c3879abc9213cba860bed5b3178a322b7f91d799e8f04e9c43153ae0cf2111",
+      "size_bytes": 3091
+    }
+  ],
+  "parameters": {
+    "artifact_type": "rcsi_summary"
+  },
+  "pipeline_profile": "standard",
+  "producer": "rcsi.main",
+  "research_grade": false,
+  "row_count": 8,
+  "run_id": "run_20260402T211016Z_pid16529",
+  "ticker": "GM",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/GM_rcsi__run_20260402T211016Z_pid16529.csv"
+}

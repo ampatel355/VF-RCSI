@@ -1,0 +1,7 @@
+ticker,agent,timeframe_label,data_interval,total_trades,signal_count,rejected_signal_count,signal_to_trade_conversion,total_bars,signal_rate_pct,trades_per_month,average_holding_bars,average_holding_days,average_holding_hours,activity_status,activity_warning
+FXI,trend_pullback,Daily,1d,83,0,0,0.0,5083,0.0,0.36255919919632607,4.036144578313253,4.036144578313253,0.0,underactive,Too few trades for strong statistical power. Consider reviewing thresholds or sample length.
+FXI,breakout_volume_momentum,Daily,1d,76,0,0,0.0,5083,0.0,0.3293351366742597,10.18421052631579,10.18421052631579,0.0,underactive,Too few trades for strong statistical power. Consider reviewing thresholds or sample length.
+FXI,mean_reversion_vol_filter,Daily,1d,53,0,0,0.0,5083,0.0,0.24833551416256155,3.69811320754717,3.69811320754717,0.0,underactive,Too few trades for strong statistical power. Consider reviewing thresholds or sample length.
+FXI,momentum_relative_strength,Daily,1d,205,0,0,0.0,5083,0.0,0.8757456140350877,11.697560975609756,11.697560975609756,0.0,acceptable,Trade activity is in a reasonable range for daily research and null-hypothesis testing.
+FXI,trend_momentum_verification,Daily,1d,48,48,0,1.0,5083,0.944324217981507,0.19972658920027342,13.25,19.479166666666668,467.5,underactive,Too few trades for strong statistical power. Consider reviewing thresholds or sample length.
+FXI,random,Daily,1d,137,0,0,0.0,5083,0.0,0.583208041958042,9.75912408759124,14.284671532846716,0.0,underactive,Too few trades for strong statistical power. Consider reviewing thresholds or sample length.

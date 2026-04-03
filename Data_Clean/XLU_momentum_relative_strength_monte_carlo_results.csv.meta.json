@@ -1,0 +1,38 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/XLU_momentum_relative_strength_monte_carlo_results.csv",
+  "canonical_policy": "always",
+  "canonical_updated": true,
+  "column_names": [
+    "simulation_id",
+    "simulated_cumulative_return"
+  ],
+  "created_at_utc": "2026-04-02T18:24:35Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1774983009818664919,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/XLU_momentum_relative_strength_trades.csv",
+      "sha256": "37ab946c58436e49456a2e88c43e79d0db44893c7b068d716252d05cc2331837",
+      "size_bytes": 110955
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775154275459921875,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/XLU_regimes.csv",
+      "sha256": "b84aec03ae4d9c0b406fdc79c0783177c57486b4e11b31d2babf1244fd2e1c79",
+      "size_bytes": 6290038
+    }
+  ],
+  "parameters": {
+    "agent_name": "momentum_relative_strength",
+    "null_model_type": "timing_null_results",
+    "simulation_count": 5000
+  },
+  "pipeline_profile": "standard",
+  "producer": "monte_carlo.save_simulation_results",
+  "research_grade": true,
+  "row_count": 5000,
+  "run_id": "run_20260402T182430Z_pid90453",
+  "ticker": "XLU",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/XLU_momentum_relative_strength_monte_carlo_results__run_20260402T182430Z_pid90453.csv"
+}

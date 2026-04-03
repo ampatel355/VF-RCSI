@@ -1,0 +1,6 @@
+ticker,agent,timeframe_label,data_interval,total_trades,signal_count,rejected_signal_count,signal_to_trade_conversion,total_bars,signal_rate_pct,trades_per_month,average_holding_bars,average_holding_hours,activity_status,activity_warning
+HEI,trend_pullback,1H,1h,65,65,0,1.0,4749,1.36870920193725,2.0912794538647876,6.876923076923077,35.50769230769231,acceptable,Trade activity is in a reasonable range for 1-hour research and null-hypothesis testing.
+HEI,breakout_volume_momentum,1H,1h,52,52,0,1.0,4749,1.0949673615498,1.68362733800195,9.423076923076923,47.5,underactive,Too few trades for strong statistical power. Consider reviewing thresholds or sample length.
+HEI,mean_reversion_vol_filter,1H,1h,18,18,0,1.0,4749,0.3790271636133923,0.6746882856996255,2.888888888888889,9.5,underactive,Too few trades for strong statistical power. Consider reviewing thresholds or sample length.
+HEI,momentum_relative_strength,1H,1h,304,308,4,0.987012987012987,4749,6.485575910718046,9.318227593152063,13.197368421052632,63.21052631578947,acceptable,Trade activity is in a reasonable range for 1-hour research and null-hypothesis testing.
+HEI,random,1H,1h,90,90,0,1.0,4749,1.8951358180669615,2.772880641079713,12.122222222222222,64.82222222222222,acceptable,Trade activity is in a reasonable range for 1-hour research and null-hypothesis testing.

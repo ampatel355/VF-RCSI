@@ -1,0 +1,7 @@
+agent,reference_rcsi_z,reference_p_value,reference_percentile,reference_adjusted_p_value,before_label,after_label,changed
+trend_pullback,-0.6373525576081169,0.8712257548490302,12.89742051589682,1.0,Negative Skill,Negative Skill,False
+breakout_volume_momentum,3.249198606913151,0.0185962807438512,98.16036792641472,0.0941811637672465,Random / Luck,Strong Skill,True
+mean_reversion_vol_filter,0.0,1.0,100.0,1.0,No Trades,No Trades,False
+momentum_relative_strength,-0.1807177290952792,0.9502099580083984,4.999000199960008,1.0,Random / Luck,Random / Luck,False
+trend_momentum_verification,2.3920356857205247,0.0313937212557488,96.88062387522496,0.0941811637672465,Random / Luck,Strong Skill,True
+random,-0.5260430330121867,0.7620475904819036,23.81523695260948,1.0,Negative Skill,Negative Skill,False

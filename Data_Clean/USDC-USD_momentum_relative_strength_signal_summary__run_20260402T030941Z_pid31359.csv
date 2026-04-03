@@ -1,0 +1,2 @@
+ticker,agent,timeframe_label,data_interval,signal_count,executed_trade_count,rejected_signal_count,months_covered
+USDC-USD,momentum_relative_strength,1H,1h,381,376,5,23.457905544147845

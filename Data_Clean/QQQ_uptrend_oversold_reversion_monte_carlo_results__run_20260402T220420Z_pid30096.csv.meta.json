@@ -1,0 +1,37 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/QQQ_uptrend_oversold_reversion_monte_carlo_results.csv",
+  "canonical_policy": "always",
+  "column_names": [
+    "simulation_id",
+    "simulated_cumulative_return"
+  ],
+  "created_at_utc": "2026-04-02T22:04:48Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775167473703509639,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/QQQ_uptrend_oversold_reversion_trades.csv",
+      "sha256": "e9d4dc36e149163e82afe6db7b8ce265187ad11c291ce87f0a75461907da7532",
+      "size_bytes": 40973
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775167464106456185,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/QQQ_regimes.csv",
+      "sha256": "ff018432e9cc95ae7298302c710b028376e0c7ba63a22d6404d92025f3cacaa6",
+      "size_bytes": 6462846
+    }
+  ],
+  "parameters": {
+    "agent_name": "uptrend_oversold_reversion",
+    "null_model_type": "timing_null_results",
+    "simulation_count": 5000
+  },
+  "pipeline_profile": "standard",
+  "producer": "monte_carlo.save_simulation_results",
+  "research_grade": true,
+  "row_count": 5000,
+  "run_id": "run_20260402T220420Z_pid30096",
+  "ticker": "QQQ",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/QQQ_uptrend_oversold_reversion_monte_carlo_results__run_20260402T220420Z_pid30096.csv"
+}

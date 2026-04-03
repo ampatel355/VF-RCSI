@@ -1,0 +1,30 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/USDC-USD_momentum_relative_strength_universe.csv",
+  "canonical_policy": "always",
+  "canonical_updated": true,
+  "column_names": [
+    "anchor_ticker",
+    "asset_class",
+    "asset_class_label",
+    "selection_source",
+    "selection_reason",
+    "fallback_rule",
+    "universe_position",
+    "universe_ticker",
+    "included_in_aligned_universe",
+    "aligned_rows"
+  ],
+  "created_at_utc": "2026-04-02T03:10:28Z",
+  "dependencies": [],
+  "parameters": {
+    "artifact_type": "relative_strength_universe",
+    "selection_source": "asset_class_default"
+  },
+  "pipeline_profile": "standard",
+  "producer": "momentum_relative_strength_agent.save_universe_metadata",
+  "research_grade": true,
+  "row_count": 7,
+  "run_id": "run_20260402T030941Z_pid31359",
+  "ticker": "USDC-USD",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/USDC-USD_momentum_relative_strength_universe__run_20260402T030941Z_pid31359.csv"
+}

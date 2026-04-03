@@ -4,11 +4,10 @@ import os
 from pathlib import Path
 
 from plot_config import (
-    DEFAULT_FIGSIZE,
     HEATMAP_COLORS,
     REGIME_DISPLAY_NAMES,
     REGIME_ORDER,
-    add_subtitle,
+    add_figure_caption,
     apply_categorical_tick_labels,
     apply_clean_style,
     create_placeholder_chart,
@@ -17,8 +16,10 @@ from plot_config import (
     load_csv_checked,
     save_chart,
     show_chart,
+    size_for_heatmap,
 )
 import matplotlib.pyplot as plt
+import matplotlib.patheffects as path_effects
 from matplotlib.colors import LinearSegmentedColormap, TwoSlopeNorm
 import numpy as np
 import pandas as pd
@@ -33,7 +34,7 @@ except ModuleNotFoundError:
 ticker = os.environ.get("TICKER", "SPY")
 
 VALUE_COLUMN = "plot_trade_level_return_ratio"
-VALUE_LABEL = "Trade-Level Return Ratio (unitless)"
+VALUE_LABEL = "Trade-Level Return Ratio (mean/std, Sharpe-like per trade)"
 
 
 def load_regime_analysis(input_path: Path) -> pd.DataFrame:
@@ -44,6 +45,7 @@ def load_regime_analysis(input_path: Path) -> pd.DataFrame:
             "agent",
             "regime_at_entry",
             "total_trades",
+            "min_trades_required",
             "meets_min_trade_threshold",
             VALUE_COLUMN,
         ],
@@ -52,6 +54,7 @@ def load_regime_analysis(input_path: Path) -> pd.DataFrame:
     df["agent"] = df["agent"].astype(str).str.strip()
     df["regime_at_entry"] = df["regime_at_entry"].astype(str).str.strip().str.lower()
     df["total_trades"] = pd.to_numeric(df["total_trades"], errors="coerce")
+    df["min_trades_required"] = pd.to_numeric(df["min_trades_required"], errors="coerce")
     df["meets_min_trade_threshold"] = (
         df["meets_min_trade_threshold"].astype(str).str.lower().map({"true": True, "false": False})
     )
@@ -110,40 +113,57 @@ def build_color_norm(heatmap_values: np.ndarray):
     return None
 
 
-def annotate_heatmap(ax, heatmap_values: np.ndarray, trade_counts: np.ndarray) -> None:
-    """Write each cell value into the heatmap."""
-    finite_values = heatmap_values[np.isfinite(heatmap_values)]
-    if len(finite_values) == 0:
-        return
+def _relative_luminance(rgb_triplet: tuple[float, float, float]) -> float:
+    """Measure perceived brightness so annotation text color stays readable."""
 
-    midpoint = float(np.nanmean(finite_values))
+    def to_linear(channel: float) -> float:
+        if channel <= 0.04045:
+            return channel / 12.92
+        return ((channel + 0.055) / 1.055) ** 2.4
 
+    red, green, blue = rgb_triplet
+    return (
+        0.2126 * to_linear(red)
+        + 0.7152 * to_linear(green)
+        + 0.0722 * to_linear(blue)
+    )
+
+
+def annotate_heatmap(
+    ax,
+    image,
+    heatmap_values: np.ndarray,
+    trade_counts: np.ndarray,
+) -> None:
+    """Write readable cell values into the heatmap while leaving suppressed cells blank."""
     for row_index in range(heatmap_values.shape[0]):
         for column_index in range(heatmap_values.shape[1]):
             value = heatmap_values[row_index, column_index]
-
-            trade_count = trade_counts[row_index, column_index]
             if np.isnan(value):
-                ax.text(
-                    column_index,
-                    row_index,
-                    f"Suppressed\nn={int(trade_count)}",
-                    ha="center",
-                    va="center",
-                    fontsize=10,
-                    color="#6B7280",
-                )
                 continue
 
-            text_color = "white" if value < midpoint else "#1F2937"
-            ax.text(
+            rgba = image.cmap(image.norm(value))
+            luminance = _relative_luminance((rgba[0], rgba[1], rgba[2]))
+            text_color = "#111827" if luminance > 0.46 else "#FFFFFF"
+
+            trade_count = trade_counts[row_index, column_index]
+            count_suffix = ""
+            if np.isfinite(trade_count):
+                count_suffix = f"\n(n={int(round(trade_count))})"
+
+            text_artist = ax.text(
                 column_index,
                 row_index,
-                f"{value:.2f}",
+                f"{value:.2f}{count_suffix}",
                 ha="center",
                 va="center",
-                fontsize=10,
+                fontsize=8.2,
                 color=text_color,
+                linespacing=1.1,
+            )
+            stroke_color = "#FFFFFF" if text_color != "#FFFFFF" else "#111827"
+            text_artist.set_path_effects(
+                [path_effects.withStroke(linewidth=1.0, foreground=stroke_color, alpha=0.38)]
             )
 
 
@@ -153,6 +173,7 @@ def main() -> None:
     output_filename = f"{ticker}_regime_heatmap.png"
 
     df = load_regime_analysis(input_path)
+    min_trades_required = int(df["min_trades_required"].dropna().iloc[0]) if df["min_trades_required"].notna().any() else 10
     heatmap_df, trade_count_df = build_heatmap_table(df)
     if heatmap_df.dropna(how="all").empty:
         create_placeholder_chart(
@@ -163,7 +184,7 @@ def main() -> None:
                 "All regime cells were suppressed because the strategy logs contain too few\n"
                 "completed trades for reliable regime-level interpretation."
             ),
-            figsize=(9.4, max(6.1, 0.75 * len(AGENT_ORDER) + 2.5)),
+            figsize=size_for_heatmap(len(AGENT_ORDER), len(REGIME_ORDER)),
         )
         return
 
@@ -174,16 +195,18 @@ def main() -> None:
         "academic_diverging",
         HEATMAP_COLORS,
     )
-    academic_cmap.set_bad(color="#E5E7EB")
+    academic_cmap.set_bad(color="#D6DCE6")
 
-    figure_height = max(6.1, 0.75 * len(AGENT_ORDER) + 2.5)
-    fig, ax = plt.subplots(figsize=(9.4, figure_height))
+    fig, ax = plt.subplots(figsize=size_for_heatmap(len(AGENT_ORDER), len(REGIME_ORDER)))
     image = ax.imshow(
         heatmap_values,
         cmap=academic_cmap,
         aspect="auto",
+        interpolation="nearest",
         norm=build_color_norm(heatmap_values),
     )
+    # Keep the visual footprint square inside the square chart canvas.
+    ax.set_box_aspect(1.0)
 
     apply_clean_style(
         ax,
@@ -193,32 +216,41 @@ def main() -> None:
         show_y_grid=False,
         add_legend=False,
     )
-    add_subtitle(
-        ax,
-        "Gray cells are suppressed because the regime cell has fewer than 20 trades.",
-    )
 
     ax.set_xticks(np.arange(len(REGIME_ORDER)))
     apply_categorical_tick_labels(ax, REGIME_DISPLAY_NAMES)
     ax.set_yticks(np.arange(len(AGENT_ORDER)))
-    apply_categorical_tick_labels(
-        ax,
-        [format_agent_name(agent_name) for agent_name in AGENT_ORDER],
-        axis="y",
-        fontsize=9.8,
-    )
+    y_labels = [format_agent_name(agent_name, short=True) for agent_name in AGENT_ORDER]
+    ax.set_yticklabels(y_labels, fontsize=8.9)
+    for label in ax.get_yticklabels():
+        label.set_rotation(0)
+        label.set_ha("right")
+        label.set_va("center")
 
-    # Draw light cell borders so each block looks crisp on the page.
+    # Draw very light cell borders so each block remains readable in print.
     ax.set_xticks(np.arange(-0.5, len(REGIME_ORDER), 1), minor=True)
     ax.set_yticks(np.arange(-0.5, len(AGENT_ORDER), 1), minor=True)
-    ax.grid(which="minor", color="#F3F4F6", linestyle="-", linewidth=0.9)
+    ax.grid(which="minor", color="#D5DEE8", linestyle="-", linewidth=0.7)
     ax.tick_params(which="minor", bottom=False, left=False)
 
-    annotate_heatmap(ax, heatmap_values, trade_counts)
+    annotate_heatmap(
+        ax=ax,
+        image=image,
+        heatmap_values=heatmap_values,
+        trade_counts=trade_counts,
+    )
 
-    colorbar = fig.colorbar(image, ax=ax, fraction=0.05, pad=0.04)
-    colorbar.ax.tick_params(labelsize=10)
-    colorbar.set_label(VALUE_LABEL, fontsize=11)
+    colorbar = fig.colorbar(image, ax=ax, fraction=0.043, pad=0.022)
+    colorbar.ax.tick_params(labelsize=8.8)
+    colorbar.set_label(VALUE_LABEL, fontsize=9.4)
+
+    suppressed_cells = int(np.isnan(heatmap_values).sum())
+    add_figure_caption(
+        fig,
+        "Cell colors summarize regime-level trade performance. Blank light-gray cells are "
+        f"suppressed for low sample size (fewer than {min_trades_required} trades). "
+        f"Suppressed cells: {suppressed_cells}.",
+    )
 
     save_chart(fig, output_filename)
     show_chart()

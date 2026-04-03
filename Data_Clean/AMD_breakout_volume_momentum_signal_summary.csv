@@ -1,0 +1,2 @@
+ticker,agent,timeframe_label,data_interval,signal_count,executed_trade_count,rejected_signal_count,months_covered
+AMD,breakout_volume_momentum,1H,1h,75,74,1,31.86858316221766

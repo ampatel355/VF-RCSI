@@ -1,0 +1,92 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/FXI_monte_carlo_summary.csv",
+  "canonical_policy": "always",
+  "canonical_updated": true,
+  "column_names": [
+    "agent",
+    "actual_cumulative_return",
+    "median_simulated_return",
+    "mean_simulated_return",
+    "std_simulated_return",
+    "actual_percentile",
+    "p_value",
+    "p_value_prominence",
+    "p_value_interpretation",
+    "lower_5pct",
+    "upper_95pct",
+    "number_of_trades",
+    "transaction_cost",
+    "execution_cost_model",
+    "simulation_count",
+    "research_grade",
+    "reproducible",
+    "seed_used",
+    "null_model",
+    "bh_adjusted_p_value"
+  ],
+  "created_at_utc": "2026-04-02T18:22:31Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775154150714698257,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/FXI_regimes.csv",
+      "sha256": "fb91ac122a100b4f43ff4163bc87632051f84b803a3b6896c7986ef6115a6f7d",
+      "size_bytes": 4913080
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775154141953445922,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/FXI_trend_pullback_monte_carlo_results.csv",
+      "sha256": "732cb497a5e45ec559ee1c42aee42070e06a4f8e6611c1acaf0d88d4b5a31bad",
+      "size_bytes": 124132
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775154142074000884,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/FXI_breakout_volume_momentum_monte_carlo_results.csv",
+      "sha256": "18a212fa39d264cfc058344e2b9aa3eb2abe6ad09f06dba94cae1d8003e26bae",
+      "size_bytes": 123304
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775154142167471693,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/FXI_mean_reversion_vol_filter_monte_carlo_results.csv",
+      "sha256": "a4df0772ae1324ae2567533069209e9b123d16eccc912774a23a2a6e981f2e6f",
+      "size_bytes": 125286
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775154150895466719,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/FXI_momentum_relative_strength_monte_carlo_results.csv",
+      "sha256": "3c3a62805fe21eefa045cecaeeb63df186f434db8b2bfae35ff1ea51f1d7872c",
+      "size_bytes": 116196
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775154151844428982,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/FXI_trend_momentum_verification_monte_carlo_results.csv",
+      "sha256": "aadc43e872f0db3ded666d8c27c46377fa9a80e19752764ffbf860cddeafd7b0",
+      "size_bytes": 123292
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775154151960530558,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/FXI_random_monte_carlo_results.csv",
+      "sha256": "6efb93191e030266f91433de019ef0610c106bd0508491c7f96053c5bf56a5f4",
+      "size_bytes": 122283
+    }
+  ],
+  "parameters": {
+    "context_bucket_count": 5,
+    "context_matching_enabled": false,
+    "simulate_execution_costs": true,
+    "simulation_count": 5000
+  },
+  "pipeline_profile": "standard",
+  "producer": "monte_carlo.main",
+  "research_grade": true,
+  "row_count": 6,
+  "run_id": "run_20260402T182221Z_pid90259",
+  "ticker": "FXI",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/FXI_monte_carlo_summary__run_20260402T182221Z_pid90259.csv"
+}

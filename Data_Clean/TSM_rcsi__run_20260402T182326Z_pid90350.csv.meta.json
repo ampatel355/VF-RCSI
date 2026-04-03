@@ -1,0 +1,37 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/TSM_rcsi.csv",
+  "canonical_policy": "always",
+  "column_names": [
+    "agent",
+    "actual_cumulative_return",
+    "median_simulated_return",
+    "mean_simulated_return",
+    "std_simulated_return",
+    "actual_percentile",
+    "RCSI",
+    "RCSI_z",
+    "simulation_count",
+    "bh_adjusted_p_value",
+    "research_grade"
+  ],
+  "created_at_utc": "2026-04-02T18:23:58Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775154238915095282,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/TSM_monte_carlo_summary.csv",
+      "sha256": "a29e61912796f7fe2a6a6db6c64a9129a7f24f3d5e7e18b5ec2c4a21e10cc22b",
+      "size_bytes": 2166
+    }
+  ],
+  "parameters": {
+    "artifact_type": "rcsi_summary"
+  },
+  "pipeline_profile": "standard",
+  "producer": "rcsi.main",
+  "research_grade": true,
+  "row_count": 6,
+  "run_id": "run_20260402T182326Z_pid90350",
+  "ticker": "TSM",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/TSM_rcsi__run_20260402T182326Z_pid90350.csv"
+}

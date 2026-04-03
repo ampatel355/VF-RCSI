@@ -1,0 +1,38 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/ETH-USD_random_monte_carlo_results.csv",
+  "canonical_policy": "always",
+  "canonical_updated": true,
+  "column_names": [
+    "simulation_id",
+    "simulated_cumulative_return"
+  ],
+  "created_at_utc": "2026-04-02T18:22:18Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775063909124711622,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/ETH-USD_random_trades.csv",
+      "sha256": "12d5161c3d35e8ba8d6f3ad5f12bcd20ccc734b257e62c6ad6bf128fa8bce25d",
+      "size_bytes": 30421
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775154136996191232,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/ETH-USD_regimes.csv",
+      "sha256": "1e9acc633dc8a20f3a42e6134ef9de2cc674a8336d286bb1cec26ff94075fd97",
+      "size_bytes": 2704409
+    }
+  ],
+  "parameters": {
+    "agent_name": "random",
+    "null_model_type": "timing_null_results",
+    "simulation_count": 5000
+  },
+  "pipeline_profile": "standard",
+  "producer": "monte_carlo.save_simulation_results",
+  "research_grade": true,
+  "row_count": 5000,
+  "run_id": "run_20260402T182216Z_pid90244",
+  "ticker": "ETH-USD",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/ETH-USD_random_monte_carlo_results__run_20260402T182216Z_pid90244.csv"
+}

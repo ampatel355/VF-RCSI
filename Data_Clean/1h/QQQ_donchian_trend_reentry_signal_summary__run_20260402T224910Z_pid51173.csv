@@ -1,0 +1,2 @@
+ticker,agent,timeframe_label,data_interval,signal_count,executed_trade_count,rejected_signal_count,months_covered
+QQQ,donchian_trend_reentry,1-Hour,1h,0,0,0,0.0

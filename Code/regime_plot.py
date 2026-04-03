@@ -6,11 +6,10 @@ from pathlib import Path
 from plot_config import (
     AGENT_COLORS,
     BAR_EDGE_COLOR,
-    DEFAULT_FIGSIZE,
     REGIME_DISPLAY_NAMES,
     REGIME_ORDER,
     ZERO_LINE_COLOR,
-    add_subtitle,
+    add_figure_caption,
     apply_axis_number_format,
     apply_clean_style,
     create_placeholder_chart,
@@ -21,8 +20,10 @@ from plot_config import (
     load_csv_checked,
     save_chart,
     show_chart,
+    size_for_categories,
 )
 import matplotlib.pyplot as plt
+from matplotlib.patches import Patch
 import numpy as np
 import pandas as pd
 
@@ -44,6 +45,7 @@ def load_regime_analysis(input_path: Path) -> pd.DataFrame:
             "agent",
             "regime_at_entry",
             "total_trades",
+            "min_trades_required",
             "meets_min_trade_threshold",
             "plot_trade_level_return_ratio",
         ],
@@ -52,6 +54,7 @@ def load_regime_analysis(input_path: Path) -> pd.DataFrame:
     df["agent"] = df["agent"].astype(str).str.strip()
     df["regime_at_entry"] = df["regime_at_entry"].astype(str).str.strip().str.lower()
     df["total_trades"] = pd.to_numeric(df["total_trades"], errors="coerce")
+    df["min_trades_required"] = pd.to_numeric(df["min_trades_required"], errors="coerce")
     df["meets_min_trade_threshold"] = (
         df["meets_min_trade_threshold"].astype(str).str.lower().map({"true": True, "false": False})
     )
@@ -71,6 +74,7 @@ def main() -> None:
     input_path = data_clean_dir() / f"{ticker}_regime_analysis.csv"
     output_filename = f"{ticker}_regime_sharpe_chart.png"
     df = load_regime_analysis(input_path)
+    min_trades_required = int(df["min_trades_required"].dropna().iloc[0]) if df["min_trades_required"].notna().any() else 10
 
     metric_pivot_df = (
         df.pivot_table(
@@ -118,7 +122,7 @@ def main() -> None:
     x_positions = np.arange(len(REGIME_ORDER))
     bar_width = min(0.78 / max(len(AGENT_ORDER), 1), 0.23)
 
-    fig, ax = plt.subplots(figsize=DEFAULT_FIGSIZE)
+    fig, ax = plt.subplots(figsize=size_for_categories(len(AGENT_ORDER), height=6.0))
     bar_groups = []
     group_center = (len(AGENT_ORDER) - 1) / 2
 
@@ -140,8 +144,7 @@ def main() -> None:
         for bar, is_reliable in zip(bars, meets_threshold):
             if not is_reliable:
                 bar.set_facecolor("#D9DDE4")
-                bar.set_edgecolor("#8B95A5")
-                bar.set_hatch("//")
+                bar.set_edgecolor("#A1A8B3")
         bar_groups.append((bars, heights, trade_counts, meets_threshold))
 
     ax.set_xticks(x_positions)
@@ -152,21 +155,22 @@ def main() -> None:
         ax,
         title=f"{ticker}: Trade-Level Return Ratio by Strategy and Market Regime",
         x_label="Market Regime",
-        y_label="Trade-Level Return Ratio (unitless)",
+        y_label="Trade-Level Return Ratio (mean/std, Sharpe-like per trade)",
         show_y_grid=True,
         add_legend=False,
     )
-    add_subtitle(
-        ax,
-        "Gray hatched bars are suppressed because the regime cell has fewer than 20 trades.",
-    )
     apply_axis_number_format(ax)
 
+    legend_handles = [
+        Patch(facecolor=AGENT_COLORS[agent_name], edgecolor=BAR_EDGE_COLOR, label=format_agent_name(agent_name))
+        for agent_name in AGENT_ORDER
+    ]
     ax.legend(
+        handles=legend_handles,
         frameon=False,
-        fontsize=10,
+        fontsize=8.4,
         loc="upper center",
-        bbox_to_anchor=(0.5, 1.01),
+        bbox_to_anchor=(0.5, -0.16),
         ncol=min(len(AGENT_ORDER), 3),
         handlelength=1.8,
         borderaxespad=0.0,
@@ -187,31 +191,14 @@ def main() -> None:
     for bars, heights, _, _ in bar_groups:
         emphasize_tiny_bars(ax, bars, heights, min_fraction_of_axis=0.014)
 
-    for bars, heights, trade_counts, meets_threshold in bar_groups:
-        for bar, height, trade_count, is_reliable in zip(bars, heights, trade_counts, meets_threshold):
-            if not is_reliable:
-                ax.text(
-                    bar.get_x() + bar.get_width() / 2,
-                    0.02 if ax.get_ylim()[1] > 0 else ax.get_ylim()[0] * 0.02,
-                    f"n={int(trade_count)}",
-                    ha="center",
-                    va="bottom",
-                    fontsize=8.5,
-                    color="#5B6471",
-                    rotation=90,
-                )
-                continue
-
-            y_position = height + label_offset if height >= 0 else height - label_offset
-            vertical_alignment = "bottom" if height >= 0 else "top"
-            ax.text(
-                bar.get_x() + bar.get_width() / 2,
-                y_position,
-                format_precise_value(float(height)),
-                ha="center",
-                va=vertical_alignment,
-                fontsize=9,
-            )
+    suppressed_cells = int((~threshold_pivot_df.fillna(False).to_numpy(dtype=bool)).sum())
+    add_figure_caption(
+        fig,
+        "Grouped bars compare trade-level return ratio (mean return / return std; "
+        "Sharpe-like per trade, not annualized Sharpe) across calm, neutral, and stressed "
+        "regimes. Light gray bars denote regime cells suppressed for low sample size "
+        f"(fewer than {min_trades_required} trades). Suppressed cells in this figure: {suppressed_cells}.",
+    )
 
     save_chart(fig, output_filename)
     show_chart()

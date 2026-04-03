@@ -1,0 +1,54 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/SPY_monte_carlo_robustness_runs.csv",
+  "canonical_policy": "always",
+  "column_names": [
+    "agent",
+    "outer_run",
+    "seed_used",
+    "actual_cumulative_return",
+    "annualized_return",
+    "annualized_sharpe",
+    "trade_level_return_ratio",
+    "max_drawdown",
+    "median_simulated_return",
+    "mean_simulated_return",
+    "std_simulated_return",
+    "actual_percentile",
+    "p_value",
+    "p_value_prominence",
+    "RCSI",
+    "RCSI_z",
+    "significant_run",
+    "outperform_null_median",
+    "lower_5pct",
+    "upper_95pct",
+    "number_of_trades",
+    "transaction_cost",
+    "simulations_per_run",
+    "null_model",
+    "robustness_scope",
+    "research_grade"
+  ],
+  "created_at_utc": "2026-04-02T23:33:20Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775172790996126356,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/SPY_monte_carlo_summary.csv",
+      "sha256": "1527f80a8752b644c0c0c9dbf86fb9d370e37a8db2c67631ad588b61539f7144",
+      "size_bytes": 4126
+    }
+  ],
+  "parameters": {
+    "outer_runs": 10,
+    "robustness_scope": "monte_carlo_seed_stability_only",
+    "simulations_per_run": 500
+  },
+  "pipeline_profile": "standard",
+  "producer": "monte_carlo_robustness.main",
+  "research_grade": false,
+  "row_count": 110,
+  "run_id": "run_20260402T233246Z_pid64730",
+  "ticker": "SPY",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/SPY_monte_carlo_robustness_runs__run_20260402T233246Z_pid64730.csv"
+}

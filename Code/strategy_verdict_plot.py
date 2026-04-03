@@ -1,4 +1,4 @@
-"""Create a one-page academic skill-vs-luck summary chart for the active ticker."""
+"""Create a one-page Skill vs Luck classification summary chart for the active ticker."""
 
 from __future__ import annotations
 
@@ -11,7 +11,6 @@ import pandas as pd
 
 from plot_config import (
     AGENT_COLORS,
-    ANNOTATION_SIZE,
     BACKGROUND_COLOR,
     GRID_COLOR,
     SPINE_COLOR,
@@ -20,7 +19,7 @@ from plot_config import (
     TABLE_HEADER_SIZE,
     TEXT_COLOR,
     TITLE_SIZE,
-    add_note_box,
+    add_figure_caption,
     format_agent_name,
     save_chart,
     show_chart,
@@ -66,6 +65,14 @@ def cell_center(x0: float, width: float, y0: float, height: float) -> tuple[floa
     return x0 + width / 2, y0 + height / 2
 
 
+def compact_cell_text(text: str, max_chars: int) -> str:
+    """Compact long cell labels to avoid spillover in narrow table columns."""
+    value = str(text).strip()
+    if len(value) <= max_chars:
+        return value
+    return f"{value[: max_chars - 1]}…"
+
+
 def draw_table(ax, verdict_df) -> None:
     """Draw a clean academic summary table."""
     left = 0.03
@@ -73,7 +80,7 @@ def draw_table(ax, verdict_df) -> None:
     width = 0.94
     height = 0.55
 
-    col_widths = [0.16, 0.20, 0.12, 0.11, 0.10, 0.10, 0.10, 0.11]
+    col_widths = [0.18, 0.20, 0.12, 0.10, 0.10, 0.09, 0.09, 0.12]
     x_edges = [left]
     for col_width in col_widths:
         x_edges.append(x_edges[-1] + width * col_width)
@@ -102,7 +109,8 @@ def draw_table(ax, verdict_df) -> None:
         linewidth=0.9,
     )
 
-    headers = ["Strategy", "Evidence", "Verdict", "Confidence", "p-value", "Prom.", "Pctile", "RCSI_z"]
+    headers = ["Strategy", "Classification", "Verdict", "Confidence", "p-value", "Prom.", "Pctile", "RCSI_z"]
+    header_fontsize = min(TABLE_HEADER_SIZE, 8.5)
     for index, header in enumerate(headers):
         x0 = x_edges[index]
         x1 = x_edges[index + 1]
@@ -117,7 +125,7 @@ def draw_table(ax, verdict_df) -> None:
             y_center,
             header,
             transform=ax.transAxes,
-            fontsize=TABLE_HEADER_SIZE,
+            fontsize=header_fontsize,
             fontweight="semibold",
             color=TEXT_COLOR,
             ha="center",
@@ -141,6 +149,10 @@ def draw_table(ax, verdict_df) -> None:
         linewidth=0.9,
     )
 
+    row_count = len(verdict_df)
+    body_fontsize = 7.8 if row_count >= 8 else 8.2
+    compact_fontsize = max(7.0, body_fontsize - 0.5)
+
     for row_index, (_, row) in enumerate(verdict_df.iterrows()):
         y0 = bottom + height - header_height - ((row_index + 1) * row_height)
         row_fill = "#FFFFFF" if row_index % 2 == 0 else "#F8FAFC"
@@ -162,9 +174,9 @@ def draw_table(ax, verdict_df) -> None:
                 linewidth=0.8,
             )
 
-        strategy_text = format_agent_name(str(row["agent"]))
-        evidence_text = str(row["evidence_label"])
-        verdict_text = str(row["verdict_label"])
+        strategy_text = compact_cell_text(format_agent_name(str(row["agent"]), short=True), max_chars=15)
+        evidence_text = compact_cell_text(str(row["evidence_label"]), max_chars=13)
+        verdict_text = compact_cell_text(str(row["verdict_label"]), max_chars=13)
         confidence_text = str(row["confidence_label"])
         p_value_value = pd.to_numeric(pd.Series([row["reference_p_value"]]), errors="coerce").iloc[0]
         p_value_text = format_numeric_or_na(p_value_value, 3)
@@ -207,16 +219,22 @@ def draw_table(ax, verdict_df) -> None:
                 y0=y0,
                 height=row_height,
             )
+            is_text_heavy_column = cell_index in {0, 1, 2}
+            cell_fontsize = compact_fontsize if is_text_heavy_column else body_fontsize
+            if is_text_heavy_column:
+                x_center = x0 + (x1 - x0) * 0.03
+            alignment = "left" if is_text_heavy_column else "center"
             ax.text(
                 x_center,
                 y_center,
                 value,
                 transform=ax.transAxes,
-                fontsize=TABLE_BODY_SIZE,
+                fontsize=cell_fontsize,
                 fontweight=weight,
                 color=color,
-                ha="center",
+                ha=alignment,
                 va="center",
+                linespacing=0.98,
             )
 
 
@@ -225,7 +243,7 @@ def main() -> None:
     output_filename = f"{ticker}_skill_luck_summary.png"
     verdict_df = load_strategy_verdicts(ticker)
 
-    fig, ax = plt.subplots(figsize=(11.0, 6.5))
+    fig, ax = plt.subplots(figsize=(8.6, 6.8))
     fig.patch.set_facecolor(BACKGROUND_COLOR)
     ax.set_facecolor(BACKGROUND_COLOR)
     ax.axis("off")
@@ -233,10 +251,10 @@ def main() -> None:
     ax.text(
         0.03,
         0.955,
-        f"{ticker}: Strategy Evidence and Confidence Overview",
+        f"{ticker}: Skill vs Luck Classification",
         transform=ax.transAxes,
-        fontsize=TITLE_SIZE + 0.7,
-        fontweight="semibold",
+        fontsize=TITLE_SIZE,
+        fontweight="normal",
         color=TEXT_COLOR,
         ha="left",
         va="top",
@@ -244,7 +262,7 @@ def main() -> None:
     ax.text(
         0.03,
         0.905,
-        "Evidence labels use scale-free statistics: p-value, percentile, normalized RCSI, robustness, and stability.",
+        "Classification uses all three metrics together: p-value, percentile, and RCSI_z (distance from randomness).",
         transform=ax.transAxes,
         fontsize=SUBTITLE_SIZE,
         color="#4B5563",
@@ -256,18 +274,14 @@ def main() -> None:
 
     draw_table(ax, verdict_df)
 
-    add_note_box(
-        ax,
+    add_figure_caption(
+        fig,
         (
-            "Interpretation:\n"
-            "Prom. = -log10(p), so larger values indicate rarer outcomes under the null.\n"
-            "Pctile and RCSI_z provide scale-free evidence and are more comparable across tickers.\n"
-            "Benchmark context appears in the comparison table and equity curve rather than this verdict summary."
+            "Green rows indicate stronger evidence of skill, gray indicates Random / Luck, "
+            "red indicates Negative Skill, and orange indicates Suspicious metric disagreement. "
+            "Prom. reports -log10(p), so larger values indicate rarer outcomes under the null. "
+            "Classification uses RCSI_z, p-value, and percentile together."
         ),
-        x=0.03,
-        y=0.05,
-        ha="left",
-        va="bottom",
     )
     save_chart(fig, output_filename)
     show_chart()

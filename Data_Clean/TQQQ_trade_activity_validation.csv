@@ -1,0 +1,7 @@
+ticker,agent,timeframe_label,data_interval,total_trades,signal_count,rejected_signal_count,signal_to_trade_conversion,total_bars,signal_rate_pct,trades_per_month,average_holding_bars,average_holding_days,average_holding_hours,activity_status,activity_warning
+TQQQ,trend_pullback,Daily,1d,92,0,0,0.0,3738,0.0,0.5517733990147784,3.6847826086956523,3.6847826086956523,0.0,underactive,Too few trades for strong statistical power. Consider reviewing thresholds or sample length.
+TQQQ,breakout_volume_momentum,Daily,1d,19,0,0,0.0,3738,0.0,0.12788865546218486,10.263157894736842,10.263157894736842,0.0,underactive,Too few trades for strong statistical power. Consider reviewing thresholds or sample length.
+TQQQ,mean_reversion_vol_filter,Daily,1d,2,0,0,0.0,3738,0.0,12.175,2.0,2.0,0.0,underactive,Too few trades for strong statistical power. Consider reviewing thresholds or sample length.
+TQQQ,momentum_relative_strength,Daily,1d,152,0,0,0.0,3738,0.0,0.8936642843345567,11.276315789473685,11.276315789473685,0.0,acceptable,Trade activity is in a reasonable range for daily research and null-hypothesis testing.
+TQQQ,trend_momentum_verification,Daily,1d,54,54,0,1.0,3738,1.4446227929373996,0.32291257367387033,14.38888888888889,21.12962962962963,507.1111111111111,underactive,Too few trades for strong statistical power. Consider reviewing thresholds or sample length.
+TQQQ,random,Daily,1d,96,0,0,0.0,3738,0.0,0.5599846684553469,9.625,14.010416666666666,0.0,underactive,Too few trades for strong statistical power. Consider reviewing thresholds or sample length.

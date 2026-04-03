@@ -1,0 +1,41 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/NQ=F_uptrend_oversold_reversion_metrics.csv",
+  "canonical_policy": "always",
+  "column_names": [
+    "total_trades",
+    "average_return",
+    "median_return",
+    "win_rate",
+    "std_return",
+    "trade_level_return_ratio",
+    "average_win",
+    "average_loss",
+    "expected_value",
+    "average_holding_period_days",
+    "average_holding_period_hours",
+    "average_holding_bars",
+    "trades_per_month",
+    "stop_loss_exit_rate",
+    "take_profit_exit_rate"
+  ],
+  "created_at_utc": "2026-04-02T22:09:58Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775167791237273019,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/NQ=F_uptrend_oversold_reversion_trades.csv",
+      "sha256": "1c1b80e264f520e9c5b62df5ac26f188eda3f2f56d4d8e2467201a9bf5fd73b8",
+      "size_bytes": 37309
+    }
+  ],
+  "parameters": {
+    "artifact_type": "strategy_metrics"
+  },
+  "pipeline_profile": "standard",
+  "producer": "create_and_save_metrics",
+  "research_grade": true,
+  "row_count": 1,
+  "run_id": "run_20260402T220731Z_pid31473",
+  "ticker": "NQ=F",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/NQ=F_uptrend_oversold_reversion_metrics__run_20260402T220731Z_pid31473.csv"
+}

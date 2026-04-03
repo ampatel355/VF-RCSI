@@ -1,0 +1,37 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/FXI_random_monte_carlo_results.csv",
+  "canonical_policy": "always",
+  "column_names": [
+    "simulation_id",
+    "simulated_cumulative_return"
+  ],
+  "created_at_utc": "2026-04-02T18:22:31Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775063911675687266,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/FXI_random_trades.csv",
+      "sha256": "114ba49ab9d4336a07806f5fbf857d564e8cac1791e247e5021064610e42d675",
+      "size_bytes": 61127
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775154150714698257,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/FXI_regimes.csv",
+      "sha256": "fb91ac122a100b4f43ff4163bc87632051f84b803a3b6896c7986ef6115a6f7d",
+      "size_bytes": 4913080
+    }
+  ],
+  "parameters": {
+    "agent_name": "random",
+    "null_model_type": "timing_null_results",
+    "simulation_count": 5000
+  },
+  "pipeline_profile": "standard",
+  "producer": "monte_carlo.save_simulation_results",
+  "research_grade": true,
+  "row_count": 5000,
+  "run_id": "run_20260402T182221Z_pid90259",
+  "ticker": "FXI",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/FXI_random_monte_carlo_results__run_20260402T182221Z_pid90259.csv"
+}

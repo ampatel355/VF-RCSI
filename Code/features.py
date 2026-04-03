@@ -11,6 +11,7 @@ import pandas as pd
 try:
     from data_loader import main as download_raw_data
     from strategy_config import (
+        ADX_LOOKBACK_DAYS,
         ATR_LOOKBACK_DAYS,
         BOLLINGER_LOOKBACK_DAYS,
         BOLLINGER_STD_MULTIPLIER,
@@ -20,30 +21,44 @@ try:
         BREAKOUT_MOMENTUM_LOOKBACK_DAYS,
         BREAKOUT_MOMENTUM_RETURN_COLUMN,
         BREAKOUT_STOP_LOOKBACK_DAYS,
+        DONCHIAN_BREAKOUT_HIGH_COLUMN,
+        DONCHIAN_BREAKOUT_LOOKBACK_DAYS,
+        DONCHIAN_BREAKOUT_STOP_LOW_COLUMN,
+        DONCHIAN_STOP_LOOKBACK_DAYS,
         MACD_FAST_DAYS,
         MACD_SIGNAL_DAYS,
         MACD_SLOW_DAYS,
+        MA_100_BARS,
+        MA_200_BARS,
+        MA_20_BARS,
+        MA_50_BARS,
         MEAN_REVERSION_ATR_FILTER_LOOKBACK_DAYS,
         MEAN_REVERSION_BB_FILTER_LOOKBACK_DAYS,
         MEAN_REVERSION_STOP_LOOKBACK_DAYS,
         MOMENTUM_LOOKBACK_DAYS,
+        PRICE_STD_LOOKBACK_BARS,
         RELATIVE_STRENGTH_RETURN_COLUMN,
         RSI_LOOKBACK_DAYS,
+        SHORT_RETURN_LOOKBACK_BARS,
+        MEDIUM_RETURN_LOOKBACK_BARS,
         TREND_PULLBACK_STOP_LOOKBACK_DAYS,
         TREND_PULLBACK_STOP_LOW_COLUMN,
         TREND_PULLBACK_TARGET_HIGH_COLUMN,
         TREND_PULLBACK_TARGET_LOOKBACK_DAYS,
-        VOL_MANAGED_TSMOM_ENTRY_LOOKBACK_DAYS,
-        VOL_MANAGED_TSMOM_ENTRY_RETURN_COLUMN,
-        VOL_MANAGED_TSMOM_EXIT_LOOKBACK_DAYS,
-        VOL_MANAGED_TSMOM_EXIT_RETURN_COLUMN,
-        VOL_MANAGED_TSMOM_VOL_COLUMN,
-        VOL_MANAGED_TSMOM_VOL_LOOKBACK_DAYS,
         VOLUME_LOOKBACK_DAYS,
+    )
+    from timeframe_config import (
+        RESEARCH_INTERVAL,
+        RESEARCH_TIMEFRAME_LABEL,
+        infer_bars_per_year,
+        interval_looks_compatible,
+        normalize_timestamp_series,
+        timeframe_output_suffix,
     )
 except ModuleNotFoundError:
     from Code.data_loader import main as download_raw_data
     from Code.strategy_config import (
+        ADX_LOOKBACK_DAYS,
         ATR_LOOKBACK_DAYS,
         BOLLINGER_LOOKBACK_DAYS,
         BOLLINGER_STD_MULTIPLIER,
@@ -53,26 +68,39 @@ except ModuleNotFoundError:
         BREAKOUT_MOMENTUM_LOOKBACK_DAYS,
         BREAKOUT_MOMENTUM_RETURN_COLUMN,
         BREAKOUT_STOP_LOOKBACK_DAYS,
+        DONCHIAN_BREAKOUT_HIGH_COLUMN,
+        DONCHIAN_BREAKOUT_LOOKBACK_DAYS,
+        DONCHIAN_BREAKOUT_STOP_LOW_COLUMN,
+        DONCHIAN_STOP_LOOKBACK_DAYS,
         MACD_FAST_DAYS,
         MACD_SIGNAL_DAYS,
         MACD_SLOW_DAYS,
+        MA_100_BARS,
+        MA_200_BARS,
+        MA_20_BARS,
+        MA_50_BARS,
         MEAN_REVERSION_ATR_FILTER_LOOKBACK_DAYS,
         MEAN_REVERSION_BB_FILTER_LOOKBACK_DAYS,
         MEAN_REVERSION_STOP_LOOKBACK_DAYS,
         MOMENTUM_LOOKBACK_DAYS,
+        PRICE_STD_LOOKBACK_BARS,
         RELATIVE_STRENGTH_RETURN_COLUMN,
         RSI_LOOKBACK_DAYS,
+        SHORT_RETURN_LOOKBACK_BARS,
+        MEDIUM_RETURN_LOOKBACK_BARS,
         TREND_PULLBACK_STOP_LOOKBACK_DAYS,
         TREND_PULLBACK_STOP_LOW_COLUMN,
         TREND_PULLBACK_TARGET_HIGH_COLUMN,
         TREND_PULLBACK_TARGET_LOOKBACK_DAYS,
-        VOL_MANAGED_TSMOM_ENTRY_LOOKBACK_DAYS,
-        VOL_MANAGED_TSMOM_ENTRY_RETURN_COLUMN,
-        VOL_MANAGED_TSMOM_EXIT_LOOKBACK_DAYS,
-        VOL_MANAGED_TSMOM_EXIT_RETURN_COLUMN,
-        VOL_MANAGED_TSMOM_VOL_COLUMN,
-        VOL_MANAGED_TSMOM_VOL_LOOKBACK_DAYS,
         VOLUME_LOOKBACK_DAYS,
+    )
+    from Code.timeframe_config import (
+        RESEARCH_INTERVAL,
+        RESEARCH_TIMEFRAME_LABEL,
+        infer_bars_per_year,
+        interval_looks_compatible,
+        normalize_timestamp_series,
+        timeframe_output_suffix,
     )
 
 
@@ -80,31 +108,32 @@ ticker = os.environ.get("TICKER", "SPY")
 
 
 def resolve_data_raw_dir(project_root: Path) -> Path:
-    """Return the project's raw-data folder, supporting either naming style."""
+    """Return the project's raw-data folder, preferring the uppercase path."""
     lowercase_dir = project_root / "data_raw"
     uppercase_dir = project_root / "Data_Raw"
 
-    if lowercase_dir.exists():
-        return lowercase_dir
     if uppercase_dir.exists():
         return uppercase_dir
+    if lowercase_dir.exists():
+        return lowercase_dir
 
-    lowercase_dir.mkdir(parents=True, exist_ok=True)
-    return lowercase_dir
+    uppercase_dir.mkdir(parents=True, exist_ok=True)
+    return uppercase_dir
 
 
 def resolve_data_clean_dir(project_root: Path) -> Path:
-    """Return the project's clean-data folder, supporting either naming style."""
-    lowercase_dir = project_root / "data_clean"
-    uppercase_dir = project_root / "Data_Clean"
+    """Return the project's clean-data folder, preferring the uppercase path."""
+    suffix = timeframe_output_suffix()
+    lowercase_dir = project_root / f"data_clean{suffix}"
+    uppercase_dir = project_root / f"Data_Clean{suffix}"
 
-    if lowercase_dir.exists():
-        return lowercase_dir
     if uppercase_dir.exists():
         return uppercase_dir
+    if lowercase_dir.exists():
+        return lowercase_dir
 
-    lowercase_dir.mkdir(parents=True, exist_ok=True)
-    return lowercase_dir
+    uppercase_dir.mkdir(parents=True, exist_ok=True)
+    return uppercase_dir
 
 
 def load_raw_prices(input_path: Path, current_ticker: str | None = None) -> pd.DataFrame:
@@ -119,13 +148,30 @@ def load_raw_prices(input_path: Path, current_ticker: str | None = None) -> pd.D
         )
 
     df = pd.read_csv(input_path)
-    df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
+    df["Date"] = normalize_timestamp_series(df["Date"])
     numeric_columns = ["Open", "High", "Low", "Close", "Volume"]
     for column in numeric_columns:
         df[column] = pd.to_numeric(df[column], errors="coerce")
 
+    interval_is_compatible = (
+        df.get("data_interval", pd.Series(dtype="object"))
+        .astype(str)
+        .str.lower()
+        .eq(RESEARCH_INTERVAL)
+        .any()
+        if "data_interval" in df.columns
+        else interval_looks_compatible(df["Date"], RESEARCH_INTERVAL)
+    )
+    if not interval_is_compatible:
+        download_raw_data(current_ticker)
+        df = pd.read_csv(input_path)
+        df["Date"] = normalize_timestamp_series(df["Date"])
+        for column in numeric_columns:
+            df[column] = pd.to_numeric(df[column], errors="coerce")
+
     return (
         df.dropna(subset=["Date", "Open", "High", "Low", "Close"])
+        .drop_duplicates(subset=["Date"], keep="last")
         .sort_values("Date", ascending=True)
         .reset_index(drop=True)
     )
@@ -178,30 +224,90 @@ def calculate_macd(close_series: pd.Series) -> tuple[pd.Series, pd.Series, pd.Se
     return macd_line, signal_line, macd_hist
 
 
+def calculate_adx(df: pd.DataFrame, lookback_days: int) -> tuple[pd.Series, pd.Series, pd.Series]:
+    """Calculate the standard Wilder ADX, +DI, and -DI indicator set."""
+    high_diff = df["High"].diff()
+    low_diff = -df["Low"].diff()
+
+    plus_dm = pd.Series(
+        np.where(
+            (high_diff > low_diff) & (high_diff > 0),
+            high_diff,
+            0.0,
+        ),
+        index=df.index,
+        dtype=float,
+    )
+    minus_dm = pd.Series(
+        np.where(
+            (low_diff > high_diff) & (low_diff > 0),
+            low_diff,
+            0.0,
+        ),
+        index=df.index,
+        dtype=float,
+    )
+
+    atr = calculate_atr(df, lookback_days)
+    plus_dm_smoothed = plus_dm.ewm(
+        alpha=1 / lookback_days,
+        adjust=False,
+        min_periods=lookback_days,
+    ).mean()
+    minus_dm_smoothed = minus_dm.ewm(
+        alpha=1 / lookback_days,
+        adjust=False,
+        min_periods=lookback_days,
+    ).mean()
+
+    plus_di = 100.0 * (plus_dm_smoothed / atr.replace(0.0, np.nan))
+    minus_di = 100.0 * (minus_dm_smoothed / atr.replace(0.0, np.nan))
+    dx = 100.0 * (
+        (plus_di - minus_di).abs()
+        / (plus_di + minus_di).replace(0.0, np.nan)
+    )
+    adx = dx.ewm(
+        alpha=1 / lookback_days,
+        adjust=False,
+        min_periods=lookback_days,
+    ).mean()
+    return adx, plus_di, minus_di
+
+
 def build_feature_dataframe(raw_df: pd.DataFrame) -> pd.DataFrame:
-    """Add the full feature set used by the upgraded strategies."""
+    """Add the full feature set used by the active strategy stack."""
     df = raw_df.copy()
     df = df.sort_values("Date", ascending=True).reset_index(drop=True)
+    bars_per_year = infer_bars_per_year(df["Date"])
+    df["timeframe_label"] = RESEARCH_TIMEFRAME_LABEL
+    df["data_interval"] = RESEARCH_INTERVAL
 
-    # Daily percentage return from close-to-close movement.
-    df["daily_return"] = df["Close"].pct_change()
+    # One-bar percentage return from close-to-close movement. We keep the
+    # legacy daily_return alias so the rest of the pipeline can migrate without
+    # breaking every downstream file at once.
+    df["bar_return"] = df["Close"].pct_change()
+    df["daily_return"] = df["bar_return"]
 
-    # Moving averages form the backbone of the trend and mean-reversion rules.
-    df["ma_20"] = df["Close"].rolling(window=20).mean()
-    df["ma_50"] = df["Close"].rolling(window=50).mean()
-    df["ma_100"] = df["Close"].rolling(window=100).mean()
-    df["ma_200"] = df["Close"].rolling(window=200).mean()
+    # Use the standard chartist moving-average set:
+    # - 20 EMA for faster pullback guidance
+    # - 20 SMA for Bollinger Bands
+    # - 50 / 100 / 200 SMA for broader trend structure
+    df["ema_20"] = df["Close"].ewm(span=MA_20_BARS, adjust=False, min_periods=MA_20_BARS).mean()
+    df["sma_20"] = df["Close"].rolling(window=MA_20_BARS).mean()
+    df["sma_50"] = df["Close"].rolling(window=MA_50_BARS).mean()
+    df["sma_100"] = df["Close"].rolling(window=MA_100_BARS).mean()
+    df["sma_200"] = df["Close"].rolling(window=MA_200_BARS).mean()
 
-    # Rolling volatility from close-to-close returns.
-    df["std_20"] = df["daily_return"].rolling(window=20).std(ddof=0)
-    df["price_std_20"] = df["Close"].rolling(window=20).std(ddof=0)
-    # Volatility-managed trend following needs an annualized realized-vol
-    # estimate. We use recent close-to-close volatility because it is observable
-    # at the end of the day and easy to align with next-open execution.
-    df[VOL_MANAGED_TSMOM_VOL_COLUMN] = (
-        df["daily_return"].rolling(window=VOL_MANAGED_TSMOM_VOL_LOOKBACK_DAYS).std(ddof=0)
-        * np.sqrt(252.0)
-    )
+    # Legacy aliases are preserved so existing downstream files and plots keep
+    # working, but they now map to the standard indicator types above.
+    df["ma_20"] = df["ema_20"]
+    df["ma_50"] = df["sma_50"]
+    df["ma_100"] = df["sma_100"]
+    df["ma_200"] = df["sma_200"]
+
+    # Rolling volatility from close-to-close bar returns.
+    df["std_20"] = df["bar_return"].rolling(window=PRICE_STD_LOOKBACK_BARS).std(ddof=0)
+    df["price_std_20"] = df["Close"].rolling(window=PRICE_STD_LOOKBACK_BARS).std(ddof=0)
 
     # Average volume helps the breakout strategy separate broad participation
     # from weak price pops on thin trading activity.
@@ -215,14 +321,18 @@ def build_feature_dataframe(raw_df: pd.DataFrame) -> pd.DataFrame:
     # RSI captures the balance between recent up-closes and down-closes.
     df["rsi_14"] = calculate_rsi(df["Close"], RSI_LOOKBACK_DAYS)
 
-    # ATR is a daily-data proxy for realized trading range and short-term noise.
+    # ATR is a bar-based proxy for realized trading range and short-term noise.
     df["true_range"] = calculate_true_range(df)
     df["atr_14"] = calculate_atr(df, ATR_LOOKBACK_DAYS)
     df["atr_percent"] = np.where(df["Close"] > 0, df["atr_14"] / df["Close"], np.nan)
 
+    # ADX and directional indicators are standard tools for separating trend
+    # environments from ranging environments.
+    df["adx_14"], df["plus_di_14"], df["minus_di_14"] = calculate_adx(df, ADX_LOOKBACK_DAYS)
+
     # Bollinger Bands define the mean-reversion extremes and the band width acts
     # as a volatility expansion / contraction filter.
-    df["bollinger_mid"] = df["Close"].rolling(window=BOLLINGER_LOOKBACK_DAYS).mean()
+    df["bollinger_mid"] = df["sma_20"]
     df["bollinger_std"] = df["Close"].rolling(window=BOLLINGER_LOOKBACK_DAYS).std(ddof=0)
     df["bollinger_upper"] = df["bollinger_mid"] + (BOLLINGER_STD_MULTIPLIER * df["bollinger_std"])
     df["bollinger_lower"] = df["bollinger_mid"] - (BOLLINGER_STD_MULTIPLIER * df["bollinger_std"])
@@ -236,7 +346,7 @@ def build_feature_dataframe(raw_df: pd.DataFrame) -> pd.DataFrame:
     df["macd_line"], df["macd_signal"], df["macd_hist"] = calculate_macd(df["Close"])
 
     # Rolling highs and lows are always shifted by one bar for signal thresholds.
-    # That keeps the signal grounded in information known before the next trade.
+    # That keeps each signal grounded in information known before the next trade.
     df[f"rolling_high_{BREAKOUT_LOOKBACK_DAYS}_prev"] = (
         df["High"].rolling(window=BREAKOUT_LOOKBACK_DAYS).max().shift(1)
     )
@@ -253,22 +363,33 @@ def build_feature_dataframe(raw_df: pd.DataFrame) -> pd.DataFrame:
         df["Low"].rolling(window=MEAN_REVERSION_STOP_LOOKBACK_DAYS).min().shift(1)
     )
 
+    # Donchian channel columns for the Donchian Trend Reentry strategy.
+    # Only create if the lookback differs from an already-created column.
+    donchian_high_col = f"rolling_high_{DONCHIAN_BREAKOUT_LOOKBACK_DAYS}_prev"
+    if donchian_high_col not in df.columns:
+        df[donchian_high_col] = (
+            df["High"].rolling(window=DONCHIAN_BREAKOUT_LOOKBACK_DAYS).max().shift(1)
+        )
+    donchian_low_col = f"rolling_low_{DONCHIAN_STOP_LOOKBACK_DAYS}_prev"
+    if donchian_low_col not in df.columns:
+        df[donchian_low_col] = (
+            df["Low"].rolling(window=DONCHIAN_STOP_LOOKBACK_DAYS).min().shift(1)
+        )
+
     # Trailing return windows support both breakout confirmation and cross-asset
     # relative-strength ranking.
     df[BREAKOUT_MOMENTUM_RETURN_COLUMN] = (
         df["Close"] / df["Close"].shift(BREAKOUT_MOMENTUM_LOOKBACK_DAYS)
     ) - 1.0
-    df[VOL_MANAGED_TSMOM_ENTRY_RETURN_COLUMN] = (
-        df["Close"] / df["Close"].shift(VOL_MANAGED_TSMOM_ENTRY_LOOKBACK_DAYS)
-    ) - 1.0
-    df[VOL_MANAGED_TSMOM_EXIT_RETURN_COLUMN] = (
-        df["Close"] / df["Close"].shift(VOL_MANAGED_TSMOM_EXIT_LOOKBACK_DAYS)
-    ) - 1.0
     df[RELATIVE_STRENGTH_RETURN_COLUMN] = (
         df["Close"] / df["Close"].shift(MOMENTUM_LOOKBACK_DAYS)
     ) - 1.0
-    df["trailing_return_5"] = (df["Close"] / df["Close"].shift(5)) - 1.0
-    df["trailing_return_20"] = (df["Close"] / df["Close"].shift(20)) - 1.0
+    df["trailing_return_5"] = (
+        df["Close"] / df["Close"].shift(SHORT_RETURN_LOOKBACK_BARS)
+    ) - 1.0
+    df["trailing_return_20"] = (
+        df["Close"] / df["Close"].shift(MEDIUM_RETURN_LOOKBACK_BARS)
+    ) - 1.0
 
     # Legacy aliases are kept so the rest of the project can continue to load
     # shared names without caring which strategy uses them.
@@ -297,7 +418,7 @@ def build_feature_dataframe(raw_df: pd.DataFrame) -> pd.DataFrame:
 
     # Trend distance features make it easier to express "calm, non-trending"
     # environments for the mean-reversion strategy.
-    df["distance_from_ma_20"] = np.where(df["ma_20"] > 0, (df["Close"] / df["ma_20"]) - 1.0, np.nan)
+    df["distance_from_ma_20"] = np.where(df["ema_20"] > 0, (df["Close"] / df["ema_20"]) - 1.0, np.nan)
     df["distance_from_ma_50"] = np.where(df["ma_50"] > 0, (df["Close"] / df["ma_50"]) - 1.0, np.nan)
     df["ma_50_over_ma_200"] = np.where(df["ma_200"] > 0, (df["ma_50"] / df["ma_200"]) - 1.0, np.nan)
 
@@ -305,9 +426,11 @@ def build_feature_dataframe(raw_df: pd.DataFrame) -> pd.DataFrame:
     # know how to display or analyze it.
     df["zscore_20"] = np.where(
         df["price_std_20"] > 0,
-        (df["Close"] - df["ma_20"]) / df["price_std_20"],
+        (df["Close"] - df["sma_20"]) / df["price_std_20"],
         np.nan,
     )
+
+    df["bars_per_year"] = bars_per_year
 
     # The first rows cannot support the longest lookbacks, so we drop them only
     # after every feature has been created.

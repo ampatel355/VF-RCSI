@@ -1,0 +1,38 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/1d/BTC-USD_uptrend_oversold_reversion_monte_carlo_results.csv",
+  "canonical_policy": "always",
+  "canonical_updated": true,
+  "column_names": [
+    "simulation_id",
+    "simulated_cumulative_return"
+  ],
+  "created_at_utc": "2026-04-02T22:52:00Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775170306568614947,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/1d/BTC-USD_uptrend_oversold_reversion_trades.csv",
+      "sha256": "3f535f6b5ebef43270a67d78a263434c8104fe2b933af044bda229234bfb54a0",
+      "size_bytes": 18752
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775170300319707373,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/1d/BTC-USD_regimes.csv",
+      "sha256": "bd473241df56c821f8cedf4d2fd88cb0f9811aba84cf6f49544b00db267aea6b",
+      "size_bytes": 3724676
+    }
+  ],
+  "parameters": {
+    "agent_name": "uptrend_oversold_reversion",
+    "null_model_type": "timing_null_results",
+    "simulation_count": 2000
+  },
+  "pipeline_profile": "standard",
+  "producer": "monte_carlo.save_simulation_results",
+  "research_grade": false,
+  "row_count": 2000,
+  "run_id": "run_20260402T224910Z_pid51173",
+  "ticker": "BTC-USD",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/1d/BTC-USD_uptrend_oversold_reversion_monte_carlo_results__run_20260402T224910Z_pid51173.csv"
+}

@@ -7,9 +7,16 @@ import numpy as np
 import pandas as pd
 
 try:
+    from artifact_provenance import write_dataframe_artifact
     from strategy_config import AGENT_ORDER
 except ModuleNotFoundError:
+    from Code.artifact_provenance import write_dataframe_artifact
     from Code.strategy_config import AGENT_ORDER
+
+try:
+    from timeframe_config import timeframe_output_suffix
+except ModuleNotFoundError:
+    from Code.timeframe_config import timeframe_output_suffix
 
 # Read the active ticker from the environment, or fall back to SPY.
 ticker = os.environ.get("TICKER", "SPY")
@@ -17,8 +24,9 @@ ticker = os.environ.get("TICKER", "SPY")
 
 def resolve_data_clean_dir(project_root: Path) -> Path:
     """Return the clean-data folder, supporting either naming style."""
-    uppercase_dir = project_root / "Data_Clean"
-    lowercase_dir = project_root / "data_clean"
+    suffix = timeframe_output_suffix()
+    uppercase_dir = project_root / f"Data_Clean{suffix}"
+    lowercase_dir = project_root / f"data_clean{suffix}"
 
     if uppercase_dir.exists():
         return uppercase_dir
@@ -104,11 +112,15 @@ def main() -> None:
 
     df = load_summary_data(input_path)
 
-    # RCSI compares the actual observed cumulative return with the median
-    # return from the Monte Carlo distribution.
-    df["RCSI"] = df["actual_cumulative_return"] - df["median_simulated_return"]
+    # RCSI and RCSI_z both use the mean of the null distribution so that
+    # RCSI_z is the standardized form of RCSI.  This was corrected from
+    # using median — see monte_carlo_robustness.py lines 291-293 for the
+    # rationale.  Using different central tendencies (median for RCSI, mean
+    # for RCSI_z) made interpretation ambiguous and could cause the raw RCSI
+    # and the z-score to disagree about the direction of edge.
+    df["RCSI"] = df["actual_cumulative_return"] - df["mean_simulated_return"]
 
-    # RCSI_z standardizes the gap using the Monte Carlo mean and standard deviation.
+    # RCSI_z standardizes the gap against the mean of the null distribution.
     df["RCSI_z"] = np.where(
         df["std_simulated_return"] > 0,
         (df["actual_cumulative_return"] - df["mean_simulated_return"])
@@ -132,9 +144,29 @@ def main() -> None:
             "RCSI_z",
         ]
     ].copy()
+    if "simulation_count" in df.columns:
+        output_df["simulation_count"] = pd.to_numeric(df["simulation_count"], errors="coerce")
+    if "bh_adjusted_p_value" in df.columns:
+        output_df["bh_adjusted_p_value"] = pd.to_numeric(df["bh_adjusted_p_value"], errors="coerce")
+    if "research_grade" in df.columns:
+        output_df["research_grade"] = df["research_grade"].astype(bool)
 
     output_df = output_df.sort_values("RCSI", ascending=False).reset_index(drop=True)
-    output_df.to_csv(output_path, index=False)
+    write_dataframe_artifact(
+        output_df,
+        output_path,
+        producer="rcsi.main",
+        current_ticker=ticker,
+        dependencies=[input_path],
+        research_grade=bool(
+            pd.to_numeric(df.get("simulation_count", pd.Series([0])), errors="coerce").fillna(0).min()
+            >= 5000
+        ),
+        canonical_policy="always",
+        parameters={
+            "artifact_type": "rcsi_summary",
+        },
+    )
 
     print(output_df.to_string(index=False))
 

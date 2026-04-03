@@ -1,0 +1,84 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/HEI_monte_carlo_summary.csv",
+  "canonical_policy": "always",
+  "column_names": [
+    "agent",
+    "actual_cumulative_return",
+    "median_simulated_return",
+    "mean_simulated_return",
+    "std_simulated_return",
+    "actual_percentile",
+    "p_value",
+    "p_value_prominence",
+    "p_value_interpretation",
+    "lower_5pct",
+    "upper_95pct",
+    "number_of_trades",
+    "transaction_cost",
+    "execution_cost_model",
+    "simulation_count",
+    "research_grade",
+    "reproducible",
+    "seed_used",
+    "null_model",
+    "bh_adjusted_p_value"
+  ],
+  "created_at_utc": "2026-04-02T02:56:37Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775098571522900261,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/HEI_regimes.csv",
+      "sha256": "8de046852b45d8258bfafd18ec5e583354b4784e31d91dcf55f7e79a81a3b946",
+      "size_bytes": 4732150
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775098592453862937,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/HEI_trend_pullback_monte_carlo_results.csv",
+      "sha256": "0922cc1059609df88748f4414b04ca8bd8a45f8703393562fc47468cbc544cc7",
+      "size_bytes": 12204
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775098592503043665,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/HEI_breakout_volume_momentum_monte_carlo_results.csv",
+      "sha256": "73672fd810b0dd92dcde8eada89a93c8f20c47eb967f5fb5fa20dcd6690808c1",
+      "size_bytes": 12151
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775098592548020003,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/HEI_mean_reversion_vol_filter_monte_carlo_results.csv",
+      "sha256": "a4e5561be2eb7069276f4aaf0dfd56e8ecd9ff20cf6c8ea8b89732a24c7975e0",
+      "size_bytes": 12458
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775098597170499418,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/HEI_momentum_relative_strength_monte_carlo_results.csv",
+      "sha256": "e18e62c5290a4ee0202635238902668c93c0d0174a5ebaee6c6e4197d87dced1",
+      "size_bytes": 11392
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775098597253872568,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/HEI_random_monte_carlo_results.csv",
+      "sha256": "a98c40473abdc9a8fed97e406dc9f79d361b07a98ba194f9a7dc65bf29f2ce0e",
+      "size_bytes": 12055
+    }
+  ],
+  "parameters": {
+    "context_bucket_count": 5,
+    "context_matching_enabled": false,
+    "simulate_execution_costs": true,
+    "simulation_count": 500
+  },
+  "pipeline_profile": "standard",
+  "producer": "monte_carlo.main",
+  "research_grade": false,
+  "row_count": 5,
+  "run_id": "run_20260402T025605Z_pid28132",
+  "ticker": "HEI",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/HEI_monte_carlo_summary__run_20260402T025605Z_pid28132.csv"
+}

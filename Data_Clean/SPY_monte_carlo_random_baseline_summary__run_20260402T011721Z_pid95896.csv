@@ -1,0 +1,2 @@
+ticker,random_baseline_runs,random_baseline_simulations,mean_percentile,median_percentile,mean_p_value,false_positive_rate_p_le_0_05,random_luck_rate,weak_skill_rate,moderate_or_strong_skill_rate
+SPY,30,1000,63.3999333999334,94.55544455544455,0.366999666999667,0.4666666666666667,0.3,0.03333333333333333,0.43333333333333335

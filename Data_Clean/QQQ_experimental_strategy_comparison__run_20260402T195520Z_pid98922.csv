@@ -1,0 +1,4 @@
+agent,strategy_name,number_of_trades,actual_cumulative_return,RCSI,RCSI_z,p_value,adjusted_p_value,actual_percentile,final_classification,classification_bucket,null_model,simulation_count
+uptrend_oversold_reversion,Uptrend Oversold Reversion,74,0.1533061925141911,0.04992387460149629,0.2046280603000834,0.3772455089820359,0.840319361277445,62.4750499001996,random / luck,random_luck,structure_preserving_random_timing,500
+adx_trend_following,ADX Trend Following,112,0.8506960250099492,-0.36476191687140236,-0.33376079463956626,0.562874251497006,0.840319361277445,43.91217564870259,random / luck,random_luck,structure_preserving_random_timing,500
+volatility_squeeze_breakout,Volatility Squeeze Breakout,21,-0.1375746550297455,-0.21479115534274543,-1.0118218998737736,0.8403193612774451,0.840319361277445,16.16766467065868,negative skill,negative_skill,structure_preserving_random_timing,500

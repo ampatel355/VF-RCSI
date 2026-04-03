@@ -1,0 +1,32 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/classifier_calibration_strategy_audit.csv",
+  "canonical_policy": "auto",
+  "column_names": [
+    "ticker",
+    "agent",
+    "reference_p_value",
+    "reference_rcsi",
+    "reference_rcsi_z",
+    "reference_percentile",
+    "legacy_evidence_bucket",
+    "recalibrated_evidence_bucket",
+    "verdict_label",
+    "final_classification"
+  ],
+  "created_at_utc": "2026-04-02T01:31:54Z",
+  "dependencies": [],
+  "parameters": {
+    "audit_tickers": [
+      "SPY",
+      "QQQ",
+      "BTC-USD"
+    ]
+  },
+  "pipeline_profile": "standard",
+  "producer": "classifier_calibration_audit.main",
+  "research_grade": true,
+  "row_count": 15,
+  "run_id": "run_20260402T013154Z_pid8498",
+  "ticker": "",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/classifier_calibration_strategy_audit__run_20260402T013154Z_pid8498.csv"
+}

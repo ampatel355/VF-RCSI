@@ -1,0 +1,38 @@
+{
+  "artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/VOO_trend_pullback_monte_carlo_results.csv",
+  "canonical_policy": "always",
+  "canonical_updated": true,
+  "column_names": [
+    "simulation_id",
+    "simulated_cumulative_return"
+  ],
+  "created_at_utc": "2026-04-02T21:04:37Z",
+  "dependencies": [
+    {
+      "exists": true,
+      "modified_time_ns": 1775163861650972259,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/VOO_trend_pullback_trades.csv",
+      "sha256": "4a9faaf26ec9ddd13475128a59a6d4c8b7be9bc242344082f0d8946a7539ccb0",
+      "size_bytes": 29840
+    },
+    {
+      "exists": true,
+      "modified_time_ns": 1775163860341867737,
+      "path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/VOO_regimes.csv",
+      "sha256": "b9024a781d22823b8e8757cd005957639d431843112e6f9d29ec1477e8489694",
+      "size_bytes": 3571841
+    }
+  ],
+  "parameters": {
+    "agent_name": "trend_pullback",
+    "null_model_type": "timing_null_results",
+    "simulation_count": 2000
+  },
+  "pipeline_profile": "standard",
+  "producer": "monte_carlo.save_simulation_results",
+  "research_grade": false,
+  "row_count": 2000,
+  "run_id": "run_20260402T210417Z_pid13752",
+  "ticker": "VOO",
+  "versioned_artifact_path": "/Users/aryanpatel/Downloads/Virtu_Fortuna_Project/Data_Clean/VOO_trend_pullback_monte_carlo_results__run_20260402T210417Z_pid13752.csv"
+}

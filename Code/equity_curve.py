@@ -6,7 +6,7 @@ from plot_config import (
     AGENT_COLORS,
     DEFAULT_FIGSIZE,
     ZERO_LINE_COLOR,
-    add_note_box,
+    add_figure_caption,
     apply_axis_number_format,
     apply_clean_style,
     charts_dir,
@@ -29,6 +29,7 @@ try:
     )
     from strategy_config import AGENT_ORDER, BENCHMARK_NAME
     from strategy_curve_utils import load_saved_strategy_curve
+    from timeframe_config import RESEARCH_TIMEFRAME_LABEL, normalize_timestamp_series
 except ModuleNotFoundError:
     from Code.buy_and_hold import BUY_HOLD_TRANSACTION_COST
     from Code.monte_carlo import load_market_data, load_trade_data as load_trade_log
@@ -39,6 +40,7 @@ except ModuleNotFoundError:
     )
     from Code.strategy_config import AGENT_ORDER, BENCHMARK_NAME
     from Code.strategy_curve_utils import load_saved_strategy_curve
+    from Code.timeframe_config import RESEARCH_TIMEFRAME_LABEL, normalize_timestamp_series
 
 
 # Read the active ticker from the environment, or fall back to SPY.
@@ -57,7 +59,7 @@ def load_market_curve_data() -> pd.DataFrame:
     market_path = data_clean_dir() / f"{ticker}_regimes.csv"
     market_df = load_market_data(market_path)
     close_df = load_csv_checked(market_path, required_columns=["Date", "Close"])
-    close_df["Date"] = pd.to_datetime(close_df["Date"], errors="coerce")
+    close_df["Date"] = normalize_timestamp_series(close_df["Date"])
     close_df["Close"] = pd.to_numeric(close_df["Close"], errors="coerce")
     close_df = close_df.dropna(subset=["Date", "Close"]).sort_values("Date").reset_index(drop=True)
     return market_df[["Date", "Open"]].merge(close_df, on="Date", how="inner")
@@ -86,24 +88,25 @@ def load_all_curves() -> dict[str, pd.DataFrame]:
 
 
 def build_summary_text(curves: dict[str, pd.DataFrame]) -> str:
-    """Build a compact note showing the final result for each strategy."""
-    summary_lines = ["Daily curves mark open positions to market using close prices. Buy and Hold is a passive benchmark."]
+    """Build a compact caption summarizing the equity-curve panel."""
+    strategy_summaries = []
 
     for agent_name in STRATEGY_ORDER:
         curve_df = curves[agent_name]
         curve_summary = summarize_daily_curve(curve_df)
         final_return = float(curve_summary["cumulative_return"])
-        summary_lines.append(
-            f"{format_agent_name(agent_name)}: {final_return:.6f}"
-        )
+        strategy_summaries.append(f"{format_agent_name(agent_name)} {final_return:.3f}")
 
     start_date = min(curve_df["Date"].iloc[0] for curve_df in curves.values())
     end_date = max(curve_df["Date"].iloc[-1] for curve_df in curves.values())
-    summary_lines.append(
-        f"Date span: {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}"
-    )
 
-    return "\n".join(summary_lines)
+    return (
+        f"{RESEARCH_TIMEFRAME_LABEL} curves mark open positions to market using close prices. "
+        f"Buy and Hold is the passive benchmark. Final cumulative returns: "
+        f"{'; '.join(strategy_summaries)}. "
+        f"Sample window: {start_date.strftime('%Y-%m-%d %H:%M')} to "
+        f"{end_date.strftime('%Y-%m-%d %H:%M')}."
+    )
 
 
 def remove_stale_equity_charts() -> None:
@@ -137,14 +140,6 @@ def main() -> None:
             label=format_agent_name(agent_name),
         )
 
-        ax.scatter(
-            x_values.iloc[-1],
-            y_values.iloc[-1],
-            color=AGENT_COLORS[agent_name],
-            s=26,
-            zorder=3,
-        )
-
         y_min = min(y_min, float(y_values.min()))
         y_max = max(y_max, float(y_values.max()))
 
@@ -152,13 +147,15 @@ def main() -> None:
 
     apply_clean_style(
         ax,
-        title=f"{ticker}: Daily Equity Curves by Strategy and Benchmark",
-        x_label="Date",
+        title=f"{ticker}: Equity Curves by Strategy and Benchmark",
+        x_label=f"Timestamp ({RESEARCH_TIMEFRAME_LABEL})",
         y_label="Cumulative Return (decimal, where 1.0 = 100%)",
         show_y_grid=True,
         add_legend=True,
-        legend_location="upper left",
-        legend_ncol=2,
+        legend_location="upper center",
+        legend_ncol=3,
+        legend_outside=True,
+        legend_bbox_to_anchor=(0.5, -0.16),
     )
     apply_axis_number_format(ax)
 
@@ -169,14 +166,7 @@ def main() -> None:
         max(y_max + y_padding, y_padding * 0.25),
     )
 
-    add_note_box(
-        ax,
-        build_summary_text(curves),
-        x=0.98,
-        y=0.05,
-        ha="right",
-        va="bottom",
-    )
+    add_figure_caption(fig, build_summary_text(curves))
 
     save_chart(fig, output_filename)
     show_chart()

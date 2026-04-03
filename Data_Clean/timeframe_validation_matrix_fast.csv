@@ -1,0 +1,10 @@
+ticker,timeframe,success,error,comparison_exists,rows
+SPY,1d,True,,True,12
+SPY,4h,True,,True,12
+SPY,1h,True,,True,12
+QQQ,1d,True,,True,12
+QQQ,4h,True,,True,12
+QQQ,1h,True,,True,12
+BTC-USD,1d,True,,True,12
+BTC-USD,4h,True,,True,12
+BTC-USD,1h,True,,True,12

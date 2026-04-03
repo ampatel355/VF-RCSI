@@ -1,7 +1,8 @@
-"""Shared academic styling helpers for all project charts."""
+"""Shared professional styling helpers for all project charts."""
 
 import os
 from pathlib import Path
+import textwrap
 import warnings
 
 
@@ -23,76 +24,82 @@ import pandas as pd
 
 try:
     from strategy_config import AGENT_COLORS, AGENT_DISPLAY_NAMES, AGENT_ORDER, format_strategy_name
+    from timeframe_config import RESEARCH_TIMEFRAME_LABEL, timeframe_title_suffix
 except ModuleNotFoundError:
     from Code.strategy_config import AGENT_COLORS, AGENT_DISPLAY_NAMES, AGENT_ORDER, format_strategy_name
+    from Code.timeframe_config import RESEARCH_TIMEFRAME_LABEL, timeframe_title_suffix
 
 
 # The master pipeline can turn off interactive popups while charts are being built.
 show_plots = os.environ.get("SHOW_PLOTS", "1") == "1"
+save_outputs = os.environ.get("SAVE_OUTPUTS", "0") == "1"
 
-# Use an academic serif theme inspired by paper figures.
-ACADEMIC_SERIF_FONTS = [
-    "Times New Roman",
-    "Times",
-    "Nimbus Roman",
-    "Liberation Serif",
-    "DejaVu Serif",
-    "serif",
+# Use a clean technical sans-serif style for better screen readability.
+TECHNICAL_SANS_FONTS = [
+    "DejaVu Sans",
+    "Arial",
+    "Helvetica",
+    "Liberation Sans",
+    "sans-serif",
 ]
 
 mpl.rcParams.update(
     {
-        "font.family": "serif",
-        "font.serif": ACADEMIC_SERIF_FONTS,
+        "font.family": "sans-serif",
+        "font.sans-serif": TECHNICAL_SANS_FONTS,
         "figure.facecolor": "#FFFFFF",
         "axes.facecolor": "#FFFFFF",
         "savefig.facecolor": "#FFFFFF",
         "text.color": "#222222",
         "axes.labelcolor": "#222222",
-        "axes.edgecolor": "#4B5563",
-        "axes.linewidth": 0.8,
+        "axes.edgecolor": "#2E2E2E",
+        "axes.linewidth": 1.0,
         "xtick.color": "#222222",
         "ytick.color": "#222222",
-        "grid.color": "#D4D9E1",
+        "grid.color": "#C9D2DC",
         "grid.linewidth": 0.7,
-        "grid.alpha": 0.65,
-        "axes.titlepad": 10,
+        "grid.alpha": 0.5,
+        "axes.titlepad": 8,
     }
 )
 
 
 # Shared figure sizing and text scale.
-DEFAULT_FIGSIZE = (10, 6)
-TITLE_SIZE = 14.5
-SUBTITLE_SIZE = 9.25
-LABEL_SIZE = 12
-TICK_SIZE = 10.5
-LEGEND_SIZE = 10
-ANNOTATION_SIZE = 9.5
-TABLE_HEADER_SIZE = 10.5
-TABLE_BODY_SIZE = 10
+#
+# We keep figures closer to square because the user wants paper-style visuals
+# rather than stretched dashboard panels.
+DEFAULT_FIGSIZE = (7.2, 7.2)
+TITLE_SIZE = 12.4
+SUBTITLE_SIZE = 8.6
+LABEL_SIZE = 10.4
+TICK_SIZE = 9.0
+LEGEND_SIZE = 8.4
+ANNOTATION_SIZE = 8.6
+TABLE_HEADER_SIZE = 9.5
+TABLE_BODY_SIZE = 9.0
 
-# Paper-style muted color theme.
+# Professional high-contrast defaults.
 REGIME_ORDER = ["calm", "neutral", "stressed"]
 REGIME_DISPLAY_NAMES = ["Calm", "Neutral", "Stressed"]
 
-ACTUAL_LINE_COLOR = "#A23B49"
-MEDIAN_LINE_COLOR = "#2F2F2F"
-ZERO_LINE_COLOR = "#6B7280"
-GRID_COLOR = "#D7DBE2"
+ACTUAL_LINE_COLOR = "#D62728"
+MEDIAN_LINE_COLOR = "#1F77B4"
+ZERO_LINE_COLOR = "#4F4F4F"
+GRID_COLOR = "#CCD5DF"
 TEXT_COLOR = "#222222"
-SPINE_COLOR = "#4B5563"
+SPINE_COLOR = "#2E2E2E"
 BACKGROUND_COLOR = "#FFFFFF"
 NOTE_BOX_FACE_COLOR = "#FFFFFF"
-BAR_EDGE_COLOR = "#454C56"
+BAR_EDGE_COLOR = "#2E2E2E"
+CAPTION_COLOR = "#3C4A59"
 
 # Diverging palette for heatmaps.
 HEATMAP_COLORS = [
-    "#3F5D7D",
-    "#7193B0",
-    "#DADADA",
-    "#D6A36B",
-    "#A55A4A",
+    "#2166AC",
+    "#67A9CF",
+    "#F7F7F7",
+    "#EF8A62",
+    "#B2182B",
 ]
 
 
@@ -129,6 +136,40 @@ def charts_dir() -> Path:
 def format_agent_name(agent_name: str, short: bool = True) -> str:
     """Convert an internal agent name into a cleaner label for charts and UI text."""
     return format_strategy_name(agent_name, short=short)
+
+
+def size_for_categories(
+    count: int,
+    *,
+    min_width: float = 6.8,
+    max_width: float = 8.6,
+    height: float = 7.2,
+    width_per_category: float = 0.44,
+) -> tuple[float, float]:
+    """Return a compact square-ish size for bar charts with many categories.
+
+    The helper caps width so the figure remains paper-like instead of becoming
+    an extremely wide dashboard panel.
+    """
+    width = min(max(min_width, 4.9 + count * width_per_category), max_width)
+    side = max(width, height)
+    return (side, side)
+
+
+def size_for_heatmap(
+    row_count: int,
+    column_count: int,
+    *,
+    min_width: float = 7.0,
+    max_width: float = 8.8,
+    min_height: float = 7.0,
+    max_height: float = 8.8,
+) -> tuple[float, float]:
+    """Return a balanced square-ish heatmap size that stays readable in print."""
+    width = min(max(min_width, 4.8 + column_count * 0.65), max_width)
+    height = min(max(min_height, 3.8 + row_count * 0.48), max_height)
+    side = max(width, height)
+    return (side, side)
 
 
 def apply_categorical_tick_labels(
@@ -198,12 +239,12 @@ def lighten_color(color: str, amount: float = 0.35) -> str:
 
 def histogram_color(agent_name: str) -> str:
     """Return a lighter histogram color for one strategy."""
-    return lighten_color(AGENT_COLORS.get(agent_name, "#355C7D"), amount=0.48)
+    return lighten_color(AGENT_COLORS.get(agent_name, "#355C7D"), amount=0.22)
 
 
 def fill_color(agent_name: str) -> str:
     """Return a lighter fill color for equity-curve shading."""
-    return lighten_color(AGENT_COLORS.get(agent_name, "#355C7D"), amount=0.68)
+    return lighten_color(AGENT_COLORS.get(agent_name, "#355C7D"), amount=0.55)
 
 
 def apply_bar_style(bars, linewidth: float = 0.6) -> None:
@@ -296,18 +337,23 @@ def apply_clean_style(
     y_label: str,
     show_y_grid: bool = True,
     add_legend: bool = False,
-    legend_location: str = "best",
+    legend_location: str = "upper center",
     legend_ncol: int = 1,
+    legend_outside: bool = False,
+    legend_bbox_to_anchor: tuple[float, float] | None = None,
 ) -> None:
     """Apply one consistent academic style to a matplotlib axis."""
+    full_title = title
+    if timeframe_title_suffix() not in full_title:
+        full_title = f"{title} {timeframe_title_suffix()}"
     ax.set_facecolor(BACKGROUND_COLOR)
     ax.figure.set_facecolor(BACKGROUND_COLOR)
     ax.set_title(
-        title,
+        full_title,
         fontsize=TITLE_SIZE,
-        fontweight="semibold",
+        fontweight="normal",
         color=TEXT_COLOR,
-        y=1.035,
+        y=1.02,
         pad=0,
     )
     ax.title.set_wrap(True)
@@ -317,7 +363,7 @@ def apply_clean_style(
     ax.yaxis.set_major_locator(MaxNLocator(nbins=7))
 
     if show_y_grid:
-        ax.grid(axis="y", linestyle="--", linewidth=0.7, alpha=0.65, color=GRID_COLOR)
+        ax.grid(axis="y", linestyle="-", linewidth=0.5, alpha=0.35, color=GRID_COLOR)
         ax.set_axisbelow(True)
 
     ax.spines["top"].set_visible(False)
@@ -330,6 +376,8 @@ def apply_clean_style(
     if add_legend:
         handles, labels = ax.get_legend_handles_labels()
         if handles:
+            if legend_outside and legend_bbox_to_anchor is None:
+                legend_bbox_to_anchor = (0.5, -0.18)
             ax.legend(
                 handles,
                 labels,
@@ -339,6 +387,8 @@ def apply_clean_style(
                 ncol=legend_ncol,
                 handlelength=1.8,
                 borderaxespad=0.4,
+                bbox_to_anchor=legend_bbox_to_anchor,
+                columnspacing=1.0,
             )
 
 
@@ -350,37 +400,48 @@ def add_note_box(
     ha: str = "left",
     va: str = "top",
 ) -> None:
-    """Add a small paper-style annotation box inside a chart."""
-    ax.text(
-        x,
-        y,
-        text,
-        transform=ax.transAxes,
-        fontsize=ANNOTATION_SIZE,
-        ha=ha,
-        va=va,
-        color=TEXT_COLOR,
-        zorder=6,
-        bbox={
-            "facecolor": NOTE_BOX_FACE_COLOR,
-            "alpha": 0.96,
-            "edgecolor": GRID_COLOR,
-            "boxstyle": "square,pad=0.30",
-        },
-    )
+    """Backward-compatible helper that now routes notes below the figure.
+
+    The project used to place boxed text on top of the chart area. We keep the
+    helper name to avoid breaking older scripts, but the visual treatment is now
+    a clean caption below the figure instead of an overlay.
+    """
+    add_figure_caption(ax.figure, text)
 
 
 def add_subtitle(ax, text: str) -> None:
     """Add a small subtitle-like note just below the title."""
     ax.text(
         0.5,
-        1.005,
+        1.002,
         text,
         transform=ax.transAxes,
         fontsize=SUBTITLE_SIZE,
         ha="center",
         va="bottom",
-        color="#4B5563",
+        color=CAPTION_COLOR,
+    )
+
+
+def add_figure_caption(
+    fig,
+    text: str,
+    *,
+    y: float = 0.02,
+    x: float = 0.02,
+    width: int = 118,
+) -> None:
+    """Add a compact caption below a chart instead of inside the plot area."""
+    wrapped_text = textwrap.fill(" ".join(str(text).split()), width=width)
+    setattr(fig, "_has_chart_caption", True)
+    fig.text(
+        x,
+        y,
+        wrapped_text,
+        fontsize=SUBTITLE_SIZE,
+        color=CAPTION_COLOR,
+        ha="left",
+        va="bottom",
     )
 
 
@@ -403,7 +464,7 @@ def create_placeholder_chart(
         title,
         transform=ax.transAxes,
         fontsize=TITLE_SIZE,
-        fontweight="semibold",
+        fontweight="normal",
         color=TEXT_COLOR,
         ha="center",
         va="center",
@@ -439,21 +500,41 @@ def create_placeholder_chart(
 
 
 def save_chart(fig, filename: str) -> Path:
-    """Save a chart with consistent publication-ready export settings."""
+    """Save a chart when output persistence is enabled.
+
+    By default the research runner now shows figures during interactive runs
+    without writing hundreds of PNG files to disk. Saving is opt-in through
+    SAVE_OUTPUTS=1.
+    """
     output_path = charts_dir() / filename
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    caption_present = bool(getattr(fig, "_has_chart_caption", False))
+    bottom_margin = 0.15 if caption_present else 0.09
+
+    for axis in fig.axes:
+        if hasattr(axis, "set_anchor"):
+            axis.set_anchor("C")
+
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", UserWarning)
-        fig.tight_layout(rect=(0.02, 0.03, 0.98, 0.93), pad=1.25)
-    fig.savefig(output_path, dpi=300, bbox_inches="tight", facecolor=fig.get_facecolor())
+        # Keep content centered and reserve only the needed caption space.
+        fig.tight_layout(rect=(0.07, bottom_margin, 0.97, 0.95), pad=1.0)
+    if save_outputs:
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        fig.savefig(output_path, dpi=300, facecolor=fig.get_facecolor())
     return output_path
 
 
 def show_chart() -> None:
-    """Display the figure without blocking the rest of the pipeline."""
+    """Display the figure for interactive runs.
+
+    These plot scripts run as short-lived subprocesses inside the workflow
+    runner. A non-blocking ``plt.show(block=False)`` returns immediately and the
+    subprocess exits, which closes the window before the user can see it. Using
+    the default blocking show keeps the figure open until the user closes it,
+    which is the expected behavior for an interactive research run.
+    """
     if not show_plots:
         plt.close("all")
         return
 
-    plt.show(block=False)
-    plt.pause(0.1)
+    plt.show()

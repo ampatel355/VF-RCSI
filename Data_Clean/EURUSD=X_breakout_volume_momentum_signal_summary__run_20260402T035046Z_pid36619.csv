@@ -1,0 +1,2 @@
+ticker,agent,timeframe_label,data_interval,signal_count,executed_trade_count,rejected_signal_count,months_covered
+EURUSD=X,breakout_volume_momentum,1H,1h,100,100,0,32.81998631074607

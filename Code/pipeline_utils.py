@@ -1,4 +1,4 @@
-"""Shared helpers for paths, chart saving, and chart opening."""
+"""Shared helpers for paths and optional figure output."""
 
 from pathlib import Path
 import os
@@ -7,14 +7,17 @@ import sys
 
 try:
     from strategy_config import AGENT_ORDER
+    from timeframe_config import timeframe_output_suffix
 except ModuleNotFoundError:
     from Code.strategy_config import AGENT_ORDER
+    from Code.timeframe_config import timeframe_output_suffix
 
 # Every script can read the active ticker from the same environment variable.
 ticker = os.environ.get("TICKER", "SPY")
 
-# When SHOW_PLOTS is 0, scripts save figures without opening interactive windows.
+# SHOW_PLOTS controls whether matplotlib figures are displayed interactively.
 show_plots = os.environ.get("SHOW_PLOTS", "1") == "1"
+save_outputs = os.environ.get("SAVE_OUTPUTS", "0") == "1"
 
 
 def project_root() -> Path:
@@ -28,33 +31,50 @@ def code_dir() -> Path:
 
 
 def resolve_named_dir(lowercase_name: str, uppercase_name: str) -> Path:
-    """Return a project folder, supporting either lower- or upper-case naming."""
+    """Return the canonical project folder, preferring the uppercase location.
+
+    The repo standardized on ``Data_Clean``, ``Data_Raw``, and ``Charts``.
+    Older lowercase variants may still exist from previous runs, but mixing
+    them can make the app and the pipeline disagree about which artifacts are
+    current.
+    """
     root = project_root()
     lowercase_dir = root / lowercase_name
     uppercase_dir = root / uppercase_name
 
-    if lowercase_dir.exists():
-        return lowercase_dir
     if uppercase_dir.exists():
         return uppercase_dir
+    if lowercase_dir.exists():
+        return lowercase_dir
 
-    lowercase_dir.mkdir(parents=True, exist_ok=True)
-    return lowercase_dir
+    uppercase_dir.mkdir(parents=True, exist_ok=True)
+    return uppercase_dir
 
 
 def data_raw_dir() -> Path:
-    """Return the raw-data folder."""
+    """Return the raw-data folder.
+
+    Raw data is shared across timeframes (downloads are interval-stamped) so
+    no timeframe suffix is applied here.
+    """
     return resolve_named_dir("data_raw", "Data_Raw")
 
 
 def data_clean_dir() -> Path:
-    """Return the clean-data folder."""
-    return resolve_named_dir("data_clean", "Data_Clean")
+    """Return the clean-data folder for the active timeframe.
+
+    On daily data (the default) this returns ``Data_Clean`` for backward
+    compatibility.  On other timeframes it returns e.g. ``Data_Clean_1h``
+    so artifacts from different intervals never collide.
+    """
+    suffix = timeframe_output_suffix()
+    return resolve_named_dir(f"data_clean{suffix}", f"Data_Clean{suffix}")
 
 
 def charts_dir() -> Path:
-    """Return the charts folder."""
-    return resolve_named_dir("charts", "Charts")
+    """Return the charts folder for the active timeframe."""
+    suffix = timeframe_output_suffix()
+    return resolve_named_dir(f"charts{suffix}", f"Charts{suffix}")
 
 
 def raw_prices_path(current_ticker: str | None = None) -> Path:
@@ -85,12 +105,6 @@ def metrics_path(agent_name: str, current_ticker: str | None = None) -> Path:
     """Return the path to the metrics CSV for one agent and ticker."""
     current_ticker = current_ticker or ticker
     return data_clean_dir() / f"{current_ticker}_{agent_name}_metrics.csv"
-
-
-def agent_comparison_path(current_ticker: str | None = None) -> Path:
-    """Return the path to the combined agent-comparison CSV."""
-    current_ticker = current_ticker or ticker
-    return data_clean_dir() / f"{current_ticker}_agent_comparison.csv"
 
 
 def regime_analysis_path(current_ticker: str | None = None) -> Path:
@@ -129,13 +143,18 @@ def ticker_chart_path(filename: str, current_ticker: str | None = None) -> Path:
 
 
 def save_figure(fig, filename: str, current_ticker: str | None = None) -> tuple[Path, Path]:
-    """Save both the legacy chart name and a ticker-labeled chart name."""
+    """Optionally save both the legacy chart name and ticker-labeled chart name.
+
+    The simplified research workflow does not persist chart files unless
+    SAVE_OUTPUTS=1 is explicitly enabled.
+    """
     generic_path = chart_path(filename)
     labeled_path = ticker_chart_path(filename, current_ticker)
 
-    generic_path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(generic_path, dpi=300, bbox_inches="tight")
-    fig.savefig(labeled_path, dpi=300, bbox_inches="tight")
+    if save_outputs:
+        generic_path.parent.mkdir(parents=True, exist_ok=True)
+        fig.savefig(generic_path, dpi=300, bbox_inches="tight")
+        fig.savefig(labeled_path, dpi=300, bbox_inches="tight")
 
     return generic_path, labeled_path
 

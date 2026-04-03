@@ -1,0 +1,2 @@
+ticker,agent,timeframe_label,data_interval,signal_count,executed_trade_count,rejected_signal_count,months_covered
+TSM,breakout_volume_momentum,Daily,1d,116,116,0,323.088295687885

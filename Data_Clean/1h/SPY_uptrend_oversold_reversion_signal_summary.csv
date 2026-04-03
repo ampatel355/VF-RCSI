@@ -1,0 +1,2 @@
+ticker,agent,timeframe_label,data_interval,signal_count,executed_trade_count,rejected_signal_count,months_covered
+SPY,uptrend_oversold_reversion,1-Hour,1h,15,15,0,15.048596851471595
